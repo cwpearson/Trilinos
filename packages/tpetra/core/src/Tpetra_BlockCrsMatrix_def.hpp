@@ -37,6 +37,7 @@
 // ************************************************************************
 // @HEADER
 
+// clang-format off
 #ifndef TPETRA_BLOCKCRSMATRIX_DEF_HPP
 #define TPETRA_BLOCKCRSMATRIX_DEF_HPP
 
@@ -53,6 +54,8 @@
 #ifdef HAVE_TPETRA_DEBUG
 #  include <set>
 #endif // HAVE_TPETRA_DEBUG
+
+#include "KokkosSparse.hpp"
 
 //
 // mfh 25 May 2016: Temporary fix for #393.
@@ -85,7 +88,6 @@
 #    define TPETRA_BLOCKCRSMATRIX_APPLY_USE_LAMBDA 1
 #  endif // ! defined(TPETRA_BLOCKCRSMATRIX_APPLY_USE_LAMBDA)
 #endif // defined(__CUDACC__), defined(__GNUC__)
-
 
 namespace Tpetra {
 
@@ -125,6 +127,8 @@ namespace Impl {
     KOKKOS_INLINE_FUNCTION value_type& reference() { return *value; }
     KOKKOS_INLINE_FUNCTION result_view_type view() const { return result_view_type(value); }
   };
+
+  
 
   template<class AlphaCoeffType,
            class GraphType,
@@ -173,6 +177,7 @@ namespace Impl {
     /// time.
     void setX (const InVecType& X) { X_ = X; }
 
+
     /// \brief Set the current vector / current column of the output
     ///   (multi)vector Y to use.
     ///
@@ -208,6 +213,7 @@ namespace Impl {
     {
       Kokkos::abort("Tpetra::BcrsApplyNoTransFunctor:: this should not be called");
     }
+
 
     // Range Policy for non built-in types
     KOKKOS_INLINE_FUNCTION void
@@ -408,7 +414,7 @@ namespace Impl {
                              });
       }
       member.team_barrier();
-      
+
       if (alpha_ != ArithTraits<alpha_coeff_type>::zero ()) {
         const offset_type blkBeg = ptr_[lclRow];
         const offset_type blkEnd = ptr_[lclRow+1];
@@ -423,7 +429,7 @@ namespace Impl {
             const offset_type X_blkCol = ind_[absBlkOff];
             const offset_type X_ptBeg = X_blkCol * blockSize_;
             X_cur.assign_data(&X_(X_ptBeg));
-            
+
             Kokkos::parallel_for
               (Kokkos::ThreadVectorRange(member, blockSize_),
                [&](const local_ordinal_type &k0) {
@@ -495,7 +501,7 @@ namespace Impl {
     typedef typename Kokkos::ArithTraits<typename std::decay<AlphaCoeffType>::type>::val_type alpha_type;
     typedef typename Kokkos::ArithTraits<typename std::decay<BetaCoeffType>::type>::val_type beta_type;
     typedef typename std::remove_const<typename GraphType::data_type>::type LO;
-    
+
     constexpr bool is_builtin_type_enabled = std::is_arithmetic<typename InMultiVecType::non_const_value_type>::value;
     constexpr bool is_host_memory_space = std::is_same<memory_space,Kokkos::HostSpace>::value;
     constexpr bool use_team_policy = (is_builtin_type_enabled && !is_host_memory_space);
@@ -549,7 +555,7 @@ namespace Impl {
         policy = policy_type(numLocalMeshRows, 1, 1);
       }
       Kokkos::parallel_for (policy, functor);
-      
+
       // Compute the remaining columns of Y.
       for (LO j = 1; j < numVecs; ++j) {
         auto X_j = Kokkos::subview (X_in, Kokkos::ALL (), j);
@@ -570,7 +576,9 @@ namespace Impl {
         Kokkos::parallel_for (policy, functor);
       }
     }
-  }
+  }  
+
+
 } // namespace Impl
 
 namespace { // (anonymous)
@@ -1576,7 +1584,7 @@ public:
                           const Scalar beta)
   {
     using ::Tpetra::Impl::bcrsLocalApplyNoTrans;
-
+    
     const impl_scalar_type alpha_impl = alpha;
     const auto graph = this->graph_.getLocalGraphDevice ();
     const impl_scalar_type beta_impl = beta;
@@ -1590,9 +1598,17 @@ public:
     auto X_lcl = X_mv.getLocalViewDevice (Access::ReadOnly);
     auto Y_lcl = Y_mv.getLocalViewDevice (Access::ReadWrite);
     auto val = val_.getDeviceView(Access::ReadWrite);
-    
+
+#if 1
     bcrsLocalApplyNoTrans (alpha_impl, graph, val, blockSize, X_lcl,
                            beta_impl, Y_lcl);
+#else
+    // clang-format on
+    auto A_lcl = getLocalMatrixDevice();
+    KokkosSparse::spmv(KokkosSparse::NoTranspose, alpha_impl, A_lcl, X_lcl, beta,
+                      Y_lcl);
+    // clang-format off
+#endif
   }
 
   template<class Scalar, class LO, class GO, class Node>
