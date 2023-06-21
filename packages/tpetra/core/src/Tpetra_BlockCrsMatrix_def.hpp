@@ -41,6 +41,8 @@
 #ifndef TPETRA_BLOCKCRSMATRIX_DEF_HPP
 #define TPETRA_BLOCKCRSMATRIX_DEF_HPP
 
+#define USE_TPETRA_BSRMV
+
 /// \file Tpetra_BlockCrsMatrix_def.hpp
 /// \brief Definition of Tpetra::BlockCrsMatrix
 
@@ -577,8 +579,6 @@ namespace Impl {
       }
     }
   }  
-
-
 } // namespace Impl
 
 namespace { // (anonymous)
@@ -1584,7 +1584,7 @@ public:
                           const Scalar beta)
   {
     using ::Tpetra::Impl::bcrsLocalApplyNoTrans;
-    
+
     const impl_scalar_type alpha_impl = alpha;
     const auto graph = this->graph_.getLocalGraphDevice ();
     const impl_scalar_type beta_impl = beta;
@@ -1599,7 +1599,7 @@ public:
     auto Y_lcl = Y_mv.getLocalViewDevice (Access::ReadWrite);
     auto val = val_.getDeviceView(Access::ReadWrite);
 
-#if 1
+#if defined(USE_TPETRA_BSRMV)
     bcrsLocalApplyNoTrans (alpha_impl, graph, val, blockSize, X_lcl,
                            beta_impl, Y_lcl);
 #else
