@@ -41,7 +41,8 @@
 #ifndef TPETRA_BLOCKCRSMATRIX_DEF_HPP
 #define TPETRA_BLOCKCRSMATRIX_DEF_HPP
 
-#define USE_TPETRA_BSRMV
+// #define USE_TPETRA_BSRMV
+#define USE_KK_BSRMV
 
 /// \file Tpetra_BlockCrsMatrix_def.hpp
 /// \brief Definition of Tpetra::BlockCrsMatrix
@@ -1602,12 +1603,16 @@ public:
 #if defined(USE_TPETRA_BSRMV)
     bcrsLocalApplyNoTrans (alpha_impl, graph, val, blockSize, X_lcl,
                            beta_impl, Y_lcl);
-#else
+#elif defined(USE_KK_BSRMV)
     // clang-format on
     auto A_lcl = getLocalMatrixDevice();
-    KokkosSparse::spmv(KokkosSparse::NoTranspose, alpha_impl, A_lcl, X_lcl, beta,
+    KokkosKernels::Experimental::Controls controls;
+    controls.setParameter("algorithm", "modified_app");
+    KokkosSparse::spmv(controls, KokkosSparse::NoTranspose, alpha_impl, A_lcl, X_lcl, beta,
                       Y_lcl);
     // clang-format off
+#else
+#error please define USE_TPETRA_BSRMV or USE_KK_BSRMV
 #endif
   }
 
