@@ -310,6 +310,7 @@ main (int argc, char* argv[])
   RCP<Time> totalTime;
   RCP<Teuchos::TimeMonitor> totalTimeMon;
   RCP<Time> precSetupTime = Teuchos::TimeMonitor::getNewTimer ("Preconditioner setup");
+  RCP<Time> applyTime = Teuchos::TimeMonitor::getNewTimer("apply");
   RCP<Time> solveTime = Teuchos::TimeMonitor::getNewTimer ("Solve");
   if(!args.useStackedTimer)
   {
@@ -562,6 +563,14 @@ main (int argc, char* argv[])
   {
     RCP<MV> temp = rcp(new MV(Ablock->getRangeMap(),1));
     Ablock->apply(*X,*temp);
+  }
+
+  comm->barrier();
+  {
+    Teuchos::TimeMonitor applyTimeMon (*applyTime);
+    for (int i = 0; i < 100; ++i) {
+      Ablock->apply(*X, *temp);
+    }
   }
 
   // Create Ifpack2 preconditioner.
