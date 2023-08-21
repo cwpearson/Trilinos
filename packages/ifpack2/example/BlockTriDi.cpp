@@ -566,10 +566,11 @@ main (int argc, char* argv[])
   }
 
   {
-    Teuchos::TimeMonitor applyTimeMon (*applyTime);
-  comm->barrier();
+    RCP<MV> temp = rcp(new MV(Ablock->getRangeMap(),1));
+    Ablock->apply(*X,*temp);
+    comm->barrier();
     {
-      RCP<MV> temp = rcp(new MV(Ablock->getRangeMap(),1));
+      Teuchos::TimeMonitor applyTimeMon (*applyTime);
       for (int i = 0; i < 100; ++i) {
         Ablock->apply(*X, *temp);
       }
