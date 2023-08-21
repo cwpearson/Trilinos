@@ -565,11 +565,14 @@ main (int argc, char* argv[])
     Ablock->apply(*X,*temp);
   }
 
-  comm->barrier();
   {
     Teuchos::TimeMonitor applyTimeMon (*applyTime);
-    for (int i = 0; i < 100; ++i) {
-      Ablock->apply(*X, *temp);
+  comm->barrier();
+    {
+      RCP<MV> temp = rcp(new MV(Ablock->getRangeMap(),1));
+      for (int i = 0; i < 100; ++i) {
+        Ablock->apply(*X, *temp);
+      }
     }
   }
 
