@@ -55,7 +55,7 @@ namespace Details {
     size_t count_same=0;
     size_t count_different=0;
     bool count_active=false;
-       
+
     void kokkosp_begin_deep_copy(Kokkos::Tools::SpaceHandle dst_handle, const char* dst_name, const void* dst_ptr,                                 
                                  Kokkos::Tools::SpaceHandle src_handle, const char* src_name, const void* src_ptr,
                                  uint64_t size) {
@@ -114,7 +114,7 @@ namespace Details {
       if(count_active) {
         using namespace Kokkos::Tools::Experimental;
         ExecutionSpaceIdentifier eid = identifier_from_devid(deviceId);
-        
+
         // Figure out what count bin to stick this in
         int idx = (int) eid.type;
         if(eid.instance_id == Impl::int_for_synchronization_reason(SpecialSynchronizationCases::GlobalDeviceSynchronization))
@@ -139,7 +139,7 @@ namespace Details {
       else if (i_type == DeviceType::SYCL)         device_label="SYCL";
       else if (i_type == DeviceType::OpenACC)      device_label="OpenACC";
       else if (i_type == DeviceType::Unknown)      device_label="Unknown";
-      
+
       return device_label;
     }
 
@@ -156,7 +156,7 @@ namespace Details {
   }// end FenceCounterDetails
 
 
-  
+
 
   void FenceCounter::start() {
     if(!FenceCounterDetails::is_initialized) 
@@ -169,7 +169,7 @@ namespace Details {
     FenceCounterDetails::count_instance.assign(FenceCounterDetails::num_devices,0);
     FenceCounterDetails::count_global.assign(FenceCounterDetails::num_devices,0);
   }
-  
+
   void FenceCounter::stop() {
     FenceCounterDetails::count_active=false;
   }

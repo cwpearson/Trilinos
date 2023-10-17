@@ -194,7 +194,7 @@ namespace { // (anonymous)
     out << "OutputValueType: " << outputValueName << std::endl
         << "InputValueType: " << inputValueName << std::endl;
     Teuchos::OSTab tab1 (out);
-    
+
     testRank1CopyConvert<OutputValueType, OutputArrayLayout, OutputDeviceType,
                          InputValueType, InputArrayLayout, InputDeviceType>
       (success, out);

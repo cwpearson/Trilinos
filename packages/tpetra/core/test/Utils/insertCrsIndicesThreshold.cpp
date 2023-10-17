@@ -170,7 +170,7 @@ int main(int narg, char **arg)
         nInserted_LS =
           insert_crs_indices_linearsearch(curInd_LS, num_assigned, newInd_LS);
       }
-      
+
       // Insert entries using unordered_map
       size_t nInserted_T;
       {

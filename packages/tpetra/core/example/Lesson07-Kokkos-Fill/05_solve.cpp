@@ -449,7 +449,7 @@ int main (int argc, char* argv[]) {
 int main (int argc, char* argv[]) {
   using std::cout;
   using std::endl;
-  
+
   cout << "This lesson was not compiled because Kokkos" << endl
     "was not configured with lambda support for all backends." << endl
     "Tricking CTest into perceiving success anyways:" << endl

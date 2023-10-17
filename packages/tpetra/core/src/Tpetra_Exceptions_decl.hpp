@@ -86,10 +86,10 @@ public:
   InvalidGlobalIndex (const std::string& msg, const GlobalOrdinal globalIndex)
     : std::domain_error (msg), glInd_ (globalIndex) 
     {}
-  
+
   //! The offending global index.
   GlobalOrdinal offendingIndex () const { return glInd_; }
-  
+
 private:
   //! The offending global index.
   const GlobalOrdinal glInd_; 

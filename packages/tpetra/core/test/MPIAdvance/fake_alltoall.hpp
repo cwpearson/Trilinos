@@ -63,7 +63,7 @@ inline void Fake_Alltoall(const void *sendbuf, int sendcount,
 
   auto rb = reinterpret_cast<char *>(recvbuf);
   auto sb = reinterpret_cast<const char *>(sendbuf);
-  
+
   // get sizes for indexing into sb / rb
   int sendsize, recvsize;
   MPI_Type_size(sendtype, &sendsize);

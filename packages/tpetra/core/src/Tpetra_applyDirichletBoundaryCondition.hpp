@@ -90,7 +90,7 @@ applyDirichletBoundaryConditionToLocalMatrixRows
  const Kokkos::View<
  typename CrsMatrixType::local_ordinal_type*,
  typename CrsMatrixType::device_type>& lclRowInds);
-  
+
 /// \brief For all k in <tt>[0, lclRowInds.extent(0))</tt>, set local
 ///   row <tt>lclRowInds[k]</tt> of A to have 1 on the diagonal and 0
 ///   elsewhere.  Run on host, using the default host execution space
@@ -205,7 +205,7 @@ struct ApplyDirichletBoundaryConditionToLocalMatrixRows {
        std::invalid_argument, "The matrix must have been either created "
        "with a KokkosSparse::CrsMatrix, or must have been fill-completed "
        "at least once.");
-    
+
     auto lclRowMap = A.getRowMap ()->getLocalMap ();
     auto lclColMap = A.getColMap ()->getLocalMap ();
     auto rowptr = A_lcl.graph.row_map;
@@ -295,7 +295,7 @@ struct ApplyDirichletBoundaryConditionToLocalMatrixColumns {
        std::invalid_argument, "The matrix must have been either created "
        "with a KokkosSparse::CrsMatrix, or must have been fill-completed "
        "at least once.");
-    
+
     auto lclRowMap = A.getRowMap()->getLocalMap ();
     auto lclColMap = A.getColMap()->getLocalMap ();
     auto rowptr = A_lcl.graph.row_map;
@@ -349,7 +349,7 @@ void localRowsToColumns(const typename ::Tpetra::CrsMatrix<SC, LO, GO, NT>::exec
 
   // Need a colMap
   TEUCHOS_TEST_FOR_EXCEPTION(A.getColMap().get () == nullptr, std::invalid_argument,"The matrix must have a column Map.");
-  
+
   // NOTE: We assume that the RowMap and DomainMap of the matrix match.
   // This could get relaxed at a later date, if we need that functionality
   TEUCHOS_TEST_FOR_EXCEPTION(!A.getRowMap()->isSameAs(*A.getDomainMap()),std::invalid_argument, "localRowsToColumns: Row/Domain maps do not match");
@@ -502,7 +502,7 @@ applyDirichletBoundaryConditionToLocalMatrixRowsAndColumns
   using memory_space = typename crs_matrix_type::device_type::memory_space;
 
   TEUCHOS_TEST_FOR_EXCEPTION(A.getColMap().get () == nullptr, std::invalid_argument,"The matrix must have a column Map.");
-  
+
   // Copy the Host array to device
   auto lclRowInds_d = Kokkos::create_mirror_view_and_copy(execution_space(),lclRowInds);
 
@@ -531,7 +531,7 @@ applyDirichletBoundaryConditionToLocalMatrixRowsAndColumns
   using memory_space = typename crs_matrix_type::device_type::memory_space;
 
   TEUCHOS_TEST_FOR_EXCEPTION(A.getColMap().get () == nullptr, std::invalid_argument,"The matrix must have a column Map.");
-  
+
   Kokkos::View<bool*,memory_space> dirichletColFlags("dirichletColFlags",A.getColMap()->getLocalNumElements());
   Kokkos::View<bool*, Kokkos::AnonymousSpace> dirichletColFlags_a(dirichletColFlags);
   Details::localRowsToColumns<SC,LO,GO,NT>(execution_space(),A,lclRowInds_d,dirichletColFlags_a);
@@ -559,7 +559,7 @@ applyDirichletBoundaryConditionToLocalMatrixRowsAndColumns
   using memory_space = typename crs_matrix_type::device_type::memory_space;
 
   TEUCHOS_TEST_FOR_EXCEPTION(A.getColMap().get () == nullptr, std::invalid_argument,"The matrix must have a column Map.");
-  
+
   Kokkos::View<bool*,memory_space> dirichletColFlags("dirichletColFlags",A.getColMap()->getLocalNumElements());
   Kokkos::View<bool*, Kokkos::AnonymousSpace> dirichletColFlags_a(dirichletColFlags);
   Details::localRowsToColumns<SC,LO,GO,NT>(execSpace,A,lclRowInds_d,dirichletColFlags_a);

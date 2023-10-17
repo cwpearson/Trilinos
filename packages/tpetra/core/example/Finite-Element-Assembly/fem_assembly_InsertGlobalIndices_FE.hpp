@@ -278,7 +278,7 @@ int executeInsertGlobalIndicesFESP_(const Teuchos::RCP<const Teuchos::Comm<int> 
 	   ++element_node_idx) {
 	global_ordinal_type global_row_id =
 	  owned_element_to_node_ids(element_gidx, element_node_idx);
-	
+
 	for(size_t col_idx=0; col_idx<4; col_idx++) {
 	  column_scalar_values[col_idx] = element_matrix(element_node_idx, col_idx);
 	}
@@ -480,7 +480,7 @@ int executeInsertGlobalIndicesFESPKokkos_(const Teuchos::RCP<const Teuchos::Comm
   auto localMatrix  = fe_matrix->getLocalMatrixDevice();
   auto localMap     = owned_plus_shared_map->getLocalMap();
   auto localColMap  = fe_matrix->getColMap()->getLocalMap();
- 
+
   pair_type alln = pair_type(0,nperel);
   scalar_2d_array_type all_element_matrix("all_element_matrix",nperel*numOwnedElements);
   scalar_1d_array_type all_element_rhs("all_element_rhs",nperel*numOwnedElements);
@@ -520,7 +520,7 @@ int executeInsertGlobalIndicesFESPKokkos_(const Teuchos::RCP<const Teuchos::Comm
           element_lcids(element_node_idx) =
             localColMap.getLocalElement (owned_element_to_node_ids (element_gidx, element_node_idx));
         }
-        
+
         // For each node (row) on the current element:
         // - populate the values array
         // - add the values to the fe_matrix.

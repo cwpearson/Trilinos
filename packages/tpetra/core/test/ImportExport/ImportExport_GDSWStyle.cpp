@@ -277,7 +277,7 @@ createLaplace1D (const Teuchos::RCP<const Tpetra::Map<LocalOrdinalType, GlobalOr
       A->insertGlobalValues (globalRow, ind.view (0, 3), val.view (0, 3));
     }
   }
-  
+
   A->fillComplete (rowMap, rowMap);
 #endif
   return A;
@@ -439,7 +439,7 @@ RCP<crs_matrix_type> Filter(const RCP<crs_matrix_type> & A,const RCP<const map_t
     }   
   }
   B->fillComplete(rowMap,rowMap);
-  
+
   return B;
 }
 
@@ -648,9 +648,9 @@ RCP<crs_matrix_type> Filter(const RCP<crs_matrix_type> & A,const RCP<const map_t
       std::string xmlOut = XML.reportWatchrXML("memory","KB","GDSW Memory " + std::to_string(comm->getSize()) + " ranks",names,memory,comm);
       if(xmlOut.size() != 0)
       out<<"XML output in: "<<xmlOut<<std::endl;
-      
+
     }
-                          
+
   }
 
 }// anonymous namespace
@@ -671,7 +671,7 @@ int main(int narg, char *arg[])
   using NT = Tpetra::Map<>::node_type;
 
 
-  
+
   Teuchos::CommandLineProcessor cmdp(false,true);
   int run_case = -1; cmdp.setOption("case", &run_case, "Which case to run");
   bool watchr_output = false;  cmdp.setOption("watchr-output","no-watchr-output", &watchr_output, "Output memory data for watchr");

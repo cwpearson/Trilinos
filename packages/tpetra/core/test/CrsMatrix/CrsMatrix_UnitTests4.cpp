@@ -537,8 +537,8 @@ inline void tupleToArray(Array<T> &arr, const tuple &tup)
     TEST_NOTHROW( eye2->expertStaticFillComplete(map,map) );
     TEST_EQUALITY(eye2->getGlobalNumEntries()  , numImages*numLocal);
     TEST_EQUALITY(eye2->getLocalNumEntries()      , numLocal);
-    
-    
+
+
 
     // test the properties
     TEST_EQUALITY(eye->getGlobalNumEntries()  , numImages*numLocal);
@@ -907,7 +907,7 @@ inline void tupleToArray(Array<T> &arr, const tuple &tup)
         }
       }
     }    
-    
+
     // Scale some vectors
     Tpetra::Details::inverseScaleBlockDiagonal(*diag2,false,*toScale2);
     Tpetra::Details::inverseScaleBlockDiagonal(*diag4,false,*toScale4);
@@ -1086,7 +1086,7 @@ inline void tupleToArray(Array<T> &arr, const tuple &tup)
 
       // Apply Helpers
       Tpetra::batchedApply(matrices,X,outvec);
-     
+
       // Compare
       compare.update(ONE,Y1a,-ONE,Y1b,ZERO);
       compare.norm1(norm());
@@ -1107,28 +1107,28 @@ inline void tupleToArray(Array<T> &arr, const tuple &tup)
         Teuchos::RCP<Teuchos::ParameterList> params = Teuchos::rcp(new Teuchos::ParameterList());
         Y1a.putScalar(ONE);Y1b.putScalar(ONE);
         Y2a.putScalar(ZERO);Y2b.putScalar(ZERO);
-        
+
         std::vector<MAT*> matrices = {A1.get(),A2.get()};
         std::vector<MV*>  outvec   = {&Y1b,&Y2b};
-        
+
         // Comparison guy
         A1->apply(X,Y1a,Teuchos::NO_TRANS,alpha[i],beta[j]);
         A2->apply(X,Y2a,Teuchos::NO_TRANS,alpha[i],beta[j]);
-      
+
         // Apply Helpers
         Tpetra::batchedApply(matrices,X,outvec,alpha[i],beta[j],params);
-      
+
         // Check to make sure this guy decided we can batch appropriately
         bool did_we_batch = params->get<bool>("can batch");
         bool should_we_batch = (numRanks>1)?true:false;
         TEST_EQUALITY(did_we_batch,should_we_batch);
-        
+
         // Compare
         compare.update(ONE,Y1a,-ONE,Y1b,ZERO);
         compare.norm1(norm());
         if (ST::isOrdinal) {TEST_COMPARE_ARRAYS(exact,norm);}
         else{TEST_COMPARE_FLOATING_ARRAYS(exact,norm,2.0*testingTol<Mag>());}
-        
+
         compare.update(ONE,Y2a,-ONE,Y2b,ZERO);
         compare.norm1(norm());
         if (ST::isOrdinal) {TEST_COMPARE_ARRAYS(exact,norm);}

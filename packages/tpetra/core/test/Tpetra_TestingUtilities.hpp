@@ -118,7 +118,7 @@ namespace Tpetra {
         return serialComm_;
       }
     }
-    
+
     // Wrap a subview of Kokkos::View into an ArrayRCP
     template<class ViewType>
     Teuchos::ArrayRCP<typename ViewType::value_type> arcp_from_view(ViewType &view, int size=-1) {

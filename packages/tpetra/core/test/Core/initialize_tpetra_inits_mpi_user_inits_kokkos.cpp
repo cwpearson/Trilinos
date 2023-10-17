@@ -23,7 +23,7 @@ bool isMpiFinalized ()
   (void) MPI_Finalized (&mpiFinalizedInt);
   return mpiFinalizedInt != 0;
 }
-  
+
 int getRankInCommWorld ()
 {
   int myRank = 0;
@@ -62,7 +62,7 @@ tpetraCommIsLocallyLegit (const Teuchos::Comm<int>* wrappedTpetraComm)
   // Tpetra reserves the right to MPI_Comm_dup on the input comm.
   return result == MPI_IDENT || result == MPI_CONGRUENT;
 }
-  
+
 
 // NOTE TO TEST AUTHORS: The code that calls this function captures
 // std::cerr, so don't write to std::cerr on purpose in this function.
@@ -114,7 +114,7 @@ void testMain (bool& success, int argc, char* argv[])
       "not a subclass of std::exception." << endl;
   }
   cout << "Done with Tpetra::initialize" << endl;
-  
+
   if (! isMpiInitialized ()) {
     success = false;
     cout << "MPI_Initialized claims MPI is not initialized, "
@@ -124,7 +124,7 @@ void testMain (bool& success, int argc, char* argv[])
   }
   // MPI claims to have been initialized, so after this point and
   // before Tpetra::finalize, it should be safe to use MPI functions.
-  
+
   const int myRank = getRankInCommWorld ();
 
   // Do all processes report Tpetra as initialized?
@@ -136,7 +136,7 @@ void testMain (bool& success, int argc, char* argv[])
 	"even after Tpetra::initialize() has been called." << endl;
     }
   }
-  
+
   if (! Kokkos::is_initialized ()) {
     success = false;
     cout << "Kokkos::is_initialized() is false, even after "
@@ -224,10 +224,10 @@ int main (int argc, char* argv[])
 {
   using std::cout;
   using std::endl;
- 
+
   bool success = true;
   testMain (success, argc, argv);
-  
+
   cout << "End Result: TEST " << (success ? "PASSED" : "FAILED") << endl;
   return EXIT_SUCCESS;
 }

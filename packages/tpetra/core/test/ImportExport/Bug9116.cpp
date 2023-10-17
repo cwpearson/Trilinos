@@ -93,7 +93,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug9116, LargeImport,
 
   // Create overlap map with large overlap 
   Teuchos::Array<gno_t> elts(myLen*2);
-  
+
   for (size_t i = 0; i < myLen; i++)
     elts[i] = map_oto->getGlobalElement(i);
   for (size_t i = myLen; i < myLen*2; i++)
@@ -118,7 +118,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug9116, LargeImport,
 //                << "] " << x_h(i, 0) << " != "
 //                << map_olap->getGlobalElement(i) << " expected" << std::endl;
         ierr++;
-        
+
       }
     }
   }

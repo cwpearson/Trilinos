@@ -94,7 +94,7 @@ namespace { // (anonymous)
     return false;
   }
 #endif // defined(HAVE_TPETRACORE_MPI)    
-  
+
   int getRankHarmlessly (const Teuchos::Comm<int>& comm)
   {
     if (mpiIsInitialized () && ! mpiIsFinalized () && isMpiComm (comm)) {

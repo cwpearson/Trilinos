@@ -136,7 +136,7 @@ int main(int argc, char **argv) {
   } else {
     std::cout << std::endl << "End Result: TEST FAILED" << std::endl;
   }
-  
+
   Teuchos::OSTab tab1(out);
   return 0;
 }

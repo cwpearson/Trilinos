@@ -172,7 +172,7 @@ public:
     : originalDualView(src.originalDualView),
       dualView(src.dualView)
   { }
-  
+
   //! Conversion assignment operator.
   template <class SrcDualViewType>
   WrappedDualView& operator=(const WrappedDualView<SrcDualViewType>& src) {
@@ -262,7 +262,7 @@ public:
   ) const
   {
     DEBUG_UVM_REMOVAL_PRINT_CALLER("getHostViewReadOnly");
-    
+
     if(needsSyncPath()) {
       throwIfDeviceViewAlive();
       impl::sync_host(originalDualView);
@@ -663,7 +663,7 @@ private:
     useSync = std::is_same_v<typename DualViewType::execution_space, Kokkos::Experimental::SYCL> || useSync;
 #endif
     return useSync;
-      
+
 
   }
 
@@ -703,7 +703,7 @@ private:
       throw std::runtime_error(msg.str());
     }
   }
- 
+
   bool iAmASubview() {
     return originalDualView.h_view != dualView.h_view;
   }

@@ -530,7 +530,7 @@ public:
   getLocalRowViewNonConst (LO LocalRow,
                            local_inds_host_view_type &indices,
                            nonconst_values_host_view_type &values) const;
-  
+
   /// \brief Not implemented.
   virtual void
   getLocalRowCopy (LO LocalRow,

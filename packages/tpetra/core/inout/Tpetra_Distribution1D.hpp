@@ -132,7 +132,7 @@ private:
 
 // DistributionLowerTriangularBlock class needs a 1DLinear distribution
 friend class DistributionLowerTriangularBlock<gno_t,scalar_t>;  
-  
+
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -197,7 +197,7 @@ public:
     vecpart = new int[nrows];
 
     const int bcastsize = 1000000;
-    
+
     gno_t start = 0;
     int cnt = 0;
     for (size_t i = 0; i < nrows; i++) {

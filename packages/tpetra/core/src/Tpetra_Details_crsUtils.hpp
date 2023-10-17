@@ -385,7 +385,7 @@ pad_crs_arrays(
     indices_wdv = Indices(indices_new);
     values_wdv = Values(values_new);
   }
-  
+
   if (verbose) {
     auto indices_h = indices_wdv.getHostView(Access::ReadOnly);
     auto values_h = values_wdv.getHostView(Access::ReadOnly);
@@ -453,7 +453,7 @@ insert_crs_indices(
           break;
         }
       }
-  
+
       if (row_offset == end) {
         if (num_inserted >= num_avail) { // not enough room
           return Teuchos::OrdinalTraits<size_t>::invalid();

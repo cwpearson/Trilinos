@@ -3205,7 +3205,7 @@ void MultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node>::copyAndPermute(
         "The input MultiVector B has " << B.getNumVectors () << " column(s), "
         "but this MultiVector has " << numVecs << " column(s).");
     }
-  
+
     const impl_scalar_type theAlpha = static_cast<impl_scalar_type> (alpha);
     const impl_scalar_type theBeta = static_cast<impl_scalar_type> (beta);
     const impl_scalar_type theGamma = static_cast<impl_scalar_type> (gamma);
@@ -3837,7 +3837,7 @@ void MultiVector<Scalar, LocalOrdinal, GlobalOrdinal, Node>::copyAndPermute(
         for (size_t j = 0; j < numCols; ++j) {
           const size_t srcCol = this->whichVectors_[j];
           auto dstColView = Kokkos::subview (A_view, rowRange, j);
-          
+
           if (useHostView) {
             auto srcView_host = this->getLocalViewHost(Access::ReadOnly);
             auto srcColView_host = Kokkos::subview (srcView_host, rowRange, srcCol);

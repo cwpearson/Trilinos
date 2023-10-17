@@ -2886,7 +2886,7 @@ namespace {
               bjview[i] *= as<Scalar>(2);
             }
           }
-          
+
           lclSuccess = success ? 1 : 0;
           gblSuccess = 0; // output argument
           reduceAll<int, int> (*comm, REDUCE_MIN, lclSuccess, outArg (gblSuccess));
@@ -4384,7 +4384,7 @@ namespace {
     ///      as the local device view is alive. this is the case that we do not want 
     ///      to encourage users.
     MV X_gbl (map, X_lcl);
-    
+
     {
       lclSuccess = success ? 1 : 0;
       gblSuccess = 0; // output argument
@@ -4470,7 +4470,7 @@ namespace {
     // We modified on device above, and we're about to modify on host
     // now, so we need to sync to host first.
     auto X_host = X_gbl.getLocalViewHost(Tpetra::Access::ReadWrite);
-    
+
     {
       lclSuccess = success ? 1 : 0;
       gblSuccess = 0; // output argument
@@ -4483,7 +4483,7 @@ namespace {
       os << "Proc " << comm->getRank () << ": checkpoint 5" << std::endl;
       std::cerr << os.str ();
     }
-    
+
     Kokkos::deep_copy (X_host, THREE);
     {
       lclSuccess = success ? 1 : 0;
@@ -5263,7 +5263,7 @@ namespace {
     Tpetra::Details::DeepCopyCounter::stop();   
     count = Tpetra::Details::DeepCopyCounter::get_count_different_space();   
     TEST_EQUALITY(count,2*correct_count);
-          
+
   }
 
 

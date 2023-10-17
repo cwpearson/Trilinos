@@ -130,7 +130,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug9856, DeviceNorm180, Scalar,LO,GO,Node)
   {
     auto deviceview = mv.getLocalViewDevice(Tpetra::Access::ReadWrite);
   }
-  
+
   std::vector<Scalar> norm(nVecs);
   Teuchos::ArrayView<Scalar> normView(norm);
 
@@ -159,7 +159,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug9856, DeviceNorm181, Scalar,LO,GO,Node)
   {
     auto deviceview = mv.getLocalViewDevice(Tpetra::Access::ReadWrite);
   }
-  
+
   std::vector<Scalar> norm(nVecs);
   Teuchos::ArrayView<Scalar> normView(norm);
 
@@ -184,7 +184,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug9856, KokkosDeviceNorm180, Scalar,LO,GO,Nod
   using MST = typename Kokkos::ArithTraits<Scalar>::mag_type;
   std::vector<MST> norm(nVecs);
   Kokkos::View<MST*, Kokkos::HostSpace> normView(&norm[0], nVecs);
-  
+
   TEST_NOTHROW( KokkosBlas::nrm2_squared(normView, mv));
 }
 

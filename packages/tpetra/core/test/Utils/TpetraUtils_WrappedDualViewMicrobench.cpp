@@ -100,7 +100,7 @@ TEUCHOS_UNIT_TEST(WrappedDualView, hostViewMicrobench) {
   std::string roTimer = "hostView: ReadOnly";
   std::string oaTimer = "hostView: OverwriteAll";
   std::string rwTimer = "hostView: ReadWrite";
-  
+
   //get communicator
   RCP<const Teuchos::Comm<int> > comm = Tpetra::getDefaultComm();
 

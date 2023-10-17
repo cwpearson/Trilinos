@@ -85,7 +85,7 @@ void inverseScaleBlockDiagonal(MultiVectorType & blockDiagonal, bool doTranspose
 
   auto blockDiag = blockDiagonal.getLocalViewDevice(Access::OverwriteAll);
   auto toScale   = multiVectorToBeScaled.getLocalViewDevice(Access::ReadWrite);
-  
+
   typedef Algo::Level3::Unblocked algo_type;
   Kokkos::parallel_for("scaleBlockDiagonal",range_type(0,numblocks),KOKKOS_LAMBDA(const LO i){
       Kokkos::pair<LO,LO> row_range(i*blocksize,(i+1)*blocksize);

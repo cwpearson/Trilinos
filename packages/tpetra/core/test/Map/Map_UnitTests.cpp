@@ -114,7 +114,7 @@ namespace {
     using GO = Tpetra::Map<>::global_ordinal_type;
 #endif
     using map_type = Tpetra::Map<LO, GO>;
-    
+
     auto comm = Tpetra::getDefaultComm();
     const int numImages = comm->getSize();
     if (numImages < 2) return;

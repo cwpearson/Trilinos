@@ -218,7 +218,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, OverlapToDefault, Scalar,LO,GO,Node)
       myEntries[nMyEntries++] =
         (defaultMap->getMaxGlobalIndex() + 1 + i) % nGlobalEntries;
     }
-  
+
     Tpetra::global_size_t dummy = 
             Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid();
     Teuchos::RCP<const map_t> overlapMap = 
@@ -375,7 +375,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, SupersetToDefault, Scalar,LO,GO,Node)
       myEntries[nMyEntries++] =
         (defaultMap->getMaxGlobalIndex() + 1 + i) % nGlobalEntries;
     }
-  
+
     Tpetra::global_size_t dummy = 
             Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid();
     Teuchos::RCP<const map_t> supersetMap =
@@ -446,7 +446,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, NoSamesToDefault, Scalar,LO,GO,Node)
       myEntries[nMyEntries++] =
         (defaultMap->getMaxGlobalIndex() + 1 + i) % nGlobalEntries;
     }
-  
+
     Tpetra::global_size_t dummy = 
             Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid();
     Teuchos::RCP<const map_t> noSamesMap = 

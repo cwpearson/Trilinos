@@ -229,7 +229,7 @@ getRemotePIDs (const Tpetra::Import<LocalOrdinal,GlobalOrdinal,Node>& Importer,
   }
 }
 
- 
+
 /* Check some of the validity of an Import object
    WARNING: This is a debugging routine only. */
 template <typename LocalOrdinal, typename GlobalOrdinal, typename Node>
@@ -246,7 +246,7 @@ checkImportValidity (const Tpetra::Import<LocalOrdinal,GlobalOrdinal,Node>& Impo
 
   int global_is_valid=0;
   bool is_valid=true;
- 
+
   // We check validity by going through each ID in the source map one by one, broadcasting the sender's PID and then all
   // receivers check it.
   LocalOrdinal LO_INVALID = Teuchos::OrdinalTraits<LocalOrdinal>::invalid();
@@ -289,7 +289,7 @@ checkImportValidity (const Tpetra::Import<LocalOrdinal,GlobalOrdinal,Node>& Impo
       is_valid=false;
     }
   }
-  
+
  // Zeroth order test: Remote *** GID *** and Export **GID**'s should be disjoint.  
   for( auto &&rgid : remoteGIDs) {
     if(std::find(exportGIDs.begin(),exportGIDs.end(),rgid) != exportGIDs.end()) {
@@ -314,7 +314,7 @@ checkImportValidity (const Tpetra::Import<LocalOrdinal,GlobalOrdinal,Node>& Impo
     if(tlid != LO_INVALID) {
       // This guy is in my target map, now to check if I'm receiving him from the owner (which I now know)
       bool is_ok = false;
-      
+
       // This guy is not in the SourceMap at all.  Weird, but acceptable.
       if(OwningPID == -1) continue;
 
@@ -407,7 +407,7 @@ checkImportValidity (const Tpetra::Import<LocalOrdinal,GlobalOrdinal,Node>& Impo
       }
     }
   }
-  
+
   // cbl check that for each of my remote GIDs I receive a corresponding export id. 
 
   Teuchos::Array<int> proc_num_exports_recv(NumProcs,0);
@@ -416,7 +416,7 @@ checkImportValidity (const Tpetra::Import<LocalOrdinal,GlobalOrdinal,Node>& Impo
 
   int allexpsiz=0;
   Teuchos::reduceAll<int,int>(*comm,Teuchos::REDUCE_MAX,exportGIDs.size(),  Teuchos::outArg(allexpsiz));
-  
+
   for(int i=0;i<allexpsiz;++i) {
     Teuchos::Array<GlobalOrdinal> myexpgid(NumProcs,-2), yourexpgid(NumProcs,-2);
     Teuchos::Array<int> myexppid(NumProcs,-2), yourexppid(NumProcs,-2);

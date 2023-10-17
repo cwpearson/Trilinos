@@ -184,7 +184,7 @@ namespace { // (anonymous)
           const ValueType expectedVal = vals(i);
           const ValueType actualVal = table.get (key);
           bool curBad = false;
-  
+
           if (actualVal == Tpetra::Details::OrdinalTraits<ValueType>::invalid ()) {
             curBad = true;
             printf("get(key=%lld) = invalid, should have been %d\n",
@@ -195,7 +195,7 @@ namespace { // (anonymous)
             printf("get(key=%lld) = %d, should have been %d\n",
                     (long long) key, actualVal, expectedVal);
           }
-  
+
           if (curBad) {
             ++myBadCount;
           }

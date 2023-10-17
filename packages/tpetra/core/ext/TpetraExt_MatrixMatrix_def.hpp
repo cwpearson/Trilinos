@@ -127,7 +127,7 @@ void Multiply(
   std::string prefix_mmm = std::string("TpetraExt ") + label + std::string(": ");
   using Teuchos::TimeMonitor;
   //MM is used to time setup, and then multiply.
-  
+
   RCP<TimeMonitor> MM = rcp(new TimeMonitor(*TimeMonitor::getNewTimer(prefix_mmm + std::string("MMM All Setup"))));
 #endif
 
@@ -343,7 +343,7 @@ void Multiply(
   TEUCHOS_TEST_FOR_EXCEPTION(blocksize != B->getBlockSize(), std::runtime_error,
     prefix << "ERROR, Blocksizes do not match. A.blocksize = " <<
               blocksize << ", B.blocksize = " << B->getBlockSize() );
-  
+
   // Declare a couple of structs that will be used to hold views of the data
   // of A and B, to be used for fast access during the matrix-multiplication.
   blockcrs_matrix_struct_type Aview(blocksize);
@@ -1961,7 +1961,7 @@ void mult_A_B_newmatrix(BlockCrsMatrixStruct<Scalar, LocalOrdinal, GlobalOrdinal
     KokkosSparse::block_spgemm_symbolic(kh, Amat, false, Bmerged, false, Cmat);
     KokkosSparse::block_spgemm_numeric (kh, Amat, false, Bmerged, false, Cmat);
     kh.destroy_spgemm_handle();
-    
+
     // Build Tpetra::BlockCrsMatrix from KokkosSparse::BsrMatrix
     graphC = rcp(new graph_t(Cmat.graph, Aview.origMatrix->getRowMap(), Ccolmap.getConst()));
     values = Cmat.values;
@@ -3558,7 +3558,7 @@ merge_matrices(BlockCrsMatrixStruct<Scalar, LocalOrdinal, GlobalOrdinal, Node>& 
   if(!Bview.importMatrix.is_null() ||
      (Bview.importMatrix.is_null() &&
      (&*Aview.origMatrix->getGraph()->getColMap() != &*Bview.origMatrix->getGraph()->getRowMap()))) {
-    
+
     // We do have a Bimport
     // NOTE: We're going merge Borig and Bimport into a single matrix and reindex the columns *before* we multiply.
     // This option was chosen because we know we don't have any duplicate entries, so we can allocate once.
@@ -3568,7 +3568,7 @@ merge_matrices(BlockCrsMatrixStruct<Scalar, LocalOrdinal, GlobalOrdinal, Node>& 
     KBCRS Iks;
     if(Ik!=0) Iks = *Ik;
     size_t merge_numrows =  Ak.numCols();
-    
+
     // The last entry of this at least, need to be initialized
     lno_view_t Mrowptr("Mrowptr", merge_numrows + 1);
 

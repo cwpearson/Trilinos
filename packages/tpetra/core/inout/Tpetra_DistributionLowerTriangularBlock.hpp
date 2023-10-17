@@ -237,7 +237,7 @@ public:
 
     Teuchos::Array<gno_t> permuteIndex;  // This is the inverse permutation
     Teuchos::Array<gno_t> sortedOrder;   // This is the original permutation
- 
+
     Teuchos::Array<gno_t> globalRowBuf;
     // TODO Dunno why there isn't a Teuchos::gatherAllv; 
     // TODO for now, compute and broadcast
@@ -499,7 +499,7 @@ public:
        std::logic_error,
        "The Domain and Range maps of the LowerTriangularBlock matrix "
        "must be the same");
-    
+
     // Extract diagonals
 
     vector_t diagByRowMap(lowerTriangularMatrix->getRowMap());

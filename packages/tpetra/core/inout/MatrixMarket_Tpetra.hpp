@@ -4098,7 +4098,7 @@ namespace Tpetra {
       ///   useful for Tpetra developers, but probably not useful for
       ///   anyone else.
       /// \param debug [in] If true, read in binary mode.
-      
+
       static Teuchos::RCP<multivector_type>
       readDense (std::istream& in,
                  const Teuchos::RCP<const comm_type>& comm,
@@ -5772,7 +5772,7 @@ namespace Tpetra {
         using Teuchos::ArrayRCP;
         using Teuchos::arcp;
         using Teuchos::rcp;
-        
+
         // Sanity Checks
         // Fast checks for invalid input.  We can't check other
         // attributes of the Maps until we've read in the matrix
@@ -5800,7 +5800,7 @@ namespace Tpetra {
           std::invalid_argument,
           "The specified range Map's communicator (rangeMap->getComm())"
           "differs from row Map's communicator");
-        
+
         // Setup
         const int myRank  = comm->getRank();
         const int numProc = comm->getSize();
@@ -5808,14 +5808,14 @@ namespace Tpetra {
 
         // Bounds check the writing limits
         int rank_limit = std::min(std::max(ranksToReadAtOnce,1),numProc);
-        
+
         // Data structures for constructor
         ArrayRCP<size_t> numEntriesPerRow;             
         ArrayRCP<size_t> rowPtr;
         ArrayRCP<global_ordinal_type> colInd;
         ArrayRCP<scalar_type> values;
         std::ostringstream errMsg;
-        
+
         ///////////////////////////////////////////////
         // Start the reading of the banners to get
         // local row / nnz counts and then read the 
@@ -5845,7 +5845,7 @@ namespace Tpetra {
             if (bannerIsCorrect) {
               // Validate the Banner for the case of a sparse matrix.
               // We validate on Proc 0, since it reads the Banner.
-              
+
               // In intolerant mode, the matrix type must be "coordinate".
               if (! tolerant && pBanner->matrixType() != "coordinate") {
                 bannerIsCorrect = 0;
@@ -5866,7 +5866,7 @@ namespace Tpetra {
                   "data.";
               }
             }
-              
+
             // Unpacked coordinate matrix dimensions
             using Teuchos::MatrixMarket::readCoordinateDimensions;
             success = readCoordinateDimensions (in, numRows, numCols,
@@ -5878,15 +5878,15 @@ namespace Tpetra {
                                        "# rows in file does not match rowmap.");
             TEUCHOS_TEST_FOR_EXCEPTION(!colMap.is_null() && numCols != (LO)colMap->getLocalNumElements(), std::invalid_argument,
                                        "# rows in file does not match colmap.");
-            
-            
+
+
             // Read the data
             typedef Teuchos::MatrixMarket::Raw::Adder<scalar_type,global_ordinal_type> raw_adder_type;
             bool tolerant_required = true;
             Teuchos::RCP<raw_adder_type> pRaw =
               Teuchos::rcp (new raw_adder_type (numRows,numCols,numNonzeros,tolerant_required,debug));
             RCP<adder_type> pAdder =  Teuchos::rcp (new adder_type (pRaw, pBanner->symmType ()));
-            
+
             if (debug) {
               std::cerr << "-- Reading matrix data" << std::endl;
             }
@@ -5896,7 +5896,7 @@ namespace Tpetra {
               typedef Teuchos::MatrixMarket::CoordDataReader<adder_type,
                                                              global_ordinal_type, scalar_type, STS::isComplex> reader_type;
               reader_type reader (pAdder);
-              
+
               // Read the sparse matrix entries.
               std::pair<bool, std::vector<size_t> > results = reader.read (in, lineNumber, tolerant_required, debug);
 
@@ -5911,22 +5911,22 @@ namespace Tpetra {
             ///////////////////////////////////////
             // Create the CSR Arrays
             typedef Teuchos::MatrixMarket::Raw::Element<scalar_type,global_ordinal_type> element_type;
-            
+
             // Additively merge duplicate matrix entries.
             pAdder->getAdder()->merge ();
-            
+
             // Get a temporary const view of the merged matrix entries.
             const std::vector<element_type>& entries =  pAdder->getAdder()->getEntries();
-            
+
             // Number of matrix entries (after merging).
             const size_t numEntries = (size_t)entries.size();
-            
+
             if (debug) {
               std::cerr << "----- Proc "<<myRank<<": Matrix has numRows=" << numRows
                         << " rows and numEntries=" << numEntries
                    << " entries." << std::endl;
             }
-            
+
 
             // Make space for the CSR matrix data.  Converting to
             // CSR is easier if we fill numEntriesPerRow with zeros
@@ -5953,7 +5953,7 @@ namespace Tpetra {
 
               TEUCHOS_TEST_FOR_EXCEPTION(l_curRow == INVALID,std::logic_error,
                                          "Current global row "<< curRow << " is invalid.");
-                  
+
               TEUCHOS_TEST_FOR_EXCEPTION(l_curRow < l_prvRow, std::logic_error,      
                                          "Row indices are out of order, even though they are supposed "
                                          "to be sorted.  curRow = " << l_curRow << ", prvRow = "
@@ -8933,7 +8933,7 @@ namespace Tpetra {
       //! and assemble it into a single big matrix.  The code will try to minimize
       //! the number of ranks hammering on the file system at once, but we don't
       //! make any guarantees.
-      
+
       static
       void 
       writeSparsePerRank (const std::string& filename_prefix,
@@ -8943,13 +8943,13 @@ namespace Tpetra {
                           const std::string& matrixDescription,
                           const int ranksToWriteAtOnce=8,
                           const bool debug=false) {
-        
+
         using ST = scalar_type;
         //using LO = local_ordinal_type;
         using GO = global_ordinal_type;
         using STS = typename Teuchos::ScalarTraits<ST>;
         using Teuchos::RCP;
-        
+
         // Sanity Checks
         Teuchos::RCP<const Teuchos::Comm<int> > comm = matrix.getComm ();
         TEUCHOS_TEST_FOR_EXCEPTION
@@ -8958,7 +8958,7 @@ namespace Tpetra {
         TEUCHOS_TEST_FOR_EXCEPTION
           (matrix.isGloballyIndexed() || !matrix.isFillComplete(), std::invalid_argument,
            "The input matrix must not be GloballyIndexed and must be fillComplete.");
-        
+
         // Setup
         const int myRank  = comm->getRank();
         const int numProc = comm->getSize();
@@ -8970,10 +8970,10 @@ namespace Tpetra {
         size_t local_num_cols = colMap->getLocalNumElements();
         const GO rowIndexBase = rowMap->getIndexBase();
         const GO colIndexBase = colMap->getIndexBase();
-        
+
         // Bounds check the writing limits
         int rank_limit = std::min(std::max(ranksToWriteAtOnce,1),numProc);
-        
+
         // Start the writing
         for(int base_rank = 0; base_rank < numProc; base_rank += rank_limit) {
           int stop = std::min(base_rank+rank_limit,numProc);
@@ -8981,12 +8981,12 @@ namespace Tpetra {
           if(base_rank <= myRank  && myRank < stop) {          
             // My turn to write
             std::ofstream out(filename);
-            
+
             // MatrixMarket Header
             out << "%%MatrixMarket matrix coordinate "
                 << (STS::isComplex ? "complex" : "real")
                 << " general" << std::endl;
-            
+
             // Print comments (the matrix name and / or description).
             if (matrixName != "") {
               printAsComment (out, matrixName);
@@ -8994,22 +8994,22 @@ namespace Tpetra {
             if (matrixDescription != "") {
               printAsComment (out, matrixDescription);
             }
-            
+
             // Print the Matrix Market header (# local rows, # local columns, #
             // local enonzeros).  This will *not* be read correctly by a generic matrix
             // market reader since we'll be writing out GIDs here and local row/col counts
             out << local_num_rows << " " << local_num_cols << " " << local_nnz <<std::endl;
-            
+
             {
               // Make the output stream write floating-point numbers in
               // scientific notation.  It will politely put the output
               // stream back to its state on input, when this scope
               // terminates.
               Teuchos::SetScientific<ST> sci (out);
-              
+
               for(size_t l_row = 0; l_row < local_num_rows; l_row++) { 
                 GO g_row = rowMap->getGlobalElement(l_row);            
-                
+
                 typename sparse_matrix_type::local_inds_host_view_type indices;
                 typename sparse_matrix_type::values_host_view_type values;
                 matrix.getLocalRowView(l_row, indices, values);
@@ -9028,16 +9028,16 @@ namespace Tpetra {
                 } // For each entry in the current row
               } // For each row of the matrix
             }// end Teuchos::SetScientfic scoping
-            
+
             out.close();
           }// end if base_rank <= myRank < stop
-          
+
           // Barrier after each writing "batch" to make sure we're not hammering the file system
           // too aggressively
           comm->barrier();
-          
+
         }// end outer loop
-         
+
       }// end writeSparsePerRank
 
     }; // class Writer

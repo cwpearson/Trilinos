@@ -214,12 +214,12 @@ MeshDatabase::MeshDatabase(Teuchos::RCP<const Teuchos::Comm<int> > comm,
       ect++;
     }
   }
-  
-  
+
+
   // Generate the owned node ids
   ownedNodeGlobalIDs_ = global_ordinal_view_type(globalDualViewType("ownedNodeGlobalIDs_",num_my_nodes));
   auto _ownedNodeGlobalIDs = ownedNodeGlobalIDs_.getHostView(Tpetra::Access::ReadWrite);
-  
+
   int nct=0;
   for(global_ordinal_type j=myNodeStart_[1]; j<myNodeStop_[1]; j++) {
     for(global_ordinal_type i=myNodeStart_[0]; i<myNodeStop_[0]; i++) {

@@ -228,12 +228,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7758, OverlapToDefault, Scalar,LO,GO,Node)
       myEntries[nMyEntries++] =
         (defaultMap->getMaxGlobalIndex() + 1 + i) % nGlobalEntries;
     }
-  
+
     Tpetra::global_size_t dummy = 
             Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid();
     Teuchos::RCP<const map_t> overlapMap = 
              rcp(new map_t(dummy, myEntries(0,nMyEntries), 0, comm));
-  
+
     // Create vectors; see what the result is with CombineMode=ADD
 
     vector_t defaultVecTgt(defaultMap);
@@ -384,12 +384,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7758, SupersetToDefault, Scalar,LO,GO,Node)
       myEntries[nMyEntries++] =
         (defaultMap->getMaxGlobalIndex() + 1 + i) % nGlobalEntries;
     }
-  
+
     Tpetra::global_size_t dummy = 
             Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid();
     Teuchos::RCP<const map_t> supersetMap =
              rcp(new map_t(dummy, myEntries(0,nMyEntries), 0, comm));
-  
+
     // Create vectors; see what the result is with CombineMode=ADD
 
     vector_t defaultVecTgt(defaultMap);
@@ -454,12 +454,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7758, NoSamesToDefault, Scalar,LO,GO,Node)
       myEntries[nMyEntries++] =
         (defaultMap->getMaxGlobalIndex() + 1 + i) % nGlobalEntries;
     }
-  
+
     Tpetra::global_size_t dummy = 
             Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid();
     Teuchos::RCP<const map_t> noSamesMap = 
              rcp(new map_t(dummy, myEntries(0,nMyEntries), 0, comm));
-  
+
     // Create vectors; see what the result is with CombineMode=ADD
 
     vector_t defaultVecTgt(defaultMap);

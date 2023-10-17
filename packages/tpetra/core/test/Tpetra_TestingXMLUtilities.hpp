@@ -90,7 +90,7 @@ namespace Tpetra {
     std::string
     reportWatchrXML(const std::string label_class,const std::string units, const std::string base_name, const Teuchos::Array<std::string> & names, const Teuchos::Array<T> & values, Teuchos::RCP<const Teuchos::Comm<int> > comm) {
       using Teuchos::Array;
-      
+
       TEUCHOS_TEST_FOR_EXCEPTION(names.size()!=values.size(), std::runtime_error, "reportWatchrXML: names and values are not the same size");
       flat_names_=names;
       flat_times_=values;
@@ -188,7 +188,7 @@ namespace Tpetra {
         os << "</performance-report>\n";
       }
       return fullFile;
-     
+
     }
 
 
@@ -401,7 +401,7 @@ namespace Tpetra {
         }
       return std::pair<std::string, std::string>(std::string(""), name);
     }
-    
+
     static void printXMLEscapedString(std::ostream& os, const std::string& str)
     {
       for(char c : str)
@@ -451,7 +451,7 @@ namespace Tpetra {
     Teuchos::Array<unsigned long> count_;
     Teuchos::Array<unsigned long long> updates_;
     Teuchos::Array<int> active_;
-    
+
   }; // class TestingXMLUtilities
 } // namespace Tpetra
 

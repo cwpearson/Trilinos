@@ -199,23 +199,23 @@ public:
     Teuchos::Array<scalar_t> val;
 
     getMyNonzeros(distribution, rowIdx, nPerRow, offsets, colIdx, val);
-  
+
     // Build the CrsMatrix with the assigned nonzeros
     using matrix_t = Tpetra::CrsMatrix<scalar_t>;
-  
+
     size_t dummy = Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid();
     Teuchos::RCP<const map_t> rowMap =
              Teuchos::rcp(new map_t(dummy, rowIdx(), 0, comm));
 
     Teuchos::RCP<matrix_t> Amat = Teuchos::rcp(new matrix_t(rowMap, nPerRow()));
-  
+
     size_t nRowIdx = size_t(rowIdx.size());
     for (size_t r = 0; r < nRowIdx; r++) {
       size_t tmp = offsets[r+1] - offsets[r];
       Amat->insertGlobalValues(rowIdx[r], 
                                colIdx(offsets[r],tmp), val(offsets[r],tmp));
     }
-  
+
     std::string tname;
     {
       switch (distribution) {
@@ -240,7 +240,7 @@ public:
               << (Amat->getGraph()->getExporter() == Teuchos::null ? 0 : 
                   Amat->getGraph()->getExporter()->getNumExportIDs())
               << std::endl;
-  
+
     // Perform SpMV; do several iterations to get some timing info
     {
       switch (distribution) {
@@ -248,7 +248,7 @@ public:
         case 2:  tname = "SpMV: 2 column-wise"; break;
         case 3:  tname = "SpMV: 3 random 2D"; break;
       }
-  
+
       scalar_t alpha = 2.;
       scalar_t beta = 3.;
       auto timer = Teuchos::TimeMonitor::getNewTimer(tname);
@@ -280,23 +280,23 @@ public:
     Teuchos::Array<scalar_t> val;
 
     getMyNonzeros(distribution, rowIdx, nPerRow, offsets, colIdx, val);
-  
+
     // Build the CrsMatrix with the assigned nonzeros
     using matrix_t = Tpetra::CrsMatrix<scalar_t>;
-  
+
     size_t dummy = Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid();
     Teuchos::RCP<const map_t> rowMap =
              Teuchos::rcp(new map_t(dummy, rowIdx(), 0, comm));
 
     Teuchos::RCP<matrix_t> Amat = Teuchos::rcp(new matrix_t(rowMap, nPerRow()));
-  
+
     size_t nRowIdx = size_t(rowIdx.size());
     for (size_t r = 0; r < nRowIdx; r++) {
       size_t tmp = offsets[r+1] - offsets[r];
       Amat->insertGlobalValues(rowIdx[r], 
                                colIdx(offsets[r],tmp), val(offsets[r],tmp));
     }
-  
+
     std::string tname;
     {
       switch (distribution) {
@@ -321,7 +321,7 @@ public:
               << (Amat->getGraph()->getExporter() == Teuchos::null ? 0 : 
                   Amat->getGraph()->getExporter()->getNumExportIDs())
               << std::endl;
-  
+
     // Perform transpose SpMV; do several iterations to get some timing info
     {
       switch (distribution) {
@@ -329,7 +329,7 @@ public:
         case 2:  tname = "SpMV Transpose: 2 column-wise"; break;
         case 3:  tname = "SpMV Transpose: 3 random 2D"; break;
       }
-  
+
       scalar_t alpha = 2.;
       scalar_t beta = 3.;
       auto timer = Teuchos::TimeMonitor::getNewTimer(tname);
@@ -351,12 +351,12 @@ private:
     }
   };
   std::map<coord, scalar_t, compareCoord> nzmap;  // sorted global nonzeros
-  
+
   size_t nRows, nCols, nNz;
   const Teuchos::RCP<const Teuchos::Comm<int> > comm;
 
 };
- 
+
 ////////////////////////////////////////////////////////////////////////////
 
 int main(int narg, char *arg[]) 

@@ -386,7 +386,7 @@ compareCrsMatrixValues (const CrsMatrixType& A_orig,
     typename ArrayRCP<ST>::iterator valOrigEnd = valOrig.end ();
     Tpetra::merge2 (indOrigEnd, valOrigEnd, indOrigIter, indOrigEnd, valOrigIter, valOrigEnd);
 
-  
+
     typename ArrayRCP<GO>::iterator indIter = ind.begin ();
     typename ArrayRCP<ST>::iterator valIter = val.begin ();
     typename ArrayRCP<GO>::iterator indEnd = ind.end ();

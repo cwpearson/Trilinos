@@ -58,7 +58,7 @@ template <class OrdinalType> class Comm;
 
 namespace Tpetra {
 namespace Details {
-  
+
 /// \brief Print on one process of the given communicator, or at least
 ///   try to do so (if MPI is not initialized).
 ///

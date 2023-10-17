@@ -177,7 +177,7 @@ namespace {
     TEST_EQUALITY( mvec->getNumVectors(), numVecs );
     TEST_EQUALITY( mvec->getLocalLength(), map->getLocalNumElements() );
     TEST_EQUALITY( mvec->getGlobalLength(), map->getGlobalNumElements() );
-    
+
     out << "Test that all norms are zero" << endl;
     Teuchos::Array<Magnitude> norms(numVecs), zeros(numVecs);
     std::fill(zeros.begin(),zeros.end(),ScalarTraits<Magnitude>::zero());

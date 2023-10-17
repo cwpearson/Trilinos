@@ -202,7 +202,7 @@ public:
     Kokkos::DefaultExecutionSpace mySpace;
     /*
       using range_policy = Kokkos::RangePolicy<Kokkos::Host>;
-      
+
       Kokkos::parallel_for("onHost initialize", range_policy(0,N), KOKKOS_LAMBDA(const int &i) {
       a[i] = 2;
       });
@@ -214,7 +214,7 @@ public:
 		    Kokkos::View<int*, Kokkos::LayoutLeft, Kokkos::CudaSpace> &b) {
     Kokkos::DefaultExecutionSpace mySpace;
     using range_policy = Kokkos::RangePolicy<Kokkos::Cuda>;
-    
+
     /*
       Kokkos::parallel_for("onDevice initialize", range_policy(0,N), KOKKOS_LAMBDA(const int &i) {
       a[i] = 2;
@@ -258,7 +258,7 @@ int main(int argc, char *argv[]) {
 
   std::ostream &out = std::cout; 
 
-  
+
   DeepCopyTester tester;
   tester.run(argc,argv);
   TEST_EQUALITY_CONST(tester.getConsistency(),true);

@@ -129,7 +129,7 @@ setParameterList (const Teuchos::RCP<Teuchos::ParameterList>& plist,
 
   const bool verboseEnv = Behavior::verbose (className.c_str ()) ||
     Behavior::verbose ((std::string ("Tpetra::") + className).c_str ());
-  
+
   bool verboseParam = false;
   if (! plist.is_null ()) {
     // FIXME (mfh 03 Feb 2019) Phase out these parameters in favor of
@@ -173,7 +173,7 @@ getPermuteFromLIDs_dv () const {
      "DualView needs sync to host" );
   return dv;
 }
-  
+
 template <class LO, class GO, class NT>  
 Teuchos::ArrayView<const LO>
 Transfer<LO, GO, NT>::
@@ -196,7 +196,7 @@ getPermuteToLIDs_dv () const {
      "DualView needs sync to host" );
   return dv;
 }
-  
+
 template <class LO, class GO, class NT>  
 Teuchos::ArrayView<const LO>
 Transfer<LO, GO, NT>::
@@ -226,7 +226,7 @@ getRemoteLIDs_dv () const {
      "DualView needs sync to host" );
   return dv;
 }
-  
+
 template <class LO, class GO, class NT>  
 Teuchos::ArrayView<const LO>
 Transfer<LO, GO, NT>::
@@ -256,7 +256,7 @@ getExportLIDs_dv () const {
      "DualView needs sync to host" );
   return dv;
 }
-  
+
 template <class LO, class GO, class NT>
 Teuchos::ArrayView<const LO>
 Transfer<LO, GO, NT>::

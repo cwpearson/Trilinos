@@ -18,7 +18,7 @@ void testMain (bool& success, int argc, char* argv[])
       "even before Tpetra::initialize() has been called" << endl;
     return;
   }
-  
+
   Tpetra::initialize (&argc, &argv);
 
   auto comm = Tpetra::getDefaultComm ();
@@ -84,7 +84,7 @@ int main (int argc, char* argv[])
 {
   using std::cout;
   using std::endl;
- 
+
   bool success = true;
   {
     // Capture std::cerr output, so we can tell if Map's destructor
@@ -98,7 +98,7 @@ int main (int argc, char* argv[])
       cout << "Captured output is empty!" << endl;
     }
   }
-  
+
   cout << "End Result: TEST " << (success ? "PASSED" : "FAILED") << endl;
   return EXIT_SUCCESS;
 }

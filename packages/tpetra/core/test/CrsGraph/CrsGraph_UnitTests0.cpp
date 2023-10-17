@@ -403,7 +403,7 @@ namespace { // (anonymous)
         TEST_COMPARE_ARRAYS( arcp_from_view(GCopy,numindices), ginds );
       }
       STD_TESTS(trigraph);
-      
+
       // All procs fail if any node fails
       int globalSuccess_int = -1;
       reduceAll( *comm, REDUCE_SUM, success ? 0 : 1, outArg(globalSuccess_int) );

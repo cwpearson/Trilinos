@@ -309,7 +309,7 @@ createTransposeLocal (const Teuchos::RCP<Teuchos::ParameterList>& params)
     // BlockCrs requires that we sort stuff
     KokkosSparse::sort_crs_matrix(lclTransposeMatrix);
     values = lclTransposeMatrix.values;
-    
+
     // Prebuild the importers and exporters the no-communication way,
     // flipping the importers and exporters around.
     const auto origExport = origMatrix_->getGraph ()->getExporter ();
@@ -320,7 +320,7 @@ createTransposeLocal (const Teuchos::RCP<Teuchos::ParameterList>& params)
       Teuchos::null : rcp (new export_type (*origImport));
 
     RCP<Teuchos::ParameterList> graphParams = Teuchos::null;
-    
+
     // Make the Transpose Graph
     graph = rcp(new crs_graph_type(lclTransposeMatrix.graph,                                   
                                    origMatrix_->getColMap (),

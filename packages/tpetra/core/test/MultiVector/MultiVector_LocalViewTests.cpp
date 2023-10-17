@@ -132,7 +132,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL( MultiVector, TeuchosArray, LO, GO, Scalar , N
   if (ierr)
     std::cout << "TEST FAILED:  TeuchosArray test had " << ierr 
               << " failures on rank " << me << std::endl;
-  
+
   int gerr;
   Teuchos::reduceAll<int,int>(*comm, Teuchos::REDUCE_SUM, 1, &ierr, &gerr);
 

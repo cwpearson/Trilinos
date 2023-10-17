@@ -129,7 +129,7 @@ public:
       }
       throw e;
     }
-    
+
     // Set all values in A to one: This is needed because binary readers 
     // do not currently support numeric values
     const scalar_t ONE = Teuchos::ScalarTraits<scalar_t>::one();
@@ -150,7 +150,7 @@ public:
     yin_baseline->randomize();
 
     // Apply baseline matrix to vectors.
-    
+
     yout_baseline = applyMatrix("baseline", *A_baseline);
     norm_baseline[0] = yout_baseline->normInf();
     norm_baseline[1]=  yout_baseline->norm1();
@@ -346,7 +346,7 @@ public:
     //   2D with nonzero value = part assignment
     return ierr;
   }
-  
+
 private:
 
   //////////////////////////////
@@ -354,7 +354,7 @@ private:
   void writeBinaryGlobal()
   {
     binfilename = filename + "_" + std::to_string(comm->getSize()) + ".cooBin"; 
-   
+
     int err = 0;
 
     // Only rank 0 will read the mtx file and write the corresponding binary file
@@ -364,14 +364,14 @@ private:
       unsigned int nRows, nCols, entry[2];
       unsigned long long nNzs;
       std::string line;
-      
+
       // Open the input file and skip the header
       // NOTE: symmetric keyword is ignored too.
       std::ifstream in(filename, std::ios::in);
       do
 	std::getline (in, line);
       while(line[0] == '%');
-      
+
       std::stringstream sstream(line);
       sstream >> nRows >> nCols >> nNzs;
       if(nRows != nCols)
@@ -379,12 +379,12 @@ private:
 
       // Proceed with the binary file only if the input mtx is square
       if(err == 0) {
-	
+
 	// Open the output file and write the header
 	std::ofstream out(binfilename, std::ios::out | std::ios::binary);
 	out.write((char *)&nRows, sizeof(unsigned int));
 	out.write((char *)&nNzs, sizeof(unsigned long long));
-	
+
 	// Write nonzeros
 	while(std::getline(in, line)) {
 	  std::stringstream sstream2(line);
@@ -402,7 +402,7 @@ private:
     if(err == 1) {
       throw std::runtime_error( "Input matrix " + filename +  " is not square.");
     }
-      
+
   }
 
   //////////////////////////////
@@ -438,12 +438,12 @@ private:
       // Get the global index for row r
       auto gblRow = rowMap->getGlobalElement(static_cast<gno_t>(r));
       entry[0] = static_cast<unsigned int>(gblRow) + 1;
-      
+
       // Get the copy of the row with global column indices
       numEntries = graph->getNumEntriesInGlobalRow(gblRow);
       Kokkos::resize(gblColInds,numEntries);
       graph->getGlobalRowCopy(gblRow, gblColInds, numEntries);
-      
+
       // Write the entries in the row in COO format (i.e., in "rowId colId" pairs)
       for(size_t c = 0; c < numEntries; c++) {
 	entry[1] = static_cast<unsigned int>(gblColInds[c]) + 1;
@@ -452,7 +452,7 @@ private:
     }
 
     out.close();
-    
+
   }
 
   //////////////////////////////
@@ -538,7 +538,7 @@ private:
     return ydef;
   }
 
-  
+
   //////////////////////////////
   //  Compare computed norms to the baseline norms
   int compareToBaseline(
@@ -746,7 +746,7 @@ private:
     return compareToBaseline(testname, yvec);
   }
 
-  
+
 private:
 
   const std::string filename;    // MatrixMarket filename

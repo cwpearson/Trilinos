@@ -117,7 +117,7 @@ namespace Details {
         }
 #endif
       }
-      
+
       timer_ = Teuchos::null;
     }
   }// end DeepCopyTimerInjection
@@ -133,7 +133,7 @@ namespace Details {
       }
     }
   }
-  
+
   namespace FenceTimerInjection {
     Teuchos::RCP<Teuchos::Time> timer_;
     bool initialized_ = false;
@@ -183,7 +183,7 @@ namespace Details {
       if (nonnull(stackedTimer))
         stackedTimer->start(timer_->name());
 #endif
-      
+
     }
 
 
@@ -212,9 +212,9 @@ namespace Details {
           }
 #endif
         }
-        
+
         timer_ = Teuchos::null;
-        
+
       }
       // Else: We've nested our fences, and we need to ignore the inner fences
     }

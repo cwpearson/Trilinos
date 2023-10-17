@@ -338,7 +338,7 @@ void localResidual(const CrsMatrix<SC,LO,GO,NO> &  A,
        (X_colmap_lcl.data () == B_lcl.data () && X_colmap_lcl.data () != nullptr),
        std::runtime_error, "X, Y and R may not alias one another.");
   }
-      
+
   SC one = Teuchos::ScalarTraits<SC>::one(), negone = -one, zero = Teuchos::ScalarTraits<SC>::zero();    
 #ifdef TPETRA_DETAILS_USE_REFERENCE_RESIDUAL
   // This is currently a "reference implementation" waiting until Kokkos Kernels provides
@@ -599,7 +599,7 @@ void residual(const Operator<SC,LO,GO,NO> &   Aop,
   // column map are locally fitted, i.e. when the local indices of
   // domain and column map match.
   bool restrictedMode = false;
-  
+
   const CrsMatrix<SC,LO,GO,NO> * Apt  = dynamic_cast<const CrsMatrix<SC,LO,GO,NO>*>(&Aop);
   if(!Apt) {
     // If we're not a CrsMatrix, we can't do fusion, so just do apply+update
@@ -625,7 +625,7 @@ void residual(const Operator<SC,LO,GO,NO> &   Aop,
   // subview of the other, but their initial pointers differ).  We
   // only need to do this if this matrix's Import is trivial;
   // otherwise, we don't actually apply the operator from X into Y.
-  
+
   RCP<const import_type> importer = A.getGraph ()->getImporter ();
   RCP<const export_type> exporter = A.getGraph ()->getExporter ();
 
@@ -658,7 +658,7 @@ void residual(const Operator<SC,LO,GO,NO> &   Aop,
     // MV.  Thus, we don't have to worry whether X_in is constant
     // stride.
     X_colMap = A.getColumnMapMultiVector (X_in);
-    
+
     // Do we want to use restrictedMode?
     restrictedMode = skipCopyAndPermuteIfPossible && importer->isLocallyFitted();
 
@@ -691,7 +691,7 @@ void residual(const Operator<SC,LO,GO,NO> &   Aop,
   else {
     R_rowMap = A.getRowMapMultiVector (R_in);    
   }
-  
+
   // Get a vector for the B_rowMap output residual, handling the 
   // non-constant stride and exporter cases
   RCP<const MV> B_rowMap;
@@ -728,10 +728,10 @@ void residual(const Operator<SC,LO,GO,NO> &   Aop,
       localResidual (A, *X_colMap, *B_rowMap, *R_rowMap, offsets, &X_in);
     else
       localResidual (A, *X_colMap, *B_rowMap, *R_rowMap, offsets);
-    
+
     {
       ProfilingRegion regionExport ("Tpetra::CrsMatrix::residual: R Export");
-      
+
       // Do the Export operation.
       R_in.doExport (*R_rowMap, *exporter, ADD);
     }

@@ -529,7 +529,7 @@ struct GEMV<VecType1,BlkType,VecType2,CoeffType,IndexType,true,Kokkos::LayoutLef
 
     const IndexType numRows = static_cast<IndexType> (A.extent (0));
     const IndexType numCols = static_cast<IndexType> (A.extent (1));
-    
+
     const A_value_type *__restrict A_ptr(A.data()); const IndexType as1(A.stride(1)); 
     const x_value_type *__restrict x_ptr(x.data()); 
     y_value_type *__restrict y_ptr(y.data()); 
@@ -571,11 +571,11 @@ struct GEMV<VecType1,BlkType,VecType2,CoeffType,IndexType,true,Kokkos::LayoutRig
 
     const IndexType numRows = static_cast<IndexType> (A.extent (0));
     const IndexType numCols = static_cast<IndexType> (A.extent (1));
-    
+
     const A_value_type *__restrict A_ptr(A.data()); const IndexType as0(A.stride(0));
     const x_value_type *__restrict x_ptr(x.data()); 
     y_value_type *__restrict y_ptr(y.data()); 
-    
+
 #if defined(KOKKOS_ENABLE_PRAGMA_UNROLL)
 #pragma unroll
 #endif

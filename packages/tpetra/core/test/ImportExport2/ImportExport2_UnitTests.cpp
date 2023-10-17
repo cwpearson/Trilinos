@@ -559,7 +559,7 @@ namespace {
       if (comm->getRank() == 0) std::cout << "=======\nend of A_tgt2\n========" << std::endl;
       sleep(1); comm->barrier();
  #endif
- 
+
       lids_type tgtRowInds;
       vals_type tgtRowVals;
       lids_type tgt2RowInds;
@@ -2526,7 +2526,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( Import_Util,LowCommunicationMakeColMapAndRein
   // it will), in which case we can remove the persistingView call.
   auto rowptr = Kokkos::Compat::persistingView(A->getLocalRowPtrsHost());
   auto colind = Kokkos::Compat::persistingView(A->getLocalIndicesHost());
-  
+
   Acolmap = A->getColMap();
   Adomainmap = A->getDomainMap();
 

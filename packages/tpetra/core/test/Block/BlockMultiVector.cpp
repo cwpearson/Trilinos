@@ -486,7 +486,7 @@ namespace {
       }
     }
   }
-    
+
 
   //
   // Make sure that BlockMultiVector's "offset view" constructors work.

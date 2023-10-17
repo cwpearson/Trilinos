@@ -148,7 +148,7 @@ public:
     yin_baseline->randomize();
 
     // Apply baseline matrix to vectors.
-    
+
     yout_baseline = applyMatrix("baseline", *A_baseline);
     norm_baseline[0] = yout_baseline->normInf();
     norm_baseline[1]=  yout_baseline->norm1();
@@ -347,7 +347,7 @@ public:
     //   2D with nonzero value = part assignment
     return ierr;
   }
-  
+
 private:
 
   //////////////////////////////
@@ -416,7 +416,7 @@ private:
 
     return ydef;
   }
-  
+
   //////////////////////////////
   //  Compare computed norms to the baseline norms
   int compareToBaseline(
@@ -519,7 +519,7 @@ private:
 
     return compareToBaseline(testname, yvec);
   }
-  
+
 private:
 
   const std::string filename;    // MatrixMarket filename

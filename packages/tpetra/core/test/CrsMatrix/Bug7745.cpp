@@ -73,7 +73,7 @@ public:
     yInit(100*(comm_->getRank()+1)),
     squareMatrix(square_)
   { }
-  
+
   // Return number of rows in generated matrix
   size_t nGlobalRows() const { return nGlobalRow; }
 
@@ -81,7 +81,7 @@ public:
   size_t nGlobalCols() const { 
    return (squareMatrix ? nGlobalRow : nGlobalRow + nEntriesPerRow - 1);
   }
-  
+
   // Run tests with combinations of alpha, beta
   int runTests(
     const Teuchos::RCP<const map_t> &domainMap,
@@ -296,7 +296,7 @@ private:
           expected += (squareMatrix ? (gid + j) % nGlobalRow : (gid + j));
         expected *= alpha;
         expected += beta * yInit;
-  
+
         if (data(i,0) != expected) ierr++;
       }
     }
@@ -315,7 +315,7 @@ private:
   {
     Teuchos::RCP<vector_t> xvec = getInputVector(Amat->getDomainMap());
     Teuchos::RCP<vector_t> yvec = getOutputVector(Amat->getRangeMap());
-    
+
     Amat->apply(*xvec, *yvec, Teuchos::NO_TRANS, alpha, beta);
 
     return checkResult(yvec, alpha, beta);
@@ -380,7 +380,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, RectangularDefault,
   MatrixBuilder<map_t, vector_t, matrix_t> mb(comm, false);
 
   // Build Trilinos-default range and domain maps
-  
+
   Teuchos::RCP<const map_t> domainMap = 
     rcp(new map_t(mb.nGlobalCols(), 0, comm));
 
@@ -410,7 +410,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, RectangularDefaultTranspose,
   MatrixBuilder<map_t, vector_t, matrix_t> mb(comm, false);
 
   // Build Trilinos-default range and domain maps
-  
+
   Teuchos::RCP<const map_t> domainMap = 
     rcp(new map_t(mb.nGlobalCols(), 0, comm));
 
@@ -440,7 +440,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, SquareDefault,
   MatrixBuilder<map_t, vector_t, matrix_t> mb(comm, true);
 
   // Build Trilinos-default range and domain maps
-  
+
   Teuchos::RCP<const map_t> domainMap = 
     rcp(new map_t(mb.nGlobalCols(), 0, comm));
 
@@ -469,7 +469,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, SquareDefaultTranspose,
   MatrixBuilder<map_t, vector_t, matrix_t> mb(comm, true);
 
   // Build Trilinos-default range and domain maps
-  
+
   Teuchos::RCP<const map_t> domainMap = 
     rcp(new map_t(mb.nGlobalCols(), 0, comm));
 
@@ -501,7 +501,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, RectangularCyclic,
   Teuchos::Array<GO> myEntries(mb.nGlobalCols());
 
   // Build Trilinos-default range and domain maps
-  
+
   // One-to-one cyclic map:  deal out entries like cards
 
   int nMyEntries = 0;
@@ -555,7 +555,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, RectangularCyclicTranspose,
   Teuchos::Array<GO> myEntries(mb.nGlobalCols());
 
   // Build Trilinos-default range and domain maps
-  
+
   // One-to-one cyclic map:  deal out entries like cards
 
   int nMyEntries = 0;
@@ -610,7 +610,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, SquareCyclic,
   Teuchos::Array<GO> myEntries(mb.nGlobalCols());
 
   // Build Trilinos-default range and domain maps
-  
+
   // One-to-one cyclic map:  deal out entries like cards
 
   int nMyEntries = 0;
@@ -664,7 +664,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, SquareCyclicTranspose,
   Teuchos::Array<GO> myEntries(mb.nGlobalCols());
 
   // Build Trilinos-default range and domain maps
-  
+
   // One-to-one cyclic map:  deal out entries like cards
 
   int nMyEntries = 0;
@@ -718,7 +718,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, SquareCyclicBatched,
   Teuchos::Array<GO> myEntries(mb.nGlobalCols());
 
   // Build Trilinos-default range and domain maps
-  
+
   // One-to-one cyclic map:  deal out entries like cards
 
   int nMyEntries = 0;

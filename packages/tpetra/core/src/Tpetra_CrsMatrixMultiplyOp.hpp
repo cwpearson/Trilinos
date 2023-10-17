@@ -430,7 +430,7 @@ namespace Tpetra {
       // is null if we don't need the temporary MV, that is, if the
       // Export is trivial (null).
       RCP<MV> Y_rowMap = getRowMapMultiVector (Y_in);
-      
+
       auto X_lcl = X_colMap->getLocalViewDevice(Access::ReadOnly);
 
       // If we have a nontrivial Export object, we must perform an

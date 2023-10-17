@@ -2252,9 +2252,9 @@ public:
       rowPtrsUnpacked_host_ = row_ptrs_host_view_type();
       rowPtrsPacked_host_ = row_ptrs_host_view_type();
     }
-    
+
     //TODO:  Make private -- matrix shouldn't access directly the guts of graph
-  
+
     /// \brief Local ordinals of column indices for all rows
     /// Valid when isLocallyIndexed is true
     /// If OptimizedStorage, storage is PACKED after fillComplete

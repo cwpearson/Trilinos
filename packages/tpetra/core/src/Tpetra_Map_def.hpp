@@ -1720,7 +1720,7 @@ namespace Tpetra {
       // There's a non-trivial chance we'll grab this on the host,
       // so let's make sure the copy finishes
       exec_instance.fence();
-      
+
       // "Commit" the local-to-global lookup table we filled in above.
       lgMap_ = lgMap;
       lgMapHost_ = lgMapHost;

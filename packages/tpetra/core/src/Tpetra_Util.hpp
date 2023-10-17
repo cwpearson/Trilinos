@@ -576,7 +576,7 @@ namespace Tpetra {
 
     std::sort(view_rcp.rbegin(),view_rcp.rend());    
   }
-  
+
 
 
 

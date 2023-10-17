@@ -167,9 +167,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( Directory, Replicate7223, LO, GO )
 
     // Find location of all entries in Map, plus one bad entry nIds
   for (size_t i = 0; i <= nIds; i++) gids[i] = Teuchos::as<GO>(i);
-  
+
   dir->getEntries(*map, gids(), procs(), lids(), true);
-  
+
   int ierr = 0;
   for (size_t i = 0; i < nIds; i++) {
     ierr += checkProc(gids[i], procs[i], 2*i);
@@ -209,9 +209,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( Directory, EvenProcs, LO, GO )
 
   // Find location of all entries in Map, plus one bad entry nIds
   for (size_t i = 0; i <= nIds; i++) gids[i] = Teuchos::as<GO>(i);
-  
+
   dir->getEntries(*map, gids(), procs(), lids(), true);
-  
+
   int ierr = 0;
   for (size_t i = 0; i < nIds; i++) {
     ierr += checkProc(gids[i], procs[i], i-i%2);
@@ -310,7 +310,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( Directory, OddProcsOffset, LO, GO )
 
   TEST_EQUALITY_CONST(ierr, 0);
 }
-  
+
 /////////////////////////////////////////////////////////////////////////////
 TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( Directory, OneProcOnly, LO, GO )
 {
@@ -332,7 +332,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( Directory, OneProcOnly, LO, GO )
                 << std::endl;
 
     size_t nMyIds = (me == iter ? np : 0);
-     
+
     auto dummy = Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid();
     Teuchos::RCP<const map_t> map = rcp(new map_t(dummy, nMyIds, 0, comm));
     Teuchos::RCP<const dir_t> dir = rcp(new dir_t(*map));
@@ -355,7 +355,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( Directory, OneProcOnly, LO, GO )
   }
   TEST_EQUALITY_CONST(ierr, 0);
 }
-  
+
 /////////////////////////////////////////////////////////////////////////////
 TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( Directory, EmptyMap, LO, GO )
 {

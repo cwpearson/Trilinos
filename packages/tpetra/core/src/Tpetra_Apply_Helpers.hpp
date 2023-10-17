@@ -106,7 +106,7 @@ namespace Tpetra {
     RCP<const map_type> compare_colMap    = Matrices[0]->getColMap();
     RCP<const import_type> importer       = Matrices[0]->getGraph()->getImporter();
 
-    
+
     bool can_batch, check_maps;
     if(params.is_null() || !params->isParameter("can batch")) {
       can_batch  = (importer.is_null() || N==1) ? false :true;
@@ -144,7 +144,7 @@ namespace Tpetra {
         if(!params.is_null()) params->set("can batch",true);
         return;
       }
-      
+
       const bool Y_is_overwritten = (beta == ZERO);
 
       // Start by importing X to Matrices[0]'s temporary

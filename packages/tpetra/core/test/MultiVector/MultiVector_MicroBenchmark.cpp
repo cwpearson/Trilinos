@@ -65,7 +65,7 @@ namespace { // (anonymous)
     typedef Tpetra::Map<LO, GO, NT> map_type;
     typedef Tpetra::MultiVector<SC, LO, GO, NT> MV;
     typedef Teuchos::ScalarTraits<SC> STS;
-    
+
     typename MV::impl_scalar_type ONE = STS::one();
     typename MV::impl_scalar_type ZERO = STS::zero();
 

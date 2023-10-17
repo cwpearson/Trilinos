@@ -305,7 +305,7 @@ void KernelWrappers<Scalar,LocalOrdinal,GlobalOrdinal,Tpetra::KokkosCompat::Kokk
 
   // Since this is being run on Cuda, we need to fence because the below code will use UVM
   // typename graph_t::execution_space().fence();
-  
+
   // KDDKDD UVM Without UVM, need to copy targetMap arrays to host.
   // KDDKDD UVM Ideally, this function would run on device and use 
   // KDDKDD UVM KokkosKernels instead of this host implementation.
@@ -550,8 +550,8 @@ void KernelWrappers2<Scalar,LocalOrdinal,GlobalOrdinal,Tpetra::KokkosCompat::Kok
   auto Icol2Ccol = 
        Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(), 
                                            Icol2Ccol_dev);
-  
- 
+
+
   // Sizes
   RCP<const map_type> Ccolmap = C.getColMap();
   size_t m = Aview.origMatrix->getLocalNumRows();

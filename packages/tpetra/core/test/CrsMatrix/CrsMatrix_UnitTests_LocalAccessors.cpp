@@ -303,14 +303,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(CrsMatrix, copyOrView, LO, GO, Scalar, Node)
       incorrectMatchingValues);
     TEST_EQUALITY(incorrectMatchingValues, 0);
   }
-    
+
   {
     // Create a view copy, change its values, and 
     // confirm that the matrices have different values
     matrix_t viewMat(*origMat, Teuchos::View);
 
     viewMat.setAllToScalar(2020);
-  
+
     auto origVals = origMat->getLocalValuesHost(Tpetra::Access::ReadOnly);
     auto viewVals = viewMat.getLocalValuesHost(Tpetra::Access::ReadOnly);
     int incorrectDifferingValues = 0;

@@ -126,7 +126,7 @@ int main(int narg, char **arg)
     const int flagValue = -1;
 
     //We exercise only the first two processes. 
-        
+
     if (myRank == 0) { // sending process
 
       for (int i = 0; i < length; i++) sendBuf_h[i] = correctValue;
@@ -182,7 +182,7 @@ int main(int narg, char **arg)
         std::cout << "Neighbor test succeeded on all processes!" << std::endl;
   }
 
-  
+
   // Self-message test
   {
     std::cout << myRank << " SELF-MSG TEST" << std::endl;
@@ -227,7 +227,7 @@ int main(int narg, char **arg)
     // Make sure that everybody finished and got the right answer.
     gblSuccess = 0; 
     MPI_Allreduce(&lclSuccess, &gblSuccess, 1, MPI_INT, MPI_MIN,MPI_COMM_WORLD);
-   
+
     if (gblSuccess != 1) {
       if (myRank == 0)
         std::cout << "Self-message test failed on some process; !" << std::endl;

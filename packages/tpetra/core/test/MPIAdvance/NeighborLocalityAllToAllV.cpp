@@ -76,7 +76,7 @@ void test_nothing(MPI_Comm comm, bool nullBufs, bool sameBufs,
 
   std::vector<int> senddispls(size, 0);
   std::vector<int> recvdispls(size, 0);
-  
+
   std::vector<long> globalsindices;
   std::vector<long> globalrindices;
 

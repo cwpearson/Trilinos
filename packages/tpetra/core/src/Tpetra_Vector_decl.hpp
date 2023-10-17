@@ -219,7 +219,7 @@ public:
   ///   to be useful for anyone else.
   Vector (const Teuchos::RCP<const map_type>& map,
 	  const wrapped_dual_view_type& d_view);
-  
+
   /// \brief Create a Vector that views a single column of the input
   ///   MultiVector.
   ///

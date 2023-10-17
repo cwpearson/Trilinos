@@ -48,11 +48,11 @@
 #include "Tpetra_applyDirichletBoundaryCondition.hpp"
 
 namespace { // (anonymous)
-  
+
   //
   // UNIT TESTS
   //
-  
+
   template<class OutputType, class InputType>
   struct ToValue {
     static KOKKOS_INLINE_FUNCTION OutputType
@@ -95,7 +95,7 @@ namespace { // (anonymous)
     using device_type = typename crs_matrix_type::device_type;
     using execution_space = typename crs_matrix_type::execution_space;
     using range_type = Kokkos::RangePolicy<execution_space, LO>;
-    
+
     const GST INVALID = Teuchos::OrdinalTraits<GST>::invalid ();
     const auto comm = Tpetra::getDefaultComm ();
     const LO lclNumRows = 10;
@@ -105,7 +105,7 @@ namespace { // (anonymous)
     RCP<const map_type> colMap = rowMap;
     RCP<const map_type> domMap = rowMap;
     RCP<const map_type> ranMap = rowMap;
-    
+
     vec_type vec1 (domMap);
     vec_type vec2 (ranMap), vec2_compare(ranMap);
 
@@ -126,7 +126,7 @@ namespace { // (anonymous)
        KOKKOS_LAMBDA (const LO lclRow) {
 	  lclRowInds(lclRow) = lclNumRows-1;
       });
-    
+
     // Host filled BCs
     Kokkos::View<typename crs_matrix_type::local_ordinal_type*, Kokkos::HostSpace> lclRowInds_h ("lclRowsInds_h",1);
     for (LO k = 0; k < 1; ++k) {
@@ -194,7 +194,7 @@ namespace { // (anonymous)
       Tpetra::applyDirichletBoundaryConditionToLocalMatrixRows (test_matrix, lclRowInds);
       test_matrix.apply (vec1, vec2);
       vec2.update (-STS::one (), vec2_compare, STS::one ());
-      
+
       const mag_type resNorm1 = vec2.norm1 ();
       TEST_EQUALITY( resNorm1, Teuchos::ScalarTraits<mag_type>::zero () );      
     }      
@@ -205,19 +205,19 @@ namespace { // (anonymous)
       Tpetra::applyDirichletBoundaryConditionToLocalMatrixRows (execution_space(), test_matrix, lclRowInds);
       test_matrix.apply (vec1, vec2);
       vec2.update (-STS::one (), vec2_compare, STS::one ());
-      
+
       const mag_type resNorm1 = vec2.norm1 ();
       TEST_EQUALITY( resNorm1, Teuchos::ScalarTraits<mag_type>::zero () );      
     }    
 
-   
+
     /*** Test host-filled boundary list ***/
     {
       crs_matrix_type test_matrix = input_matrix;
       Tpetra::applyDirichletBoundaryConditionToLocalMatrixRows (test_matrix, lclRowInds_h);
       test_matrix.apply (vec1, vec2);
       vec2.update (-STS::one (), vec2_compare, STS::one ());
-      
+
       const mag_type resNorm1 = vec2.norm1 ();
       TEST_EQUALITY( resNorm1, Teuchos::ScalarTraits<mag_type>::zero () );      
     }    
@@ -245,7 +245,7 @@ namespace { // (anonymous)
     using device_type = typename crs_matrix_type::device_type;
     using execution_space = typename crs_matrix_type::execution_space;
     using range_type = Kokkos::RangePolicy<execution_space, LO>;
-    
+
     const GST INVALID = Teuchos::OrdinalTraits<GST>::invalid ();
     const auto comm = Tpetra::getDefaultComm ();
     const LO lclNumRows = 10;
@@ -255,7 +255,7 @@ namespace { // (anonymous)
     RCP<const map_type> colMap = rowMap;
     RCP<const map_type> domMap = rowMap;
     RCP<const map_type> ranMap = rowMap;
-    
+
     vec_type vec1 (domMap);
     vec_type vec2 (ranMap), vec2_compare(ranMap);
 
@@ -276,7 +276,7 @@ namespace { // (anonymous)
        KOKKOS_LAMBDA (const LO lclRow) {
 	  lclRowInds(lclRow) = lclNumRows-1;
       });
-    
+
     // Host filled BCs
     Kokkos::View<typename crs_matrix_type::local_ordinal_type*, Kokkos::HostSpace> lclRowInds_h ("lclRowsInds_h",1);
     for (LO k = 0; k < 1; ++k) {
@@ -345,7 +345,7 @@ namespace { // (anonymous)
       Tpetra::applyDirichletBoundaryConditionToLocalMatrixRowsAndColumns (test_matrix, lclRowInds);
       test_matrix.apply (vec1, vec2);
       vec2.update (-STS::one (), vec2_compare, STS::one ());
-      
+
       const mag_type resNorm1 = vec2.norm1 ();
       TEST_EQUALITY( resNorm1, Teuchos::ScalarTraits<mag_type>::zero () );      
     }      
@@ -356,19 +356,19 @@ namespace { // (anonymous)
       Tpetra::applyDirichletBoundaryConditionToLocalMatrixRowsAndColumns (execution_space(), test_matrix, lclRowInds);
       test_matrix.apply (vec1, vec2);
       vec2.update (-STS::one (), vec2_compare, STS::one ());
-      
+
       const mag_type resNorm1 = vec2.norm1 ();
       TEST_EQUALITY( resNorm1, Teuchos::ScalarTraits<mag_type>::zero () );      
     }    
 
-   
+
     /*** Test host-filled boundary list ***/
     {
       crs_matrix_type test_matrix = input_matrix;
       Tpetra::applyDirichletBoundaryConditionToLocalMatrixRowsAndColumns (test_matrix, lclRowInds_h);
       test_matrix.apply (vec1, vec2);
       vec2.update (-STS::one (), vec2_compare, STS::one ());
-      
+
       const mag_type resNorm1 = vec2.norm1 ();
       TEST_EQUALITY( resNorm1, Teuchos::ScalarTraits<mag_type>::zero () );      
     }    

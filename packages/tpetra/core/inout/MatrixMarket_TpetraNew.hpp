@@ -273,7 +273,7 @@ readMatrixMarket(
          << "For now, use a different overload of readSparseFile until this "
          << "overload is fixed to read rectangular matrices. "
          << "See Trilinos github issues #7045 and #8472.");
-  
+
   size_t nNz = dim[2];
   bool patternInput = mm_is_pattern(mmcode);
   bool symmetricInput = mm_is_symmetric(mmcode);
@@ -292,7 +292,7 @@ readMatrixMarket(
     timer = rcp(new Teuchos::TimeMonitor(
                     *Teuchos::TimeMonitor::getNewTimer("RMM distribution")));
   }
-  
+
   // Create distribution based on nRow, nCol, npRow, npCol
   dist = buildDistribution<global_ordinal_type,scalar_type>(distribution,
 							    nRow, nCol, params,
@@ -502,7 +502,7 @@ readMatrixMarket(
 //   out.close();
 //
 //////////////////////////////////////////////////////////////////////////////
-  
+
 static
 void 
 readBinary(  
@@ -610,7 +610,7 @@ readBinary(
               << "\n  change diagonal     = " << diagonal
               << "\n  distribution        = " << distribution
               << std::endl;
-  
+
   // Create distribution based on nRow, nCol, npRow, npCol
   dist = buildDistribution<global_ordinal_type,scalar_type>(distribution,
 							    nRow, nCol, params,
@@ -664,7 +664,7 @@ readBinary(
 
       global_ordinal_type I = buffer[2*rlen]-1;
       global_ordinal_type J = buffer[2*rlen+1]-1;
-      
+
       // Special processing of nonzero
       if ((I == J) && ignoreDiagonal) continue;
 
@@ -810,7 +810,7 @@ readPerProcessBinary(
     std::cout << "Error:  cannot open file " << filename << std::endl;
     throw std::runtime_error("Error:  non-existing input file: " + rankFileName);
   }
- 
+
   // The header in each per-process file:  globalNumRows globalNumCols localNumNonzeros
   unsigned int globalNumRows = 0, globalNumCols = 0;
   unsigned long long localNumNonzeros = 0;
@@ -820,7 +820,7 @@ readPerProcessBinary(
     throw std::runtime_error("Error: bad number of read values.");
   if (fread(&localNumNonzeros, sizeof(unsigned long long), 1, fp) != 1)
     throw std::runtime_error("Error: bad number of read values.");
- 
+
   nRow = static_cast<size_t>(globalNumRows);
   nCol = static_cast<size_t>(globalNumCols);
   nNz = static_cast<size_t>(localNumNonzeros);
@@ -899,7 +899,7 @@ readSparseFile(
   if (pe != NULL) 
     verbose = pe->getValue<bool>(&verbose);
   }
-  
+
   bool callFillComplete = true;   // should we fillComplete the new CrsMatrix?
   {
   const Teuchos::ParameterEntry *pe = params.getEntryPtr("callFillComplete");
@@ -938,7 +938,7 @@ readSparseFile(
     timer = rcp(new Teuchos::TimeMonitor(
                    *Teuchos::TimeMonitor::getNewTimer(timername)));
   }
-  
+
   // Read nonzeros from the given file(s)
   size_t nRow = 0, nCol = 0;
   unsigned int *buffer=0; size_t nNz = 0;
@@ -960,7 +960,7 @@ readSparseFile(
       timer = rcp(new Teuchos::TimeMonitor(
                    *Teuchos::TimeMonitor::getNewTimer("RSF redistribute")));
     }
-  
+
     dist->Redistribute(localNZ);
   }
 
@@ -1090,14 +1090,14 @@ readSparseFile(
     dummy = Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid();
     Teuchos::RCP<const Tpetra::Map<> > domainMap = 
            Teuchos::rcp(new Tpetra::Map<>(dummy, vectorSet(), 0, comm));
-  
+
     Teuchos::Array<global_ordinal_type>().swap(vectorSet);
 
     // Build range map that corresponds to distribution
     for (global_ordinal_type i = 0; 
                              i < static_cast<global_ordinal_type>(nRow); i++) 
       if (dist->VecMine(i)) vectorSet.push_back(i);
-  
+
     dummy = Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid();
     Teuchos::RCP<const Tpetra::Map<> > rangeMap = 
            Teuchos::rcp(new Tpetra::Map<>(dummy, vectorSet(), 0, comm));

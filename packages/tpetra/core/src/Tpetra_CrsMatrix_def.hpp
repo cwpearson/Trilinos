@@ -3411,7 +3411,7 @@ CrsMatrix<Scalar, LocalOrdinal, GlobalOrdinal, Node>::
 
       auto vals = valuesPacked_wdv.getDeviceView(Access::ReadWrite);
       KokkosBlas::scal(vals, theAlpha, vals);
-   
+
     }
   }
 
@@ -5536,7 +5536,7 @@ CrsMatrix<Scalar, LocalOrdinal, GlobalOrdinal, Node>::
                               myGraph_->rowPtrsUnpacked_dev_.extent(0));
     // DEEP_COPY REVIEW - DEVICE-TO-DEVICE
     Kokkos::deep_copy(execution_space(),row_ptr_beg, myGraph_->rowPtrsUnpacked_dev_);
-    
+
     const size_t N = row_ptr_beg.extent(0) == 0 ? size_t(0) :
       size_t(row_ptr_beg.extent(0) - 1);
     if (verbose) {
@@ -5551,7 +5551,7 @@ CrsMatrix<Scalar, LocalOrdinal, GlobalOrdinal, Node>::
 
     const bool refill_num_row_entries =
       myGraph_->k_numRowEntries_.extent(0) != 0;
-    
+
     if (refill_num_row_entries) { // unpacked storage
       // We can't assume correct *this capture until C++17, and it's
       // likely more efficient just to capture what we need anyway.

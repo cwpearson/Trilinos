@@ -56,7 +56,7 @@ void finalizeKokkosIfNeeded() {
     Kokkos::finalize();
   }
 }
-  
+
 void
 initializeKokkos ()
 {

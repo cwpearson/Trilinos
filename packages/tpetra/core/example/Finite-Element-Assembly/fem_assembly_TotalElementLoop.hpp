@@ -436,10 +436,10 @@ namespace TpetraExamples
     {
       auto owned_element_to_node_ids = mesh.getOwnedElementToNode().getHostView(Tpetra::Access::ReadOnly);
       auto ghost_element_to_node_ids = mesh.getGhostElementToNode().getHostView(Tpetra::Access::ReadOnly);
-   
+
       // Using 4 because we're using quads for this example, so there will be 4 nodes associated with each element.
       Teuchos::Array<global_ordinal_type> global_ids_in_row(4);
-  
+
       // Insert node contributions for every OWNED element:
       for(size_t element_gidx=0; element_gidx<mesh.getNumOwnedElements(); element_gidx++)
         {
@@ -451,7 +451,7 @@ namespace TpetraExamples
             {
               global_ids_in_row[element_node_idx] = owned_element_to_node_ids(element_gidx, element_node_idx);
             }
-      
+
           // Add the contributions from the current row into the graph if the node is owned.
           // - For example, if Element 0 contains nodes [0,1,4,5] and nodes 0 and 4 are owned
           //   by the current processor, then:
@@ -467,7 +467,7 @@ namespace TpetraExamples
                 }
             }
         }
-  
+
       // Insert the node contributions for every GHOST element:
       for(size_t element_gidx=0; element_gidx<mesh.getNumGhostElements(); element_gidx++)
         {
@@ -545,7 +545,7 @@ namespace TpetraExamples
     // elements and insert rows for only the locally owned rows.
     //
     RCP<TimeMonitor> timerElementLoopMemory = rcp(new TimeMonitor(*TimeMonitor::getNewTimer("3.2) ElementLoop  (Memory)")));
-    
+
     RCP<crs_matrix_type> crs_matrix = rcp(new crs_matrix_type(crs_graph));
     RCP<multivector_type> rhs = rcp(new multivector_type(crs_graph->getRowMap(), 1));
     {
@@ -556,7 +556,7 @@ namespace TpetraExamples
       auto localRHS     = rhs->getLocalViewDevice(Tpetra::Access::OverwriteAll);
       auto localRowMap  = crs_matrix->getRowMap()->getLocalMap();
       auto localColMap  = crs_matrix->getColMap()->getLocalMap();
-    
+
       // Because we're processing elements in parallel, we need storage for all of them
       int numOwnedElements = mesh.getNumOwnedElements();
       int numGhostElements = mesh.getNumGhostElements();
@@ -565,8 +565,8 @@ namespace TpetraExamples
       scalar_2d_array_type all_element_matrix("all_element_matrix",nperel*std::max(numOwnedElements,numGhostElements));
       scalar_1d_array_type all_element_rhs("all_element_rhs",nperel*std::max(numOwnedElements,numGhostElements));
       local_ordinal_single_view_type  all_lcids("all_lids",nperel*std::max(numOwnedElements,numGhostElements));
-    
-    
+
+
       timerElementLoopMemory = Teuchos::null;
       RCP<TimeMonitor> timerElementLoopMatrix = rcp(new TimeMonitor(*TimeMonitor::getNewTimer("3.3) ElementLoop  (Matrix)")));
 
@@ -574,7 +574,7 @@ namespace TpetraExamples
       auto all_element_rhs_unmanaged = makeUnmanaged(all_element_rhs);
       auto all_element_matrix_unmanaged = makeUnmanaged(all_element_matrix);
       auto all_lcids_unmanaged = makeUnmanaged(all_lcids);
-    
+
       // Loop over owned elements:
       Kokkos::parallel_for(Kokkos::RangePolicy<execution_space>(0, numOwnedElements),KOKKOS_LAMBDA(const size_t& element_gidx) {
           // Get subviews
@@ -582,11 +582,11 @@ namespace TpetraExamples
           auto element_rhs    = Kokkos::subview(all_element_rhs_unmanaged,location_pair);
           auto element_matrix = Kokkos::subview(all_element_matrix_unmanaged,location_pair,alln);
           auto element_lcids  = Kokkos::subview(all_lcids_unmanaged,location_pair);
-      
+
           // Get the contributions for the current element
           ReferenceQuad4(element_matrix);
           ReferenceQuad4RHS(element_rhs);
-      
+
           // Get the local column ids array for this element
           for(int element_node_idx=0; element_node_idx<nperel; element_node_idx++) {
             element_lcids(element_node_idx) = localColMap.getLocalElement(owned_element_to_node_ids(element_gidx, element_node_idx));

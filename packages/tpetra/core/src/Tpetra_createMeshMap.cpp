@@ -49,11 +49,11 @@
 #include "TpetraCore_ETIHelperMacros.h"
 
 namespace Tpetra {
-  
+
   TPETRA_ETI_MANGLING_TYPEDEFS()
-  
+
   TPETRA_INSTANTIATE_LGN( TPETRA_CREATEMESHMAP_INSTANT )
-  
+
 } // namespace Tpetra
 
 #endif // HAVE_TPETRA_INSTANTIATION

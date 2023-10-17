@@ -202,7 +202,7 @@ size_t DistributorPlan::createFromSends(const Teuchos::ArrayView<const int>& exp
   // numActive is the number of sends that are not Null
   size_t numActive = 0;
   int needSendBuff = 0; // Boolean
-  
+
   for (size_t i = 0; i < numExports; ++i) {
     const int exportID = exportProcIDs[i];
     if (exportID >= 0) {

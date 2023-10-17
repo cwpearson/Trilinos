@@ -140,7 +140,7 @@ namespace {
 	auto imp1_ptr = imp1_permuteFromLIDs.view_host ().data ();
 	const auto size = imp1_permuteFromLIDs.view_host ().extent (0);
 	auto imp2_ptr = imp2_permuteFromLIDs.view_host ().data ();
-      
+
 	if (! std::equal (imp1_ptr, imp1_ptr + size, imp2_ptr)) {
 	  return false;
 	}
@@ -166,7 +166,7 @@ namespace {
 	auto imp1_ptr = imp1_permuteToLIDs.view_host ().data ();
 	const auto size = imp1_permuteToLIDs.view_host ().extent (0);
 	auto imp2_ptr = imp2_permuteToLIDs.view_host ().data ();
-      
+
 	if (! std::equal (imp1_ptr, imp1_ptr + size, imp2_ptr)) {
 	  return false;
 	}
@@ -192,12 +192,12 @@ namespace {
 	auto imp1_ptr = imp1_remoteLIDs.view_host ().data ();
 	const auto size = imp1_remoteLIDs.view_host ().extent (0);
 	auto imp2_ptr = imp2_remoteLIDs.view_host ().data ();
-      
+
 	if (! std::equal (imp1_ptr, imp1_ptr + size, imp2_ptr)) {
 	  return false;
 	}
       }
-      
+
       // Check LIDs in the source Map that will be sent to other processes.
       ArrayView<const LO> imp1exportLids = imp1.getExportLIDs ();
       ArrayView<const LO> imp2exportLids = imp2.getExportLIDs ();
@@ -218,7 +218,7 @@ namespace {
 	auto imp1_ptr = imp1_exportLIDs.view_host ().data ();
 	const auto size = imp1_exportLIDs.view_host ().extent (0);
 	auto imp2_ptr = imp2_exportLIDs.view_host ().data ();
-      
+
 	if (! std::equal (imp1_ptr, imp1_ptr + size, imp2_ptr)) {
 	  return false;
 	}

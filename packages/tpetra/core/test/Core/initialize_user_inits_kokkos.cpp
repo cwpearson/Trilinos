@@ -73,10 +73,10 @@ int main (int argc, char* argv[])
 {
   using std::cout;
   using std::endl;
- 
+
   bool success = true;
   testMain (success, argc, argv);
-  
+
   cout << "End Result: TEST " << (success ? "PASSED" : "FAILED") << endl;
   return EXIT_SUCCESS;
 }

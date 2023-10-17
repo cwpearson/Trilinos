@@ -21,7 +21,7 @@ int getRankInComm (MPI_Comm comm)
   (void) MPI_Comm_rank (comm, &myRank);
   return myRank;
 }
-  
+
 bool allTrueInComm (const bool lclTruth, MPI_Comm comm)
 {
   int lclTruthInt = lclTruth ? 1 : 0;
@@ -54,7 +54,7 @@ tpetraCommIsLocallyLegit (const Teuchos::Comm<int>* wrappedTpetraComm,
   // Tpetra reserves the right to MPI_Comm_dup the input comm.
   return result == MPI_IDENT || result == MPI_CONGRUENT;
 }
-  
+
 
 // NOTE TO TEST AUTHORS: The code that calls this function captures
 // std::cerr, so don't write to std::cerr on purpose in this function.
@@ -191,10 +191,10 @@ int main (int argc, char* argv[])
 {
   using std::cout;
   using std::endl;
- 
+
   bool success = true;
   testMain (success, argc, argv);
-  
+
   cout << "End Result: TEST " << (success ? "PASSED" : "FAILED") << endl;
   return EXIT_SUCCESS;
 }

@@ -159,7 +159,7 @@ namespace Tpetra {
                                const std::string& label = std::string(),
                                const Teuchos::RCP<Teuchos::ParameterList>& params = Teuchos::null);
 
-  
+
 
     // Kernel wrappers struct (for non-specialized kernels)
     // Because C++ doesn't support partial template specialization of functions.

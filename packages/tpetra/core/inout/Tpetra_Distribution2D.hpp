@@ -184,7 +184,7 @@ public:
     // with np=8).  Then we give one extra entry each to ranks 
     // [0, 3, 4, 7, 1, 2, 5].  For fewer extra entries, we follow the same
     // order of assignment, and just stop early.
-  
+
     for (int cnt = 0, i = 0; (cnt < nExtraEntries) && (i < npRows); i++) {
       for (int j = 0; (cnt < nExtraEntries) && (j < npCols); cnt++, j++) {
         int rankForExtra = Distribution2D<gno_t,scalar_t>::TWODPRANK(i, j); 

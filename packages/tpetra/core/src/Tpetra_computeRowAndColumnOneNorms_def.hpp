@@ -736,7 +736,7 @@ auto getLocalView_1d_readOnly (
                             Kokkos::ALL (), 0);
   }
 }
- 
+
 template<class SC, class LO, class GO, class NT>
 auto getLocalView_1d_writeOnly (
   Tpetra::MultiVector<SC, LO, GO, NT>& X,
@@ -754,7 +754,7 @@ auto getLocalView_1d_writeOnly (
                            Kokkos::ALL (), 0);
   }
 }
- 
+
 template<class SC, class LO, class GO, class NT, class ViewValueType>
 void
 copy1DViewIntoMultiVectorColumn (

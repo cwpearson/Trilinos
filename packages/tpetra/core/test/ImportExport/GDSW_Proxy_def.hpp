@@ -74,7 +74,7 @@ importSquareMatrixFromImporter(RCP<const CrsMatrix> inputMatrix,
     ownedRowGIDs[i] = sourceMap->getGlobalElement(i);
   for(size_t i=0; i <numPermutes; i++)
     ownedRowGIDs[i] = numSames + sourceMap->getGlobalElement(permutes[i]);
-  
+
 
 
   //    std::vector<LO> localRowsSend, localRowsSendBegin, localRowsRecv, localRowsRecvBegin;
@@ -247,7 +247,7 @@ public:
 
 
       }
-      
+
 
 
 
@@ -463,7 +463,7 @@ packCrsMatrixRestricted (const CrsMatrix<ST, LO, GO, NT>& sourceMatrix,
 
   // Array of offsets into the pack buffer.
   Kokkos::View<size_t*, DT> offsets ("offsets", num_export_lids + 1);
-  
+
   // Compute number of packets per LID (row to send), as well as
   // corresponding offsets (the prefix sum of the packet counts).
   const size_t count =
@@ -536,7 +536,7 @@ importSquareMatrixFromImporter4(RCP<const CrsMatrix> inputMatrix,
   communicateRowMap(outputRowMap, distributor, targetColGIDs, targetColGIDsBegin);
   */
 
-  
+
   throw std::runtime_error("Implementation not yet complete");
 
 
@@ -597,7 +597,7 @@ communicateMatrixData3(RCP<const CrsMatrix> inputMatrix,
     ownedRowGIDs[i] = sourceMap->getGlobalElement(i);
   for(size_t i=0; i <numPermutes; i++)
     ownedRowGIDs[i] = numSames + sourceMap->getGlobalElement(permutes[i]);
-  
+
 
 
   const size_t numSends = distributor->getNumSends();
@@ -725,7 +725,7 @@ communicateMatrixData3(RCP<const CrsMatrix> inputMatrix,
                                  Teuchos::ArrayView<const size_t>(sourceSize),
                                  Kokkos::View<LO*, Kokkos::HostSpace>(columnsRecv.data(), columnsRecv.size()),
                                  Teuchos::ArrayView<const size_t>(targetSize));
-    
+
     using KSX = typename Kokkos::ArithTraits<SC>::val_type;
     const KSX* matrixValues_K = reinterpret_cast<const KSX*>(matrixValues.data());
     KSX* valuesRecv_K = reinterpret_cast<KSX*>(valuesRecv.data());
@@ -857,7 +857,7 @@ importSquareMatrixFromImporter2(RCP<const CrsMatrix> inputMatrix,
     ownedRowGIDs[i] = sourceMap->getGlobalElement(i);
   for(size_t i=0; i <numPermutes; i++)
     ownedRowGIDs[i] = numSames + sourceMap->getGlobalElement(permutes[i]);
-  
+
 
 
   //    std::vector<LO> localRowsSend, localRowsSendBegin, localRowsRecv, localRowsRecvBegin;
@@ -1027,7 +1027,7 @@ communicateMatrixData2(RCP<const CrsMatrix> inputMatrix,
                                  Teuchos::ArrayView<const size_t>(sourceSize),
                                  Kokkos::View<LO*, Kokkos::HostSpace>(columnsRecv.data(), columnsRecv.size()),
                                  Teuchos::ArrayView<const size_t>(targetSize));
-    
+
     using KSX = typename Kokkos::ArithTraits<SC>::val_type;
     const KSX* matrixValues_K = reinterpret_cast<const KSX*>(matrixValues.data());
     KSX* valuesRecv_K = reinterpret_cast<KSX*>(valuesRecv.data());
@@ -1336,7 +1336,7 @@ communicateMatrixData(RCP<const CrsMatrix> inputMatrix,
                                  Teuchos::ArrayView<const size_t>(sourceSize),
                                  Kokkos::View<LO*, Kokkos::HostSpace>(columnsRecv.data(), columnsRecv.size()),
                                  Teuchos::ArrayView<const size_t>(targetSize));
-    
+
     using KSX = typename Kokkos::ArithTraits<SC>::val_type;
     const KSX* matrixValues_K = reinterpret_cast<const KSX*>(matrixValues.data());
     KSX* valuesRecv_K = reinterpret_cast<KSX*>(valuesRecv.data());

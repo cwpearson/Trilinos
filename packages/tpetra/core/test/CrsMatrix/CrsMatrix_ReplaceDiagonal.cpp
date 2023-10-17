@@ -182,7 +182,7 @@ namespace { // (anonymous)
 
         /* Test that no other matrix values were changed
          */
-        
+
         for (size_t i = 0; i < matrix->getRowMap()->getLocalNumElements(); i++) {
           typename crs_matrix_type::local_inds_host_view_type lcols;
           typename crs_matrix_type::values_host_view_type lvals;
@@ -249,7 +249,7 @@ namespace { // (anonymous)
       cerr << "Tpetra replaceDiagonalOverlapRowMap test" << endl
            << "Create Map and matrix" << endl;
     }
-    
+
     RCP<crs_matrix_type> matrix;
     LO nMyDiags = 0;
     { // Create a tri-diagonal matrix with a 2D blockwise parallel distribution
@@ -267,7 +267,7 @@ namespace { // (anonymous)
       }
       int myProcRow = myProc % nProcRow;
       int myProcCol = myProc / nProcRow;
-  
+
       // create a Map with overlapped entries 
       const int nRowPerProc = 10;
       const int nRows = nRowPerProc * nProcRow;
@@ -305,7 +305,7 @@ namespace { // (anonymous)
           if (nNZPerRow[i-myFirstRow]) myRows.push_back(i);
         }
       }
-    
+
       Tpetra::global_size_t dummy = 
               Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid();
       RCP<const map_type> map = rcp(new map_type(dummy, myRows(), 0, comm));
@@ -370,7 +370,7 @@ namespace { // (anonymous)
          * Diagonal entries should be global ID of row
          * Non-diagonal entries should stil be SC_MONE.
          */
-        
+
 	using impl_scalar_type = typename crs_matrix_type::impl_scalar_type;
         for (size_t i = 0; i < matrix->getRowMap()->getLocalNumElements(); i++) {
           typename crs_matrix_type::local_inds_host_view_type lcols;

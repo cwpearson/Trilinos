@@ -66,7 +66,7 @@ template <typename Device>
 void test_nothing(MPI_Comm comm, bool nullBufs, bool sameBufs,
                   bool emptyTypes, Teuchos::FancyOStream &out, bool &success) {
   static_assert(Kokkos::is_device_v<Device>, "");
-                    
+
   int size, rank;
   MPI_Comm_size(comm, &size);
   MPI_Comm_rank(comm, &rank);
@@ -76,11 +76,11 @@ void test_nothing(MPI_Comm comm, bool nullBufs, bool sameBufs,
 
   std::vector<int> senddispls(size, 0);
   std::vector<int> recvdispls(size, 0);
-  
+
   // neighbor call uses different type
   std::vector<MPI_Aint> nbrsenddispls(size, 0);
   std::vector<MPI_Aint> nbrrecvdispls(size, 0);
-  
+
   MPI_Datatype type;
   if (emptyTypes) {
     MPI_Type_contiguous(0, MPI_BYTE, &type);
@@ -140,7 +140,7 @@ template <typename Device>
 void test_random(MPI_Comm comm, int seed, Teuchos::FancyOStream &out,
                  bool &success) {
   static_assert(Kokkos::is_device_v<Device>, "");
-  
+
   int size, rank;
   MPI_Comm_size(comm, &size);
   MPI_Comm_rank(comm, &rank);
@@ -161,7 +161,7 @@ void test_random(MPI_Comm comm, int seed, Teuchos::FancyOStream &out,
   MPI_Type_size(MPI_INT, &(typesizes[2]));
   MPI_Type_size(MPI_LONG, &(typesizes[3]));
   std::uniform_int_distribution<int> typedist(0, numTypeOps - 1);
-  
+
   for (int i = 0; i < size * size; ++i) {
     plan.push_back(dist(rng));
     typeindplan.push_back(typedist(rng));
@@ -186,12 +186,12 @@ void test_random(MPI_Comm comm, int seed, Teuchos::FancyOStream &out,
     int ind = typeindplan[rank * size + dest];
     MPI_Datatype mytype = typeoptions[ind];
     int mytypesize = typesizes[ind];
-    
+
     senddispls.push_back(sdispl);
     int count = plan[rank * size + dest];
     sendcounts.push_back(count);
     sendtypes.push_back(mytype);
-    
+
     // pick random displacement
     int offset = soffsetdist(rng);
     if (offset < mytypesize * count) { // prevent overwrites
@@ -205,7 +205,7 @@ void test_random(MPI_Comm comm, int seed, Teuchos::FancyOStream &out,
       nbrsendcounts.push_back(count);
       nbrsenddispls.push_back((MPI_Aint)nbrsdispl);
       nbrsendtypes.push_back(mytype);
-      
+
       nbrsdispl += offset;
     }
   }
@@ -221,12 +221,12 @@ void test_random(MPI_Comm comm, int seed, Teuchos::FancyOStream &out,
     int ind = typeindplan[source * size + rank];
     MPI_Datatype mytype = typeoptions[ind];
     int mytypesize = typesizes[ind];
-    
+
     recvdispls.push_back(rdispl);
     int count = plan[source * size + rank];
     recvcounts.push_back(count);
     recvtypes.push_back(mytype);
-    
+
     // pick random displacement
     int offset = roffsetdist(rng);
     if (offset < mytypesize * count) { // prevent overwrites
@@ -240,7 +240,7 @@ void test_random(MPI_Comm comm, int seed, Teuchos::FancyOStream &out,
       nbrrecvcounts.push_back(count);
       nbrrecvdispls.push_back((MPI_Aint)nbrrdispl);
       nbrrecvtypes.push_back(mytype);
-      
+
       nbrrdispl += offset;
     }
   }

@@ -192,7 +192,7 @@ importsLocallySame (Teuchos::FancyOStream& out,
       auto X_ptr = X_permuteFromLIDs.view_host ().data ();
       const auto size = X_permuteFromLIDs.view_host ().extent (0);
       auto Y_ptr = Y_permuteFromLIDs.view_host ().data ();
-      
+
       if (! std::equal (X_ptr, X_ptr + size, Y_ptr)) {
 	out << prefix << X_name << ".getPermuteFromLIDs_dv().view_host()"
 	    << " != " << Y_name << ".getPermuteFromLIDs_dv().view_host()"
@@ -229,7 +229,7 @@ importsLocallySame (Teuchos::FancyOStream& out,
       auto X_ptr = X_permuteToLIDs.view_host ().data ();
       const auto size = X_permuteToLIDs.view_host ().extent (0);
       auto Y_ptr = Y_permuteToLIDs.view_host ().data ();
-      
+
       if (! std::equal (X_ptr, X_ptr + size, Y_ptr)) {
 	out << prefix << X_name << ".getPermuteToLIDs_dv().view_host()"
 	    << " != " << Y_name << ".getPermuteToLIDs_dv().view_host()"
@@ -266,7 +266,7 @@ importsLocallySame (Teuchos::FancyOStream& out,
       auto X_ptr = X_exportLIDs.view_host ().data ();
       const auto size = X_exportLIDs.view_host ().extent (0);
       auto Y_ptr = Y_exportLIDs.view_host ().data ();
-      
+
       if (! std::equal (X_ptr, X_ptr + size, Y_ptr)) {
 	out << prefix << X_name << ".getExportLIDs_dv().view_host()"
 	    << " != " << Y_name << ".getExportLIDs_dv().view_host()"
@@ -303,7 +303,7 @@ importsLocallySame (Teuchos::FancyOStream& out,
       auto X_ptr = X_remoteLIDs.view_host ().data ();
       const auto size = X_remoteLIDs.view_host ().extent (0);
       auto Y_ptr = Y_remoteLIDs.view_host ().data ();
-      
+
       if (! std::equal (X_ptr, X_ptr + size, Y_ptr)) {
 	out << prefix << X_name << ".getRemoteLIDs_dv().view_host()"
 	    << " != " << Y_name << ".getRemoteLIDs_dv().view_host()"

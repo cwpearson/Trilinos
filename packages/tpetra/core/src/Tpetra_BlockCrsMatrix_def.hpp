@@ -539,7 +539,7 @@ public:
     // Right now, we make many assumptions...
     TEUCHOS_TEST_FOR_EXCEPTION(!destMatrix.is_null(), std::invalid_argument,
                                "destMatrix is required to be null.");
- 
+
     // BlockCrsMatrix requires a complete graph at construction.
     // So first step is to import and fill complete the destGraph.
     RCP<crs_graph_type>  srcGraph = rcp (new  crs_graph_type(this->getCrsGraph()));
@@ -567,7 +567,7 @@ public:
     // Right now, we make many assumptions...
     TEUCHOS_TEST_FOR_EXCEPTION(!destMatrix.is_null(), std::invalid_argument,
                                "destMatrix is required to be null.");
- 
+
     // BlockCrsMatrix requires a complete graph at construction.
     // So first step is to import and fill complete the destGraph.
     RCP<crs_graph_type>  srcGraph = rcp (new  crs_graph_type(this->getCrsGraph()));
@@ -2399,7 +2399,7 @@ void BlockCrsMatrix<Scalar, LO, GO, Node>::localApplyBlockNoTrans(
       const auto policy = policy_type (numImportLIDs, 1, 1)     
         .set_scratch_size (0, Kokkos::PerTeam (scratch_per_row));
       using host_scratch_space = typename host_exec::scratch_memory_space;
-      
+
       using pair_type = Kokkos::pair<size_t, size_t>;
 
       //The following parallel_for modifies values on host while unpacking.
@@ -2415,7 +2415,7 @@ void BlockCrsMatrix<Scalar, LO, GO, Node>::localApplyBlockNoTrans(
             (member.team_scratch (0), maxRowNumEnt);
           Kokkos::View<impl_scalar_type*, host_scratch_space> vals
             (member.team_scratch (0), maxRowNumScalarEnt);
-          
+
 
           const size_t offval = offset(i);
           const LO lclRow = importLIDsHost(i);

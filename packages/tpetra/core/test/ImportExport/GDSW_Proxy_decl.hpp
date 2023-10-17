@@ -24,7 +24,7 @@ class TpetraFunctions
   using CrsMatrix = Tpetra::CrsMatrix<SC,LO,GO,NT>;
   using IndicesViewT = typename CrsMatrix::local_inds_host_view_type;
   using ValuesViewT  = typename CrsMatrix::values_host_view_type;
-  
+
 public:
 
     TpetraFunctions() = default;

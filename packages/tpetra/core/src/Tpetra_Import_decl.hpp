@@ -260,7 +260,7 @@ namespace Tpetra {
     //! Assignment operator.
     Import<LocalOrdinal,GlobalOrdinal,Node>&
     operator= (const Import<LocalOrdinal,GlobalOrdinal,Node>& Source) = default;
-    
+
     //! Destructor.
     virtual ~Import () = default;
 

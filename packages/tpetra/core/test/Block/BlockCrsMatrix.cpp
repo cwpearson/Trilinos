@@ -1180,7 +1180,7 @@ namespace {
       nonconst_values_host_view_type myVals;
       LO numEnt = 0;
       blockMat.getLocalRowViewNonConst (lclRowInd, lclColInds, myVals); numEnt = lclColInds.extent(0);
-      
+
       // Fill the diagonal block D such that D(i,j) = (lclRowInd+1) *
       // (1 + i + j*blockSize).  Fill the off-diagonal block with -1.
       // This ensures that we can tell we got the right blocks, and
@@ -1619,7 +1619,7 @@ namespace {
 	    break;
 	  }
         }
-      
+
 	if(a2_k == INVALID) {
 	  std::cerr << "Cannot find corresponding column" << std::endl;
 	  return false;
@@ -1778,7 +1778,7 @@ namespace {
         const GO globalrow = src_map->getGlobalElement(localrow);
         GO globalcol[1];
         globalcol[0] = globalrow;
-        
+
         src_graph->insertGlobalIndices(globalrow, 1, globalcol);
       }
       src_graph->fillComplete();
@@ -1810,7 +1810,7 @@ namespace {
       // Call importAndFillComplete to get the tgt matrix
       RCP<block_crs_type> tgt_mat =
         Tpetra::importAndFillCompleteBlockCrsMatrix<block_crs_type> (src_mat, importer);
-     
+
       // Manually build the tgt matrix and test that it matches the returned matrix
 
       // Build tgt graph.
@@ -1959,7 +1959,7 @@ namespace {
        tgt_mat_for_testing->describe(out, Teuchos::VERB_EXTREME);
        tgt_mat->describe(out, Teuchos::VERB_EXTREME);
 
-       
+
 
 
        // Test that matrices are identical
@@ -2780,7 +2780,7 @@ namespace {
     }
 
     out << "Read CrsMatrix from file \"" << matrixFile << "\"" << endl;
-    
+
     RCP<crs_matrix_type> pointMatrix = reader_type::readSparseFile(matrixFile, comm);
 
     out << "Migrate input CrsMatrix to final parallel distribution" << endl;
@@ -2802,7 +2802,7 @@ namespace {
     parPointMatrix->fillComplete();
     pointMatrix.swap(parPointMatrix);
 
-    
+
     out << "Convert CrsMatrix to BlockCrsMatrix" << endl;
     int blockSize = 3;
     RCP<block_matrix_type> blockMatrix = Tpetra::convertToBlockCrsMatrix(*pointMatrix,blockSize);
@@ -2830,7 +2830,7 @@ namespace {
     RCP<mv_type> resultVec1 = rcp(new mv_type(newPointMatrix->getRangeMap(),1));
     out << "CrsMatrix::apply" << endl;
     newPointMatrix->apply(*randVec, *resultVec1, Teuchos::NO_TRANS, one, zero);
-    
+
     out << "Compute norm of result" << endl;
     resultVec1->norm2(normVec1);
 

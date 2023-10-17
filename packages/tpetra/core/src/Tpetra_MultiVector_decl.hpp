@@ -594,7 +594,7 @@ namespace Tpetra {
     /// around with multiple memory spaces.
     MultiVector (const Teuchos::RCP<const map_type>& map,
                  const typename dual_view_type::t_dev& d_view);
-   
+
     /// \brief Expert mode constructor, that takes a Kokkos::DualView
     ///   of the MultiVector's data and the "original"
     ///   Kokkos::DualView of the data, and returns a MultiVector that

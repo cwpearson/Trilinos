@@ -2070,7 +2070,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Tpetra_MatMat, threaded_add_sorted, SC, LO, GO
   colinds[2] = Kokkos::create_mirror_view_and_copy(
                               typename ColindsType::HostMirror::memory_space(),
                               colindsCRS[2]);
-  
+
   //the above function is an unfenced kernel launch, and the verification below relies on UVM, so fence here.
   //now scan through C's rows and entries to check they are correct
   TEST_ASSERT(rowptrs[0].extent(0) == rowptrs[2].extent(0));
