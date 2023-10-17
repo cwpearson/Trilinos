@@ -1400,7 +1400,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Tpetra_MatMat, range_row_test, SC, LO, GO, NT)
   TEST_EQUALITY_CONST( gblSuccess, 1 );
 }
 
-// Build upper diag matrix for test 
+// Build upper diag matrix for test
 template<class BlockCrsMatrixType>
 void build_A_matrix (const RCP<BlockCrsMatrixType>& A) {
 
@@ -1478,7 +1478,7 @@ void build_A_matrix (const RCP<BlockCrsMatrixType>& A) {
   }
 }
 
-// Build lower diag matrix for test   
+// Build lower diag matrix for test
 template<class BlockCrsMatrixType>
 void build_B_matrix (const RCP<BlockCrsMatrixType>& B) {
 
@@ -1523,7 +1523,7 @@ void build_B_matrix (const RCP<BlockCrsMatrixType>& B) {
                           2);
   }
 }
-// Build tri diag matrix for test 
+// Build tri diag matrix for test
 template<class BlockCrsMatrixType>
 void build_C_matrix (const RCP<BlockCrsMatrixType>& C) {
 
@@ -1716,7 +1716,7 @@ bool matrices_are_same(const RCP<BlockCrsMatrixType>& A1,
 /*
  * Test the matrix-matrix multiplication for a simple BlockCrsMatrix example.
  * The test is only run on 2 processors. The test is A*B=C, where A is 4x3 lower
- * diagonal matrix and  B is 3x4 upper diagonal matrix, each with up to 1 
+ * diagonal matrix and  B is 3x4 upper diagonal matrix, each with up to 1
  * off-diagonal entry. The result C is a tridiagonal matrix. Blocksize=2.
  */
 TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Tpetra_MatMatMult, BlockCrsMult, SC,LO, GO, NT)  {
@@ -1746,7 +1746,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Tpetra_MatMatMult, BlockCrsMult, SC,LO, GO, NT
   newOut << "Tpetra block sparse matrix-matrix multiply: operations_test" << endl;
   Teuchos::OSTab tab1 (newOut);
 
-  // This test is 2 rank specific                                                             
+  // This test is 2 rank specific
   if (numProcs != 2) {
     return;
   }
@@ -1770,7 +1770,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Tpetra_MatMatMult, BlockCrsMult, SC,LO, GO, NT
                        num_local_elements_B,
                        indexBase, comm));
 
-  // Build graphs                                                        
+  // Build graphs
   Teuchos::RCP<crs_graph_type> graph_A =
     Teuchos::rcp (new crs_graph_type (row_map_A, 2));
   Teuchos::RCP<crs_graph_type> graph_B =
@@ -1820,7 +1820,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Tpetra_MatMatMult, BlockCrsMult, SC,LO, GO, NT
         cols_C[0] = globalrow-1; cols_C[1] = globalrow;
       } else {
         cols_C.resize(3);
-        cols_C[0] = globalrow-1; cols_C[1] = globalrow; cols_C[2] = globalrow+1; 
+        cols_C[0] = globalrow-1; cols_C[1] = globalrow; cols_C[2] = globalrow+1;
       }
       graph_C->insertGlobalIndices (globalrow, cols_C());
     }
@@ -1829,19 +1829,19 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Tpetra_MatMatMult, BlockCrsMult, SC,LO, GO, NT
 
   // Build matrices. C is used to test against the computed matrix
   RCP<BlockMatrix_t> A =
-    rcp (new BlockMatrix_t (*graph_A, blocksize)); 
+    rcp (new BlockMatrix_t (*graph_A, blocksize));
   RCP<BlockMatrix_t> B =
     rcp (new BlockMatrix_t (*graph_B, blocksize));
   RCP<BlockMatrix_t> C =
     rcp (new BlockMatrix_t (*graph_C, blocksize));
 
-  build_A_matrix(A);  
+  build_A_matrix(A);
   build_B_matrix(B);
   build_C_matrix(C);
 
   RCP<BlockMatrix_t> computedC;
   Tpetra::MatrixMatrix::Multiply(A.getConst(), false,
-                                 B.getConst(), false, 
+                                 B.getConst(), false,
                                  computedC);
 
   // Test that C and the computed matrix are identical
@@ -2005,7 +2005,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Tpetra_MatMat, threaded_add_sorted, SC, LO, GO
   typename RowptrsType::HostMirror rowptrs[3];
      rowptrs[0] = typename RowptrsType::HostMirror("rowptr0", nrows+1);
      rowptrs[1] = typename RowptrsType::HostMirror("rowptr1", nrows+1);
-  typename ColindsType::HostMirror colinds[3]; 
+  typename ColindsType::HostMirror colinds[3];
      colinds[0] = typename ColindsType::HostMirror("colind0", nrows*nnzPerRow);
      colinds[1] = typename ColindsType::HostMirror("colind1", nrows*nnzPerRow);
   {
@@ -2055,8 +2055,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Tpetra_MatMat, threaded_add_sorted, SC, LO, GO
   ISC zero(0);
   ISC one(1);
   Tpetra::MMdetails::AddKernels<SC, LO, GO, NT>::addSorted(
-                                valsCRS[0], rowptrsCRS[0], colindsCRS[0], one, 
-                                valsCRS[1], rowptrsCRS[1], colindsCRS[1], one, 
+                                valsCRS[0], rowptrsCRS[0], colindsCRS[0], one,
+                                valsCRS[1], rowptrsCRS[1], colindsCRS[1], one,
                                 valsCRS[2], rowptrsCRS[2], colindsCRS[2]);
 
   ExecSpace().fence();
@@ -2159,7 +2159,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Tpetra_MatMat, threaded_add_unsorted, SC, LO, 
      rowptrs[0] = typename RowptrsType::HostMirror("rowptr0", nrows+1);
      rowptrs[1] = typename RowptrsType::HostMirror("rowptr1", nrows+1);
      rowptrs[2] = typename RowptrsType::HostMirror("rowptr2", nrows+1);
-  typename ColindsType::HostMirror colinds[3]; 
+  typename ColindsType::HostMirror colinds[3];
      colinds[0] = typename ColindsType::HostMirror("colind0", nrows*nnzPerRow);
      colinds[1] = typename ColindsType::HostMirror("colind1", nrows*nnzPerRow);
      colinds[2] = typename ColindsType::HostMirror("colind2", nrows*nnzPerRow);
@@ -2209,8 +2209,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Tpetra_MatMat, threaded_add_unsorted, SC, LO, 
   ISC zero(0);
   ISC one(1);
   Tpetra::MMdetails::AddKernels<SC, LO, GO, NT>::addUnsorted(
-                               valsCRS[0], rowptrsCRS[0], colindsCRS[0], one, 
-                               valsCRS[1], rowptrsCRS[1], colindsCRS[1], one, 
+                               valsCRS[0], rowptrsCRS[0], colindsCRS[0], one,
+                               valsCRS[1], rowptrsCRS[1], colindsCRS[1], one,
                                nrows, valsCRS[2], rowptrsCRS[2], colindsCRS[2]);
 
   //now scan through C's rows and entries to check they are correct

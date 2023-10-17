@@ -54,7 +54,7 @@
 
 
 /// \file Tpetra_Details_scaleBlockDiagonal.hpp
-/// \brief Functions that rescales a multivector (in-place) by a inverse of a block-diagonal matrix 
+/// \brief Functions that rescales a multivector (in-place) by a inverse of a block-diagonal matrix
 /// (as implied by the given MultiVector) or its transpose.
 /// \warning This file, and its contents, are implementation details
 ///   of Tpetra.  The file itself or its contents may disappear or
@@ -64,7 +64,7 @@ namespace Tpetra {
 namespace Details {
 
 
-template<class MultiVectorType>        
+template<class MultiVectorType>
 void inverseScaleBlockDiagonal(MultiVectorType & blockDiagonal, bool doTranspose, MultiVectorType & multiVectorToBeScaled) {
   using LO             = typename MultiVectorType::local_ordinal_type;
   using range_type     = Kokkos::RangePolicy<typename MultiVectorType::node_type::execution_space, LO>;
@@ -103,11 +103,11 @@ void inverseScaleBlockDiagonal(MultiVectorType & blockDiagonal, bool doTranspose
       }
       else {
 	// Solve L
-	SerialTrsm<Side::Left,Uplo::Lower,Trans::NoTranspose,Diag::Unit,algo_type>::invoke(SC_one,A,B);	
+	SerialTrsm<Side::Left,Uplo::Lower,Trans::NoTranspose,Diag::Unit,algo_type>::invoke(SC_one,A,B);
 	// Solve U
 	SerialTrsm<Side::Left,Uplo::Upper,Trans::NoTranspose,Diag::NonUnit,algo_type>::invoke(SC_one,A,B);
       }
-    });  
+    });
 }
 
 } // namespace Details

@@ -62,22 +62,22 @@ namespace Details {
     Teuchos::RCP<Teuchos::Time> timer_;
     bool initialized_ = false;
 
-    void kokkosp_begin_deep_copy(Kokkos::Tools::SpaceHandle dst_handle, const char* dst_name, const void* dst_ptr,                                 
+    void kokkosp_begin_deep_copy(Kokkos::Tools::SpaceHandle dst_handle, const char* dst_name, const void* dst_ptr,
                                  Kokkos::Tools::SpaceHandle src_handle, const char* src_name, const void* src_ptr,
-                                 uint64_t size) {      
+                                 uint64_t size) {
       // In verbose mode, we add the src/dst names as well
       std::string extra_label;
       if(Tpetra::Details::Behavior::timeKokkosDeepCopyVerbose1()) {
         extra_label = std::string(" {") + src_name + "=>" + dst_name + "}";
       } else if(Tpetra::Details::Behavior::timeKokkosDeepCopyVerbose2()) {
         extra_label = std::string(" {") + src_name + "=>" + dst_name + "," + std::to_string(size)+"}";
-      }    
+      }
 
       if(timer_ != Teuchos::null)
         std::cout << "WARNING: Kokkos::deep_copy() started within another Kokkos::deep_copy().  Timers will be in error"<<std::endl;
 
-      // If the src_name is "Scalar" then we're doing a "Fill" style copy from host to devices, which we want to record separately.  
-      if(!strcmp(src_name,"Scalar")) 
+      // If the src_name is "Scalar" then we're doing a "Fill" style copy from host to devices, which we want to record separately.
+      if(!strcmp(src_name,"Scalar"))
         timer_ = Teuchos::TimeMonitor::getNewTimer(std::string("Kokkos::deep_copy_scalar [")+src_handle.name+"=>"+dst_handle.name+"]" + extra_label);
       // If the size is under 65 bytes, we're going to flag this as "small" to make it easier to watch the big stuff
       else if(size <= 64)
@@ -144,7 +144,7 @@ namespace Details {
 
       // Nested fences are not allowed
       if(timer_ != Teuchos::null)
-        return;        
+        return;
       active_handle = (active_handle+1) % 1024;
       *handle = active_handle;
 

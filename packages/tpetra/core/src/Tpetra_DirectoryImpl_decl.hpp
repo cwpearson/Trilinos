@@ -424,7 +424,7 @@ namespace Tpetra {
       /// and copy it to host, or modify the directory to access the hash table
       /// on device.
       typedef typename Details::FixedHashTable<LocalOrdinal, int,
-                                               Kokkos::HostSpace::device_type> 
+                                               Kokkos::HostSpace::device_type>
                        lidToPidTable_type;
       Teuchos::RCP<lidToPidTable_type> lidToPidTable_;
 

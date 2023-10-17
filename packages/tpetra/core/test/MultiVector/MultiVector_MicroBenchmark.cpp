@@ -109,7 +109,7 @@ namespace { // (anonymous)
     {
       auto X_lcl =
            X.template getLocalView<cur_memory_space>(Tpetra::Access::ReadOnly);
-      auto Y_lcl = 
+      auto Y_lcl =
            Y.template getLocalView<cur_memory_space>(Tpetra::Access::ReadWrite);
 
       ::Tpetra::Details::ProfilingRegion region ("KokkosBlas Update Loop");
@@ -127,7 +127,7 @@ namespace { // (anonymous)
     {
       auto X_lcl =
            X.template getLocalView<cur_memory_space>(Tpetra::Access::ReadWrite);
-      auto Y_lcl = 
+      auto Y_lcl =
            Y.template getLocalView<cur_memory_space>(Tpetra::Access::ReadOnly);
       ::Tpetra::Details::ProfilingRegion region ("Raw Lambda Update Loop");
       for(size_t rep=0; rep<num_repeats; rep++) {

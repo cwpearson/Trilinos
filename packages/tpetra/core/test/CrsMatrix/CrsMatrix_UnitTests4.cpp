@@ -892,7 +892,7 @@ inline void tupleToArray(Array<T> &arr, const tuple &tup)
 
     // Make some vectors
     RCP<MV> toScale2 = rcp(new MV(map,1));
-    RCP<MV> toScale4 = rcp(new MV(map,1)); 
+    RCP<MV> toScale4 = rcp(new MV(map,1));
     {
       auto v2 = toScale2->getDataNonConst(0);
       auto v4 = toScale4->getDataNonConst(0);
@@ -901,12 +901,12 @@ inline void tupleToArray(Array<T> &arr, const tuple &tup)
           v2[i] = SC_one;
           v4[i] = SC_one;
         }
-        else {        
+        else {
           v2[i] = SC_one+SC_one;
           v4[i] = SC_one+SC_one;
         }
       }
-    }    
+    }
 
     // Scale some vectors
     Tpetra::Details::inverseScaleBlockDiagonal(*diag2,false,*toScale2);
@@ -991,7 +991,7 @@ inline void tupleToArray(Array<T> &arr, const tuple &tup)
 
     // Make some vectors
     RCP<MV> toScale2 = rcp(new MV(map,1));
-    RCP<MV> toScale4 = rcp(new MV(map,1)); 
+    RCP<MV> toScale4 = rcp(new MV(map,1));
     {
       auto v2 = toScale2->getDataNonConst(0);
       auto v4 = toScale4->getDataNonConst(0);
@@ -1000,11 +1000,11 @@ inline void tupleToArray(Array<T> &arr, const tuple &tup)
           v2[i] = SC_one;
           v4[i] = SC_one;
         }
-        else {        
+        else {
           v2[i] = SC_one+SC_one;
           v4[i] = SC_one+SC_one;
         }
-      }    
+      }
     }
 
     // Now, let's rescale some vectors
@@ -1072,7 +1072,7 @@ inline void tupleToArray(Array<T> &arr, const tuple &tup)
     Array<Mag> norm(2), exact(2,MT_ZERO);
     X.putScalar(ONE);
 
-    // Do a std::vector version 
+    // Do a std::vector version
     {
       Y1a.putScalar(ZERO);Y1b.putScalar(ZERO);
       Y2a.putScalar(ZERO);Y2b.putScalar(ZERO);
@@ -1137,7 +1137,7 @@ inline void tupleToArray(Array<T> &arr, const tuple &tup)
     }
 
     // Teuchos::Array version
-    // Do a std::vector version 
+    // Do a std::vector version
     {
       Y1a.putScalar(ZERO);Y2a.putScalar(ZERO);
       Y1b.putScalar(ZERO);Y2b.putScalar(ZERO);
@@ -1179,7 +1179,7 @@ inline void tupleToArray(Array<T> &arr, const tuple &tup)
       TEUCHOS_UNIT_TEST_TEMPLATE_4_INSTANT( CrsMatrix, SetAllValues,      LO, GO, SCALAR, NODE ) \
       TEUCHOS_UNIT_TEST_TEMPLATE_4_INSTANT( CrsMatrix, GraphOwnedByFirstMatrixSharedBySecond, LO, GO, SCALAR, NODE ) \
       TEUCHOS_UNIT_TEST_TEMPLATE_4_INSTANT( CrsMatrix, ExtractBlockDiagonal,      LO, GO, SCALAR, NODE ) \
-      TEUCHOS_UNIT_TEST_TEMPLATE_4_INSTANT( CrsMatrix, ApplyHelpers,      LO, GO, SCALAR, NODE )  
+      TEUCHOS_UNIT_TEST_TEMPLATE_4_INSTANT( CrsMatrix, ApplyHelpers,      LO, GO, SCALAR, NODE )
 
 #define UNIT_TEST_GROUP_NO_ORDINAL_SCALAR( SCALAR, LO, GO, NODE ) \
       TEUCHOS_UNIT_TEST_TEMPLATE_4_INSTANT( CrsMatrix, ScaleBlockDiagonal,      LO, GO, SCALAR, NODE ) \

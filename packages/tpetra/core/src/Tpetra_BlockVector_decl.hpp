@@ -120,18 +120,18 @@ public:
   /// little_vec_type or const_little_vec_type.  This gives us a
   /// porting strategy to move from "classic" Tpetra to the Kokkos
   /// refactor version.
-  typedef typename base_type::little_vec_type 
+  typedef typename base_type::little_vec_type
                               little_vec_type;
-  typedef typename base_type::little_host_vec_type 
+  typedef typename base_type::little_host_vec_type
                               little_host_vec_type;
 
   /// \brief "Const block view" of all degrees of freedom at a mesh point.
   ///
   /// This is just like little_vec_type, except that you can't modify
   /// its entries.
-  typedef typename base_type::const_little_vec_type 
+  typedef typename base_type::const_little_vec_type
                               const_little_vec_type;
-  typedef typename base_type::const_little_host_vec_type 
+  typedef typename base_type::const_little_host_vec_type
                               const_little_host_vec_type;
 
   //@}

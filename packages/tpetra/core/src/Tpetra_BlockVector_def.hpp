@@ -149,7 +149,7 @@ namespace Tpetra {
   BlockVector<Scalar, LO, GO, Node>::
   getLocalBlockHost (const LO localRowIndex, Access::ReadOnlyStruct) const
   {
-    return ((const base_type*) this)->getLocalBlockHost(localRowIndex, 0, 
+    return ((const base_type*) this)->getLocalBlockHost(localRowIndex, 0,
                                                         Access::ReadOnly);
   }
 
@@ -158,7 +158,7 @@ namespace Tpetra {
   BlockVector<Scalar, LO, GO, Node>::
   getLocalBlockHost (const LO localRowIndex, Access::ReadWriteStruct)
   {
-    return ((base_type*) this)->getLocalBlockHost(localRowIndex, 0, 
+    return ((base_type*) this)->getLocalBlockHost(localRowIndex, 0,
                                                   Access::ReadWrite);
   }
 
@@ -167,7 +167,7 @@ namespace Tpetra {
   BlockVector<Scalar, LO, GO, Node>::
   getLocalBlockHost (const LO localRowIndex, Access::OverwriteAllStruct)
   {
-    return ((base_type*) this)->getLocalBlockHost(localRowIndex, 0, 
+    return ((base_type*) this)->getLocalBlockHost(localRowIndex, 0,
                                                   Access::OverwriteAll);
   }
 
@@ -179,6 +179,6 @@ namespace Tpetra {
 // Must be expanded from within the Tpetra namespace!
 //
 #define TPETRA_BLOCKVECTOR_INSTANT(S,LO,GO,NODE) \
-  template class BlockVector< S, LO, GO, NODE >; 
+  template class BlockVector< S, LO, GO, NODE >;
 
 #endif // TPETRA_BLOCKVECTOR_DEF_HPP

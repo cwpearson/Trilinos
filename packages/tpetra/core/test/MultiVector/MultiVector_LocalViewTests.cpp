@@ -68,10 +68,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL( MultiVector, TeuchosArray, LO, GO, Scalar , N
 
   const size_t nGlobalEntries = 8 * np;
   const Scalar scalar = 100. * (me+1);
-  Teuchos::Array<GO> myEntries(nGlobalEntries); 
+  Teuchos::Array<GO> myEntries(nGlobalEntries);
 
   // Default one-to-one linear block map in Trilinos
-  Teuchos::RCP<const map_t> defaultMap = 
+  Teuchos::RCP<const map_t> defaultMap =
            rcp(new map_t(nGlobalEntries, 0, comm));
 
   // Create vector
@@ -86,7 +86,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL( MultiVector, TeuchosArray, LO, GO, Scalar , N
     auto dataHost = defaultVec.get1dView();
     try {
       auto dataDevice = defaultVec.getLocalViewDevice(Tpetra::Access::ReadOnly);
-    } 
+    }
     catch (...) {
       threw = true;
     }
@@ -98,7 +98,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL( MultiVector, TeuchosArray, LO, GO, Scalar , N
     auto dataHost = defaultVec.get2dView();
     try {
       auto dataDevice = defaultVec.getLocalViewDevice(Tpetra::Access::ReadOnly);
-    } 
+    }
     catch (...) {
       threw = true;
     }
@@ -110,7 +110,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL( MultiVector, TeuchosArray, LO, GO, Scalar , N
     auto dataHost = defaultVec.getData(0);
     try {
       auto dataDevice = defaultVec.getLocalViewDevice(Tpetra::Access::ReadOnly);
-    } 
+    }
     catch (...) {
       threw = true;
     }
@@ -122,7 +122,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL( MultiVector, TeuchosArray, LO, GO, Scalar , N
     auto dataHost = defaultVec.getDataNonConst(1);
     try {
       auto dataDevice = defaultVec.getLocalViewDevice(Tpetra::Access::ReadOnly);
-    } 
+    }
     catch (...) {
       threw = true;
     }
@@ -130,7 +130,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL( MultiVector, TeuchosArray, LO, GO, Scalar , N
   }
 
   if (ierr)
-    std::cout << "TEST FAILED:  TeuchosArray test had " << ierr 
+    std::cout << "TEST FAILED:  TeuchosArray test had " << ierr
               << " failures on rank " << me << std::endl;
 
   int gerr;
@@ -152,10 +152,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL( MultiVector, HostView, LO, GO, Scalar , Node 
 
   const size_t nGlobalEntries = 8 * np;
   const Scalar scalar = 100. * (me+1);
-  Teuchos::Array<GO> myEntries(nGlobalEntries); 
+  Teuchos::Array<GO> myEntries(nGlobalEntries);
 
   // Default one-to-one linear block map in Trilinos
-  Teuchos::RCP<const map_t> defaultMap = 
+  Teuchos::RCP<const map_t> defaultMap =
            rcp(new map_t(nGlobalEntries, 0, comm));
 
   // Create vector
@@ -166,14 +166,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL( MultiVector, HostView, LO, GO, Scalar , Node 
   auto data = defaultVec.getLocalViewHost(Tpetra::Access::ReadOnly);
 
   for (size_t i = 0; i < defaultVec.getLocalLength(); i++) {
-    if (data(i,0) != scalar) { 
+    if (data(i,0) != scalar) {
       ierr++;
       std::cout << "Expected: " << scalar << ", got: "<< data(i, 0) << std::endl;
     }
   }
 
-  if (ierr > 0) 
-    std::cout << "TEST FAILED:  HOSTVIEW TEST HAD " << ierr 
+  if (ierr > 0)
+    std::cout << "TEST FAILED:  HOSTVIEW TEST HAD " << ierr
               << " FAILURES ON RANK " << me << std::endl;
 
   int gerr;
@@ -195,10 +195,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL( MultiVector, DeviceView, LO, GO, Scalar , Nod
 
   const size_t nGlobalEntries = 8 * np;
   const Scalar scalar = 100. * (me+1);
-  Teuchos::Array<GO> myEntries(nGlobalEntries); 
+  Teuchos::Array<GO> myEntries(nGlobalEntries);
 
   // Default one-to-one linear block map in Trilinos
-  Teuchos::RCP<const map_t> defaultMap = 
+  Teuchos::RCP<const map_t> defaultMap =
            rcp(new map_t(nGlobalEntries, 0, comm));
 
   // Create vector
@@ -212,8 +212,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL( MultiVector, DeviceView, LO, GO, Scalar , Nod
   if (data != data_old) {
     ierr++;
   }
-  if (ierr > 0) 
-    std::cout << "TEST FAILED:  DeviceView TEST HAD " << ierr 
+  if (ierr > 0)
+    std::cout << "TEST FAILED:  DeviceView TEST HAD " << ierr
               << " FAILURES ON RANK " << me << std::endl;
 
   int gerr;
@@ -234,10 +234,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL( MultiVector, HostDeviceView, LO, GO, Scalar ,
 
   const size_t nGlobalEntries = 8 * np;
   const Scalar scalar = 100. * (me+1);
-  Teuchos::Array<GO> myEntries(nGlobalEntries); 
+  Teuchos::Array<GO> myEntries(nGlobalEntries);
 
   // Default one-to-one linear block map in Trilinos
-  Teuchos::RCP<const map_t> defaultMap = 
+  Teuchos::RCP<const map_t> defaultMap =
            rcp(new map_t(nGlobalEntries, 0, comm));
 
   // Create vector
@@ -256,7 +256,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL( MultiVector, HostDeviceView, LO, GO, Scalar ,
 
   int ierr = (threw == shouldThrow) ? 0 : 1;
   if (ierr)
-    std::cout << "TEST FAILED:  HostDeviceView TEST HAD " << ierr 
+    std::cout << "TEST FAILED:  HostDeviceView TEST HAD " << ierr
               << " FAILURES ON RANK " << me << std::endl;
 
   int gerr;
@@ -277,10 +277,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL( MultiVector, DeviceHostView, LO, GO, Scalar ,
 
   const size_t nGlobalEntries = 8 * np;
   const Scalar scalar = 100. * (me+1);
-  Teuchos::Array<GO> myEntries(nGlobalEntries); 
+  Teuchos::Array<GO> myEntries(nGlobalEntries);
 
   // Default one-to-one linear block map in Trilinos
-  Teuchos::RCP<const map_t> defaultMap = 
+  Teuchos::RCP<const map_t> defaultMap =
            rcp(new map_t(nGlobalEntries, 0, comm));
 
   // Create vector
@@ -298,8 +298,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL( MultiVector, DeviceHostView, LO, GO, Scalar ,
   }
 
   int ierr = (threw == shouldThrow) ? 0 : 1;
-  if (ierr) 
-    std::cout << "TEST FAILED:  DeviceHostView TEST HAD " << ierr 
+  if (ierr)
+    std::cout << "TEST FAILED:  DeviceHostView TEST HAD " << ierr
               << " FAILURES ON RANK " << me << std::endl;
 
   int gerr;
@@ -320,10 +320,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL( MultiVector, TemplatedGetLocalView, LO, GO, S
   using host_t = typename WDV::HostType;
 
   const size_t nGlobalEntries = 8 * np;
-  Teuchos::Array<GO> myEntries(nGlobalEntries); 
+  Teuchos::Array<GO> myEntries(nGlobalEntries);
 
   // Default one-to-one linear block map in Trilinos
-  Teuchos::RCP<const map_t> defaultMap = 
+  Teuchos::RCP<const map_t> defaultMap =
            rcp(new map_t(nGlobalEntries, 0, comm));
 
   // Create vector
@@ -364,7 +364,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL( MultiVector, TemplatedGetLocalView, LO, GO, S
   TEUCHOS_UNIT_TEST_TEMPLATE_4_INSTANT( MultiVector, DeviceView, LO, GO, SCALAR, NODE ) \
   TEUCHOS_UNIT_TEST_TEMPLATE_4_INSTANT( MultiVector, HostDeviceView, LO, GO, SCALAR, NODE ) \
   TEUCHOS_UNIT_TEST_TEMPLATE_4_INSTANT( MultiVector, DeviceHostView, LO, GO, SCALAR, NODE ) \
-  TEUCHOS_UNIT_TEST_TEMPLATE_4_INSTANT( MultiVector, TemplatedGetLocalView, LO, GO, SCALAR, NODE ) 
+  TEUCHOS_UNIT_TEST_TEMPLATE_4_INSTANT( MultiVector, TemplatedGetLocalView, LO, GO, SCALAR, NODE )
 
   TPETRA_ETI_MANGLING_TYPEDEFS()
 

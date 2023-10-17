@@ -108,7 +108,7 @@ namespace {
     using LO = Tpetra::Map<>::local_ordinal_type;
 #if defined(HAVE_TPETRA_INST_INT_UNSIGNED)
     using GO = unsigned int;
-#elif defined(HAVE_TPETRA_INST_INT_UNSIGNED_LONG)    
+#elif defined(HAVE_TPETRA_INST_INT_UNSIGNED_LONG)
     using GO = unsigned long;
 #else
     using GO = Tpetra::Map<>::global_ordinal_type;

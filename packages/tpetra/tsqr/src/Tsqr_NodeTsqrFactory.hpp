@@ -124,7 +124,7 @@ namespace TSQR {
           return rcp (new SequentialTsqr<LocalOrdinal, Scalar>);
         }
 
-#if defined(KOKKOS_ENABLE_CUDA) && defined(HAVE_TPETRATSQR_CUBLAS) && defined(HAVE_TPETRATSQR_CUSOLVER)        
+#if defined(KOKKOS_ENABLE_CUDA) && defined(HAVE_TPETRATSQR_CUBLAS) && defined(HAVE_TPETRATSQR_CUSOLVER)
       }
 #endif
     }

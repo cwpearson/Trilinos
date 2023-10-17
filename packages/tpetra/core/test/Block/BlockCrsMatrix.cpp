@@ -269,7 +269,7 @@ namespace {
 
     // KK: not meaningfule test
     // {
-    //   auto val = blockMat.getValuesHost(); 
+    //   auto val = blockMat.getValuesHost();
     //   static_assert (std::is_same<typename decltype (val)::execution_space::memory_space,
     //                  Kokkos::HostSpace>::value,
     //                  "Host View is not actually a host View.");
@@ -1772,7 +1772,7 @@ namespace {
       Teuchos::RCP<crs_graph_type> src_graph =
         Teuchos::rcp (new crs_graph_type (src_map, 1));
       for (LO localrow = src_map->getMinLocalIndex();
-           localrow<=src_map->getMaxLocalIndex(); 
+           localrow<=src_map->getMaxLocalIndex();
            ++localrow) {
 
         const GO globalrow = src_map->getGlobalElement(localrow);
@@ -1785,14 +1785,14 @@ namespace {
 
       // Build src matrix. Simple block diagonal matrix with A(b,b) = [b*b*row,...,+b*b].
       RCP<block_crs_type> src_mat =
-        rcp (new block_crs_type (*src_graph, blocksize)); 
+        rcp (new block_crs_type (*src_graph, blocksize));
       if (src_num_local_elements != 0) {
         for (LO localrow = src_map->getMinLocalIndex();
              localrow <= src_map->getMaxLocalIndex();
              ++localrow) {
           const GO globalrow = src_map->getGlobalElement(localrow);
           LO col_indices[1];  Scalar values[blocksize*blocksize];
-          col_indices[0] = localrow; 
+          col_indices[0] = localrow;
           for (size_t b=0; b<blocksize*blocksize; ++b) {
             values[b] = blocksize*blocksize*globalrow + b;
           }

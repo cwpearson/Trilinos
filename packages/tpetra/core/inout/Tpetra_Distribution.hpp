@@ -41,7 +41,7 @@
 
 //  Build maps for 1D or 2D matrix distribution
 //  Assumes square matrix
-//  Karen Devine, SNL 
+//  Karen Devine, SNL
 //
 
 #ifndef __TPETRA_DISTRIBUTION_HPP
@@ -58,7 +58,7 @@
 
 #include "Teuchos_Comm.hpp"
 
-namespace Tpetra 
+namespace Tpetra
 {
 
 enum DistributionType {
@@ -68,7 +68,7 @@ enum DistributionType {
   OneDRandom,    // 1D randomly permuted distribution
   OneDLinear,    // 1D linear distribution
   OneDVec,       // 1D distribution based on vector assignment in file
-  LowerTriangularBlock, // Seher Acer's lower-triangular block distrib 
+  LowerTriangularBlock, // Seher Acer's lower-triangular block distrib
                         // for triangle counting
   MMFile         // Use values in matrix-market file as part assignment
 };
@@ -78,10 +78,10 @@ template <typename gno_t, typename scalar_t>
 class Distribution {
 public:
 
-  Distribution(size_t nrows_, 
-               const Teuchos::RCP<const Teuchos::Comm<int> > &comm_, 
+  Distribution(size_t nrows_,
+               const Teuchos::RCP<const Teuchos::Comm<int> > &comm_,
                const Teuchos::ParameterList &params) :
-               comm(comm_), me(comm_->getRank()), np(comm_->getSize()), 
+               comm(comm_), me(comm_->getRank()), np(comm_->getSize()),
                nrows(nrows_) { }
 
   virtual ~Distribution() {};
@@ -110,7 +110,7 @@ public:
 
   // Redistribute nonzeros according to the needs of the Distribution
   // Needed only when the final distribution cannot be determined until
-  // all nonzeros are known (e.g., final distribution depends on the number 
+  // all nonzeros are known (e.g., final distribution depends on the number
   // of nonzeros in a row).
   // If the final distribution can be determined before all nonzeros (e.g.,
   // Trilinos' traditional row map), the redistribution routine is a no-op.

@@ -67,7 +67,7 @@ namespace Tpetra {
   /// check the Tpetra object's documentation for details.
   ///
   /// Here is the list of supported combine modes:
-  ///   - ADD: Sum new values 
+  ///   - ADD: Sum new values
   ///   - INSERT: Insert new values that don't currently exist
   ///   - REPLACE: Replace existing values with new values
   ///   - ABSMAX: If \f$x_{old}\f$ is the old value and \f$x_{new}\f$
@@ -75,7 +75,7 @@ namespace Tpetra {
   ///     \f$\max\{ x_{old}, x_{new} \}\f$.
   ///   - ZERO: Replace old values with zero
   ///   - ADD_ASSIGN: Do addition assignment (+=) of values into existing values
-  ///     \f$x_{target} = x_{target} + \sum(x_{source}\f$  
+  ///     \f$x_{target} = x_{target} + \sum(x_{source}\f$
   ///     May not be supported in all classes
   ///
   /// ADD, REPLACE and ADD_ASSIGN are intended for modifying values that already
@@ -95,7 +95,7 @@ namespace Tpetra {
   /// execute the local permutation without communication, you may use
   /// the ZERO combine mode.
   enum CombineMode {
-    ADD,     //!< Sum new values 
+    ADD,     //!< Sum new values
     INSERT,  //!< Insert new values that don't currently exist
     REPLACE, //!< Replace existing values with new values
     ABSMAX,  //!< Replace old value with maximum of magnitudes of old and new values

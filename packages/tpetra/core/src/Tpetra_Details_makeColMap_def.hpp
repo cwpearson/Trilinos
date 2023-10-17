@@ -72,7 +72,7 @@ makeColMapImpl(Teuchos::RCP<const Tpetra::Map<LO, GO, NT>>& colMap,
             size_t numRemoteColGIDs,
             std::set<GO>& RemoteGIDSet,
             std::vector<GO>& RemoteGIDUnorderedVector,
-            std::vector<bool>& GIDisLocal, 
+            std::vector<bool>& GIDisLocal,
             const bool sortEachProcsGids,
             std::ostream* errStrm)
 {
@@ -671,7 +671,7 @@ makeColMap (Teuchos::RCP<const Tpetra::Map<LO, GO, NT>>& colMap,
             static_cast<size_t>(numRemoteColGIDs),
             RemoteGIDSet,
             RemoteGIDUnorderedVector,
-            GIDisLocal, 
+            GIDisLocal,
             true, //always sort remotes
             errStrm);
 }

@@ -84,7 +84,7 @@ public:
   /// \param msg [in] The exception message.
   /// \param globalIndex [in] The offending global index.
   InvalidGlobalIndex (const std::string& msg, const GlobalOrdinal globalIndex)
-    : std::domain_error (msg), glInd_ (globalIndex) 
+    : std::domain_error (msg), glInd_ (globalIndex)
     {}
 
   //! The offending global index.
@@ -92,7 +92,7 @@ public:
 
 private:
   //! The offending global index.
-  const GlobalOrdinal glInd_; 
+  const GlobalOrdinal glInd_;
 };
 
 /// \class InvalidGlobalRowIndex

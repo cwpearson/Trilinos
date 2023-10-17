@@ -104,7 +104,7 @@ namespace Tpetra {
   /// control communication and debug output:
   /// - "Send type" (<tt>std::string</tt>): When using MPI, the
   ///   variant of MPI_Send to use in do[Reverse]Posts().  Valid
-  ///   values include "Isend", 
+  ///   values include "Isend",
   ///   and "Send".  The
   ///   default is "Send".  (The receive type is always MPI_Irecv, a
   ///   nonblocking receive.  Since we post receives first before

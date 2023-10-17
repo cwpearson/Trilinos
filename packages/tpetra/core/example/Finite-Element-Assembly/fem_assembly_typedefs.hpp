@@ -83,11 +83,11 @@ using global_ordinal_view_type =
   Tpetra::Details::WrappedDualView<globalDualViewType>;
 using local_ordinal_view_type =
   Tpetra::Details::WrappedDualView<localDualViewType>;
-using local_ordinal_single_view_type = 
+using local_ordinal_single_view_type =
   Kokkos::View<local_ordinal_type*, deviceType>;
-using scalar_1d_array_type = 
+using scalar_1d_array_type =
   Kokkos::View<Scalar*, deviceType>;
-using bool_1d_array_type = 
+using bool_1d_array_type =
   Tpetra::Details::WrappedDualView<boolDualViewType>;
 
 // NOTE: Arrays are hardwired for QUAD4
@@ -95,7 +95,7 @@ using local_ordinal_2d_array_type =
   Tpetra::Details::WrappedDualView<local2DArrayDualViewType>;
 using global_ordinal_2d_array_type =
   Tpetra::Details::WrappedDualView<global2DArrayDualViewType>;
-using scalar_2d_array_type = 
+using scalar_2d_array_type =
   Kokkos::View<Scalar*[4], deviceType>;
 
 

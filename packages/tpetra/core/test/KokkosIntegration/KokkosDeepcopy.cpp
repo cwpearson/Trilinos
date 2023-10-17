@@ -256,7 +256,7 @@ private:
 int main(int argc, char *argv[]) {
   bool success=true;
 
-  std::ostream &out = std::cout; 
+  std::ostream &out = std::cout;
 
 
   DeepCopyTester tester;

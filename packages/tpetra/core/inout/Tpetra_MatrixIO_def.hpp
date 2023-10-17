@@ -245,7 +245,7 @@ readHBMatrix (const std::string &filename,
                                         const Teuchos::RCP<const Teuchos::Comm<int> > &, \
                                         Teuchos::RCP<CrsMatrix< SCALAR, LO, GO, NODE > >&, \
                                         Teuchos::RCP<const Tpetra::Map< LO, GO, NODE> >, \
-                                        const Teuchos::RCP<Teuchos::ParameterList>& ); 
+                                        const Teuchos::RCP<Teuchos::ParameterList>& );
 
 
 

@@ -85,7 +85,7 @@ namespace {
 
   TEUCHOS_UNIT_TEST( MultiVector, BlockedViews_7234 )
   {
-    // Test that replicates Trilinos issue #7234 
+    // Test that replicates Trilinos issue #7234
     // https://github.com/trilinos/Trilinos/issues/7234
     // On CUDA platforms, subviews of Kokkos::DualView did not perform properly
     // when pointing to the end of a DualView, as the shared Vector does
@@ -138,16 +138,16 @@ namespace {
     RCP<TpetraMap> owned_and_shared_map = rcp(new TpetraMap(Teuchos::OrdinalTraits<GST>::invalid(),owned_and_shared_gids,GO(0),comm));
 
     bool zeroOut = true;
-    RCP<TpetraVec> owned_and_shared = 
+    RCP<TpetraVec> owned_and_shared =
                    rcp(new TpetraVec(owned_and_shared_map,zeroOut));
     RCP<TpetraExport> exporter = rcp(new TpetraExport(shared_map,owned_map));
     RCP<TpetraImport> importer = rcp(new TpetraImport(owned_map,shared_map));
 
     // If we block the owned_and_shared, we can make the code much
     // more efficient with subviews.
-    RCP<TpetraVec> owned = 
+    RCP<TpetraVec> owned =
                   owned_and_shared->offsetViewNonConst(owned_map,0);
-    RCP<TpetraVec> shared = 
+    RCP<TpetraVec> shared =
                   owned_and_shared->offsetViewNonConst(shared_map,
                                                        owned->getLocalLength());
 
@@ -161,7 +161,7 @@ namespace {
         TEST_FLOATING_EQUALITY(host_shared(0,0),1.0,tol);
       }
 
-      auto host_owned_and_shared = 
+      auto host_owned_and_shared =
                 owned_and_shared->getLocalViewHost(Tpetra::Access::ReadOnly);
       TEST_FLOATING_EQUALITY(host_owned_and_shared(0,0),1.0,tol);
       TEST_FLOATING_EQUALITY(host_owned_and_shared(1,0),1.0,tol);
@@ -175,20 +175,20 @@ namespace {
 
     {
       auto host_owned = owned->getLocalViewHost(Tpetra::Access::ReadOnly);
-      auto host_owned_and_shared = 
+      auto host_owned_and_shared =
                 owned_and_shared->getLocalViewHost(Tpetra::Access::ReadOnly);
       TEST_FLOATING_EQUALITY(host_owned(0,0),1.0,tol);
       // check owned entries only
-      TEST_FLOATING_EQUALITY(host_owned_and_shared(0,0),1.0,tol); 
+      TEST_FLOATING_EQUALITY(host_owned_and_shared(0,0),1.0,tol);
       if (rank != size-1) {
         TEST_FLOATING_EQUALITY(host_owned(1,0),2.0,tol);
         // check owned entries only
-        TEST_FLOATING_EQUALITY(host_owned_and_shared(1,0),2.0,tol); 
+        TEST_FLOATING_EQUALITY(host_owned_and_shared(1,0),2.0,tol);
       }
       else {
         TEST_FLOATING_EQUALITY(host_owned(1,0),1.0,tol);
         // check owned entries only
-        TEST_FLOATING_EQUALITY(host_owned_and_shared(1,0),1.0,tol); 
+        TEST_FLOATING_EQUALITY(host_owned_and_shared(1,0),1.0,tol);
       }
     }
   }

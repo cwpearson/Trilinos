@@ -505,7 +505,7 @@ namespace { // (anonymous)
 
       out << "Modify Z on device, and sync it to host." << endl;
       {
-        /// with multi non-contiguous memory space, syncing Z 
+        /// with multi non-contiguous memory space, syncing Z
         /// would sync Y part (actually it sync the entire view of X).
         for (LO k = 0; k < static_cast<LO> (Z_cols.size ()); ++k) {
           const LO j = Z_cols[k];

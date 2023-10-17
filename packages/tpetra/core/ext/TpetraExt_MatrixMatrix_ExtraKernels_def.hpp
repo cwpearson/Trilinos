@@ -465,7 +465,7 @@ void jacobi_A_B_newmatrix_LowThreadGustavsonKernel(Scalar omega,
                                                    const std::string& label,
                                                    const Teuchos::RCP<Teuchos::ParameterList>& params) {
 #ifdef HAVE_TPETRA_MMM_TIMINGS
-  std::string prefix_mmm = std::string("TpetraExt ") + label + std::string(": "); 
+  std::string prefix_mmm = std::string("TpetraExt ") + label + std::string(": ");
   using Teuchos::TimeMonitor;
   Teuchos::RCP<TimeMonitor> MM = Teuchos::rcp(new TimeMonitor(*TimeMonitor::getNewTimer(prefix_mmm + std::string("Jacobi Newmatrix LTGCore"))));
 #endif
@@ -532,7 +532,7 @@ void jacobi_A_B_newmatrix_LowThreadGustavsonKernel(Scalar omega,
   }
 
   // Jacobi-specific inner stuff
-  auto Dvals = 
+  auto Dvals =
        Dinv.template getLocalView<scalar_memory_space>(Access::ReadOnly);
 
   // Sizes
@@ -775,7 +775,7 @@ void jacobi_A_B_reuse_LowThreadGustavsonKernel(Scalar omega,
   }
 
   // Jacobi-specific inner stuff
-  auto Dvals = 
+  auto Dvals =
        Dinv.template getLocalView<scalar_memory_space>(Access::ReadOnly);
 
   // Sizes
@@ -982,7 +982,7 @@ void jacobi_A_B_newmatrix_MultiplyScaleAddKernel(Scalar omega,
                                                   const Teuchos::RCP<Teuchos::ParameterList>& params) {
 #ifdef HAVE_TPETRA_MMM_TIMINGS
   std::string prefix_mmm = std::string("TpetraExt ") + label + std::string(": ");
-  using Teuchos::TimeMonitor;  
+  using Teuchos::TimeMonitor;
   Teuchos::RCP<TimeMonitor> MM = Teuchos::rcp(new TimeMonitor(*TimeMonitor::getNewTimer(prefix_mmm + std::string("Jacobi Newmatrix MSAK"))));
   Teuchos::RCP<TimeMonitor> MM2 = Teuchos::rcp(new TimeMonitor(*TimeMonitor::getNewTimer(prefix_mmm + std::string("Jacobi Newmatrix MSAK Multiply"))));
   using Teuchos::rcp;
@@ -1079,15 +1079,15 @@ static inline void mult_R_A_P_newmatrix_LowThreadGustavsonKernel(CrsMatrixStruct
         const KCRS & Amat = Aview.origMatrix->getLocalMatrixDevice();
         const KCRS & Pmat = Pview.origMatrix->getLocalMatrixDevice();
 
-        c_lno_view_t Rrowptr = Rmat.graph.row_map, 
-                     Arowptr = Amat.graph.row_map, 
+        c_lno_view_t Rrowptr = Rmat.graph.row_map,
+                     Arowptr = Amat.graph.row_map,
                      Prowptr = Pmat.graph.row_map, Irowptr;
-        const lno_nnz_view_t Rcolind = Rmat.graph.entries, 
-                             Acolind = Amat.graph.entries, 
+        const lno_nnz_view_t Rcolind = Rmat.graph.entries,
+                             Acolind = Amat.graph.entries,
                              Pcolind = Pmat.graph.entries;
         lno_nnz_view_t Icolind;
-        const scalar_view_t Rvals = Rmat.values, 
-                            Avals = Amat.values, 
+        const scalar_view_t Rvals = Rmat.values,
+                            Avals = Amat.values,
                             Pvals = Pmat.values;
         scalar_view_t Ivals;
 

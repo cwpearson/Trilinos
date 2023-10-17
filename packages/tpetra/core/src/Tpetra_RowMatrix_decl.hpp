@@ -116,7 +116,7 @@ namespace Tpetra {
     /// certain <tt>Scalar</tt> types.
     using mag_type = typename Kokkos::ArithTraits<Scalar>::mag_type;
 
-    typedef typename 
+    typedef typename
         Kokkos::View<impl_scalar_type*, typename Node::device_type>::const_type
         values_device_view_type;
     typedef typename values_device_view_type::HostMirror::const_type

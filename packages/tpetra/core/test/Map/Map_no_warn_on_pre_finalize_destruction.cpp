@@ -10,7 +10,7 @@ namespace { // (anonymous)
 void testMain (bool& success, int argc, char* argv[])
 {
   using std::cout;
-  using std::endl;  
+  using std::endl;
 
   if (Tpetra::isInitialized ()) {
     success = false;
@@ -76,11 +76,11 @@ public:
 private:
   std::ostream& originalStream_;
   std::ostringstream tempStream_;
-  using buf_ptr_type = decltype (originalStream_.rdbuf ());  
+  using buf_ptr_type = decltype (originalStream_.rdbuf ());
   buf_ptr_type originalBuffer_;
 };
 
-} // namespace (anonymous)  
+} // namespace (anonymous)
 
 int main (int argc, char* argv[])
 {

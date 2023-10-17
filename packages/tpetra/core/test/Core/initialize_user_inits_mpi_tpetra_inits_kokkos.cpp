@@ -132,7 +132,7 @@ void testMain (bool& success, int argc, char* argv[])
     }
   }
 
-  const int myTpetraRank = comm.is_null () ? 0 : comm->getRank ();  
+  const int myTpetraRank = comm.is_null () ? 0 : comm->getRank ();
   const bool ranksSame = allTrueInCommWorld (myRank == myTpetraRank);
   if (! ranksSame) {
     success = false;

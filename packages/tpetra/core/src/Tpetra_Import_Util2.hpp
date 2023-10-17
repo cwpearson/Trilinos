@@ -1033,7 +1033,7 @@ lowCommunicationMakeColMapAndReindexKokkos (const Teuchos::ArrayView<const size_
   // Local:  those whose GID matches a GID of the domain map on this processor and
   // Remote: All others.
   // Kokkos::Parallel_reduce sums up NumLocalColGIDs, while we use the size of the Remote GIDs map to find NumRemoteColGIDs
-  Kokkos::parallel_reduce(team_policy(numMyRows, Kokkos::AUTO), KOKKOS_LAMBDA(const typename team_policy::member_type &member, size_t &update) { 
+  Kokkos::parallel_reduce(team_policy(numMyRows, Kokkos::AUTO), KOKKOS_LAMBDA(const typename team_policy::member_type &member, size_t &update) {
     const int i = member.league_rank();
     size_t NumLocalColGIDs_temp = 0;
     size_t rowptr_start = rowptr_view[i];
@@ -1119,7 +1119,7 @@ lowCommunicationMakeColMapAndReindexKokkos (const Teuchos::ArrayView<const size_
       Kokkos::parallel_for(Kokkos::RangePolicy<execution_space>(0, NumRemoteColGIDs), KOKKOS_LAMBDA(const int i) {
         ColIndices_view[NumLocalColGIDs+i] = RemoteGIDList_view[i];
       });
-    }  
+    }
 
     // Find the largest PID for bin sorting purposes
     int PID_max = 0;
@@ -1234,7 +1234,7 @@ lowCommunicationMakeColMapAndReindexKokkos (const Teuchos::ArrayView<const size_
 
   // For now, we copy back into colind_LID_host (which also overwrites the colind_LID Tuechos array)
   // When colind_LID becomes a Kokkos View we can delete this
-  Kokkos::deep_copy(execution_space(), colind_LID_host, colind_LID_view);        
+  Kokkos::deep_copy(execution_space(), colind_LID_host, colind_LID_view);
 }
 
 
@@ -1248,10 +1248,10 @@ void lowCommunicationMakeColMapAndReindex (const Teuchos::ArrayView<const size_t
                                       Teuchos::RCP<const Tpetra::Map<LocalOrdinal,GlobalOrdinal,Node> > & colMap)
 {
   // Running lowCommMakeColMap with Kokkos is slower on host, but faster on device
-  // If Kokkos runs on host, select the serial, non-Kokkos version of lowCommMakeColMap, 
+  // If Kokkos runs on host, select the serial, non-Kokkos version of lowCommMakeColMap,
   // but if Kokkos runs on device (CUDA / HIP), select the Kokkos version of lowCommMakeColMap
   typedef typename Node::device_type DT;
-  static constexpr bool runOnHost = !std::is_same_v<typename DT::execution_space, Kokkos::DefaultExecutionSpace> || std::is_same_v<Kokkos::DefaultExecutionSpace, 
+  static constexpr bool runOnHost = !std::is_same_v<typename DT::execution_space, Kokkos::DefaultExecutionSpace> || std::is_same_v<Kokkos::DefaultExecutionSpace,
     Kokkos::DefaultHostExecutionSpace>;
   if(runOnHost) {
     lowCommunicationMakeColMapAndReindexSerial<LocalOrdinal, GlobalOrdinal, Node> (rowptr, colind_LID, colind_GID, domainMapRCP, owningPIDs, remotePIDs, colMap);

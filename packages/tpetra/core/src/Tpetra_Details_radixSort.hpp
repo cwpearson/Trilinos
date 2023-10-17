@@ -53,7 +53,7 @@ namespace Details
 {
 
 /// \brief Radix sort the input array \c keys, and permute values identically to the keys.
-/// 
+///
 /// Radix sort may be significantly faster (60%) than Details::shellsort but only works for integers
 ///
 /// \pre KeyType is an integer (can be signed or unsigned)

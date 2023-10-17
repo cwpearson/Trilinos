@@ -213,7 +213,7 @@ public:
   /// average (it is not a proportion between max and average).
   ///
   /// If the "imbalance" of a local matrix is greater than this threshold,
-  /// a different algorithm may be used for some operations like 
+  /// a different algorithm may be used for some operations like
   /// sparse matrix-vector multiply, packAndPrepare, and
   /// unpackAndCombine.  You may control this at run time via the
   /// <tt>TPETRA_ROW_IMBALANCE_THRESHOLD</tt> environment variable.
@@ -243,7 +243,7 @@ public:
 
   /// \brief the threshold for transitioning from device to host
   ///
-  /// If the number of elements in the multivector does not exceed this 
+  /// If the number of elements in the multivector does not exceed this
   /// threshold and the data is on host, then run the calculation on
   /// host.  Otherwise, run on device.
   /// By default this is 10000, but may be altered by the environment
@@ -303,7 +303,7 @@ public:
   ///
   /// This is disabled by default.  You may control this at run time via the
   /// <tt>TPETRA_TIME_KOKKOS_FENCE</tt> environment variable.
-  static bool timeKokkosFence();  
+  static bool timeKokkosFence();
 
   /// \brief Warn if more than this many Kokkos spaces are accessed.
   ///

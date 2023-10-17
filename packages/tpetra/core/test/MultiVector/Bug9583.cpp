@@ -79,7 +79,7 @@ namespace { // (anonymous)
 
     // Create a local vector z -- one entry that will be same on all ranks
     const size_t numElm = 1;
-    RCP<const map_type > rowMapLocal = 
+    RCP<const map_type > rowMapLocal =
         Tpetra::createLocalMapWithNode<LO,GO,NODE>( numElm, comm);
     vec_type z (rowMapLocal, 1, true);
 

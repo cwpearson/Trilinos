@@ -44,10 +44,10 @@
 #include <iostream>
 #include <unordered_map>
 
-// Test to determine appropriate setting of Threshold in insert_crs_indices 
+// Test to determine appropriate setting of Threshold in insert_crs_indices
 // Threshold is number of nonzeros in a row; it determines whether to do
 // linear search for duplicates or use an unordered_map .  #8794
-// Experiments on 2/22/21 on ghost show cross-over in runtime from serial 
+// Experiments on 2/22/21 on ghost show cross-over in runtime from serial
 // search to unordered_map occurs at roughly 400 entries being inserted.
 
 // Insert using linear search
@@ -99,7 +99,7 @@ size_t insert_crs_indices_table(
   size_t num_inserted = 0;
 
   {
-    std::unordered_map<Tpetra::Map<>::global_ordinal_type, size_t> 
+    std::unordered_map<Tpetra::Map<>::global_ordinal_type, size_t>
          idxLookup(num_assigned+num_new_indices);
 
     // Put existing indices into the lookup table
@@ -154,13 +154,13 @@ int main(int narg, char **arg)
       Teuchos::Array<gno_t> curInd_T(nnz);
       Teuchos::Array<gno_t> newInd_T(nnz);
 
-      for (int i = 0; i < nnz; i++) 
+      for (int i = 0; i < nnz; i++)
         newInd_LS[i] = std::rand() % (nnz * 10000);
-      for (int i = 0; i < nnz; i++) 
+      for (int i = 0; i < nnz; i++)
         newInd_T[i] = newInd_LS[i];
 
       // Insert entries using linear search
-      size_t nInserted_LS; 
+      size_t nInserted_LS;
       {
         char name[25];
         sprintf(name, "nz=%04d search", nnz);
@@ -184,8 +184,8 @@ int main(int narg, char **arg)
       }
 
       // Make sure the number of insertions matched for both methods
-      if (nInserted_LS != nInserted_T) 
-        std::cout << "FAIL nInserted_LS " << nInserted_LS << " != " 
+      if (nInserted_LS != nInserted_T)
+        std::cout << "FAIL nInserted_LS " << nInserted_LS << " != "
                  << nInserted_T << " nInserted_T" << std::endl;
     }
   }

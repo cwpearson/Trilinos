@@ -535,8 +535,8 @@ void KernelWrappers2<Scalar,LocalOrdinal,GlobalOrdinal,Tpetra::KokkosCompat::Kok
     diags.get1dCopy(diagonal());
 
     for(size_t i = 0; i < diagLength; ++i) {
-      TEUCHOS_TEST_FOR_EXCEPTION(diagonal[i] == Teuchos::ScalarTraits<Scalar>::zero(), 
-				 std::runtime_error, 
+      TEUCHOS_TEST_FOR_EXCEPTION(diagonal[i] == Teuchos::ScalarTraits<Scalar>::zero(),
+				 std::runtime_error,
 				 "Matrix A has a zero/missing diagonal: " << diagonal[i] << std::endl <<
 				 "KokkosKernels Jacobi-fused SpGEMM requires nonzero diagonal entries in A" << std::endl);
     }
@@ -551,7 +551,7 @@ void KernelWrappers2<Scalar,LocalOrdinal,GlobalOrdinal,Tpetra::KokkosCompat::Kok
   using lno_nnz_view_t = typename graph_t::entries_type::non_const_type;
   using scalar_view_t = typename matrix_t::values_type::non_const_type;
 
-  // KokkosKernels handle 
+  // KokkosKernels handle
   using handle_t = typename KokkosKernels::Experimental::KokkosKernelsHandle<
     typename lno_view_t::const_value_type,typename lno_nnz_view_t::const_value_type, typename scalar_view_t::const_value_type,
     typename device_t::execution_space, typename device_t::memory_space,typename device_t::memory_space >;
@@ -588,7 +588,7 @@ void KernelWrappers2<Scalar,LocalOrdinal,GlobalOrdinal,Tpetra::KokkosCompat::Kok
   scalar_view_t valuesC;
 
   // Options
-  int team_work_size = 16; 
+  int team_work_size = 16;
   std::string myalg("SPGEMM_KK_MEMORY");
   if(!params.is_null()) {
     if(params->isParameter("cuda: algorithm"))

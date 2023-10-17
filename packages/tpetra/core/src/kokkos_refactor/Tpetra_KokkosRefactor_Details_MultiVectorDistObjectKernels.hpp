@@ -48,10 +48,10 @@
 // (it would only matter if LocalOrdinal were bigger than size_t on a
 // particular platform, which is unlikely).
 
-// KDD Aug 2020:  In the permute/pack/unpack functors, 
-// the Enabled template parameter is specialized in 
-// downstream packages like Stokhos using SFINAE to provide partial 
-// specializations based on the scalar type of the SrcView and DstView 
+// KDD Aug 2020:  In the permute/pack/unpack functors,
+// the Enabled template parameter is specialized in
+// downstream packages like Stokhos using SFINAE to provide partial
+// specializations based on the scalar type of the SrcView and DstView
 // template parameters. See #7898.
 // Do not remove it before checking with Stokhos and other specializing users.
 
@@ -1631,7 +1631,7 @@ outOfBounds (const IntegerType x, const IntegerType exclusiveUpperBound)
 	     const size_t numCols,
              const Op& op)
     {
-      using range_type = 
+      using range_type =
             Kokkos::RangePolicy<ExecutionSpace, size_type>;
             // permute does not need atomics for Op
       const size_type n = std::min (dst_idx.size (), src_idx.size ());
@@ -1727,7 +1727,7 @@ void permute_array_multi_column(const ExecutionSpace &space, const DstView &dst,
                     ExecutionSpace, typename DstView::memory_space>::accessible,
                   "ExecutionSpace must be able to access DstView");
 
-      using range_type = Kokkos::RangePolicy<ExecutionSpace, size_type>;      
+      using range_type = Kokkos::RangePolicy<ExecutionSpace, size_type>;
       const size_type n = std::min (dst_idx.size (), src_idx.size ());
       Kokkos::parallel_for
 	("Tpetra::MultiVector permute multicol var stride",
@@ -1767,7 +1767,7 @@ void permute_array_multi_column_variable_stride(
                                                   const SrcIdxView& src_idx,
                                                   const DstColView& dst_col,
                                                   const SrcColView& src_col,
-                                                  size_t numCols, 
+                                                  size_t numCols,
                                                   const Op& op) {
     using execution_space = typename DstView::execution_space;
     PermuteArrayMultiColumnVariableStride<DstView,SrcView,

@@ -885,8 +885,8 @@ namespace {
       {
         tmv2x2.multiply(NO_TRANS,CONJ_TRANS,S1,tmv2x3,tmv2x3,S0);
         sdm2x2.multiply(NO_TRANS,CONJ_TRANS,S1,sdm2x3,sdm2x3,S0);
-        { 
-          auto tmpView = tmv2x2.get1dView(); sdmView = arrayView(sdm2x2.values(),sdm2x2.numRows()*sdm2x2.numCols()); 
+        {
+          auto tmpView = tmv2x2.get1dView(); sdmView = arrayView(sdm2x2.values(),sdm2x2.numRows()*sdm2x2.numCols());
           TEST_COMPARE_FLOATING_ARRAYS(tmpView,sdmView,testingTol<Scalar>() * errorTolSlack);
         }
       }
@@ -900,8 +900,8 @@ namespace {
         tmv2x2.multiply(CONJ_TRANS,NO_TRANS,S1,tmv3x2,tmv3x2,S0);
         Kokkos::fence ();
         sdm2x2.multiply(CONJ_TRANS,NO_TRANS,S1,sdm3x2,sdm3x2,S0);
-        { 
-          auto tmpView = tmv2x2.get1dView(); sdmView = arrayView(sdm2x2.values(),sdm2x2.numRows()*sdm2x2.numCols()); 
+        {
+          auto tmpView = tmv2x2.get1dView(); sdmView = arrayView(sdm2x2.values(),sdm2x2.numRows()*sdm2x2.numCols());
           TEST_COMPARE_FLOATING_ARRAYS(tmpView,sdmView,testingTol<Scalar>() * errorTolSlack);
         }
       }
@@ -915,8 +915,8 @@ namespace {
         tmv3x3.multiply(CONJ_TRANS,CONJ_TRANS,S1,tmv2x3,tmv3x2,S0);
         Kokkos::fence ();
         sdm3x3.multiply(CONJ_TRANS,CONJ_TRANS,S1,sdm2x3,sdm3x2,S0);
-        { 
-          auto tmpView = tmv3x3.get1dView(); sdmView = arrayView(sdm3x3.values(),sdm3x3.numRows()*sdm3x3.numCols()); 
+        {
+          auto tmpView = tmv3x3.get1dView(); sdmView = arrayView(sdm3x3.values(),sdm3x3.numRows()*sdm3x3.numCols());
           TEST_COMPARE_FLOATING_ARRAYS(tmpView,sdmView,testingTol<Scalar>() * errorTolSlack);
         }
       }
@@ -4349,10 +4349,10 @@ namespace {
     const size_t numLclRows = 10;
     const size_t numVecs = 3;
 
-    /// KJ : release local object, this workflow is problematic. 
-    ///      a user create a device view and hand it to tpetra. 
+    /// KJ : release local object, this workflow is problematic.
+    ///      a user create a device view and hand it to tpetra.
     ///      tpetra now has unmatched referecne count for host and device view
-    ///      as the local device view is alive. this is the case that we do not want 
+    ///      as the local device view is alive. this is the case that we do not want
     ///      to encourage users.
     typename dual_view_type::t_dev X_lcl ("X_lcl", numLclRows, numVecs);
 
@@ -4378,10 +4378,10 @@ namespace {
     RCP<const map_type> map =
       rcp (new map_type (INVALID, numLclRows, indexBase, comm));
 
-    /// KJ : release local object, this workflow is problematic. 
-    ///      a user create a device view and hand it to tpetra. 
+    /// KJ : release local object, this workflow is problematic.
+    ///      a user create a device view and hand it to tpetra.
     ///      tpetra now has unmatched referecne count for host and device view
-    ///      as the local device view is alive. this is the case that we do not want 
+    ///      as the local device view is alive. this is the case that we do not want
     ///      to encourage users.
     MV X_gbl (map, X_lcl);
 
@@ -5216,7 +5216,7 @@ namespace {
 
     const device_view x_d = x.getLocalViewDevice(Tpetra::Access::ReadWrite);
 
-    host_view y_h = create_mirror_view(x_d);  
+    host_view y_h = create_mirror_view(x_d);
 
     size_t correct_count;
     // Check to see if we'll be deep_copy-ing between memory spaces
@@ -5228,40 +5228,40 @@ namespace {
     }
 
 
-    // Stop / Start  (reset first to clear counts from previous unit test calls)   
-    Tpetra::Details::DeepCopyCounter::reset();   
+    // Stop / Start  (reset first to clear counts from previous unit test calls)
+    Tpetra::Details::DeepCopyCounter::reset();
     Tpetra::Details::DeepCopyCounter::start();
     Kokkos::deep_copy(y_h,x_d);
-    Tpetra::Details::DeepCopyCounter::stop();   
-    size_t count = Tpetra::Details::DeepCopyCounter::get_count_different_space();   
+    Tpetra::Details::DeepCopyCounter::stop();
+    size_t count = Tpetra::Details::DeepCopyCounter::get_count_different_space();
     TEST_EQUALITY(count,correct_count);
 
 
     // Reset / get_count (should be zero now)
-    Tpetra::Details::DeepCopyCounter::reset();   
-    count = Tpetra::Details::DeepCopyCounter::get_count_different_space();   
+    Tpetra::Details::DeepCopyCounter::reset();
+    count = Tpetra::Details::DeepCopyCounter::get_count_different_space();
     TEST_EQUALITY(count,0);
 
 
     // Second  Stop / Start (should have the original count)
     Tpetra::Details::DeepCopyCounter::start();
     Kokkos::deep_copy(y_h,x_d);
-    Tpetra::Details::DeepCopyCounter::stop();   
-    count = Tpetra::Details::DeepCopyCounter::get_count_different_space();   
+    Tpetra::Details::DeepCopyCounter::stop();
+    count = Tpetra::Details::DeepCopyCounter::get_count_different_space();
     TEST_EQUALITY(count,correct_count);
 
 
     // This guy should not get counted, since the counter is stopped
     Kokkos::deep_copy(y_h,x_d);
-    count = Tpetra::Details::DeepCopyCounter::get_count_different_space();   
+    count = Tpetra::Details::DeepCopyCounter::get_count_different_space();
     TEST_EQUALITY(count,correct_count);
 
 
     // Third Second  Stop / Start (should have double the original count)
     Tpetra::Details::DeepCopyCounter::start();
     Kokkos::deep_copy(y_h,x_d);
-    Tpetra::Details::DeepCopyCounter::stop();   
-    count = Tpetra::Details::DeepCopyCounter::get_count_different_space();   
+    Tpetra::Details::DeepCopyCounter::stop();
+    count = Tpetra::Details::DeepCopyCounter::get_count_different_space();
     TEST_EQUALITY(count,2*correct_count);
 
   }
@@ -5276,45 +5276,45 @@ namespace {
     // Global fences
     size_t global_correct_count=1;
 
-    // Stop / Start  (reset first to clear counts from previous unit test calls)   
-    Tpetra::Details::FenceCounter::reset();   
+    // Stop / Start  (reset first to clear counts from previous unit test calls)
+    Tpetra::Details::FenceCounter::reset();
     Tpetra::Details::FenceCounter::start();
     Kokkos::fence();
-    Tpetra::Details::FenceCounter::stop();   
-    size_t global_count = Tpetra::Details::FenceCounter::get_count_global(space);   
-    size_t instance_count = Tpetra::Details::FenceCounter::get_count_instance(space);   
+    Tpetra::Details::FenceCounter::stop();
+    size_t global_count = Tpetra::Details::FenceCounter::get_count_global(space);
+    size_t instance_count = Tpetra::Details::FenceCounter::get_count_instance(space);
     TEST_EQUALITY(global_count,global_correct_count);
     TEST_EQUALITY(instance_count,0);
 
     // Reset / get_count (should be zero now)
-    Tpetra::Details::FenceCounter::reset();   
-    global_count =Tpetra::Details::FenceCounter::get_count_global(space);   
-    instance_count = Tpetra::Details::FenceCounter::get_count_instance(space);   
+    Tpetra::Details::FenceCounter::reset();
+    global_count =Tpetra::Details::FenceCounter::get_count_global(space);
+    instance_count = Tpetra::Details::FenceCounter::get_count_instance(space);
     TEST_EQUALITY(global_count,0);
     TEST_EQUALITY(instance_count,0);
 
     // Second  Stop / Start (should have the original count)
     Tpetra::Details::FenceCounter::start();
     Kokkos::fence();
-    Tpetra::Details::FenceCounter::stop();   
-    global_count =Tpetra::Details::FenceCounter::get_count_global(space);   
-    instance_count = Tpetra::Details::FenceCounter::get_count_instance(space);   
+    Tpetra::Details::FenceCounter::stop();
+    global_count =Tpetra::Details::FenceCounter::get_count_global(space);
+    instance_count = Tpetra::Details::FenceCounter::get_count_instance(space);
     TEST_EQUALITY(global_count,global_correct_count);
     TEST_EQUALITY(instance_count,0);
 
     // This guy should not get counted, since the counter is stopped
     Kokkos::fence();
-    global_count =Tpetra::Details::FenceCounter::get_count_global(space);   
-    instance_count = Tpetra::Details::FenceCounter::get_count_instance(space);   
+    global_count =Tpetra::Details::FenceCounter::get_count_global(space);
+    instance_count = Tpetra::Details::FenceCounter::get_count_instance(space);
     TEST_EQUALITY(global_count,global_correct_count);
     TEST_EQUALITY(instance_count,0);
 
     // Third Second  Stop / Start (should have double the original count)
     Tpetra::Details::FenceCounter::start();
     Kokkos::fence();
-    Tpetra::Details::FenceCounter::stop();   
-    global_count =Tpetra::Details::FenceCounter::get_count_global(space);   
-    instance_count = Tpetra::Details::FenceCounter::get_count_instance(space);   
+    Tpetra::Details::FenceCounter::stop();
+    global_count =Tpetra::Details::FenceCounter::get_count_global(space);
+    instance_count = Tpetra::Details::FenceCounter::get_count_instance(space);
     TEST_EQUALITY(global_count,2*global_correct_count);
     TEST_EQUALITY(instance_count,0);
 
@@ -5322,47 +5322,47 @@ namespace {
     // Instance Fences
     size_t instance_correct_count = 1;
 
-    // Stop / Start  (reset first to clear counts from previous unit test calls)   
-    Tpetra::Details::FenceCounter::reset();   
+    // Stop / Start  (reset first to clear counts from previous unit test calls)
+    Tpetra::Details::FenceCounter::reset();
     Tpetra::Details::FenceCounter::start();
     exec_space.fence();
-    Tpetra::Details::FenceCounter::stop();   
-    global_count =Tpetra::Details::FenceCounter::get_count_global(space);   
-    instance_count = Tpetra::Details::FenceCounter::get_count_instance(space);   
+    Tpetra::Details::FenceCounter::stop();
+    global_count =Tpetra::Details::FenceCounter::get_count_global(space);
+    instance_count = Tpetra::Details::FenceCounter::get_count_instance(space);
     TEST_EQUALITY(global_count,0);
     TEST_EQUALITY(instance_count,instance_correct_count);
 
     // Reset / get_count (should be zero now)
-    Tpetra::Details::FenceCounter::reset();   
-    global_count =Tpetra::Details::FenceCounter::get_count_global(space);   
-    instance_count = Tpetra::Details::FenceCounter::get_count_instance(space);   
+    Tpetra::Details::FenceCounter::reset();
+    global_count =Tpetra::Details::FenceCounter::get_count_global(space);
+    instance_count = Tpetra::Details::FenceCounter::get_count_instance(space);
     TEST_EQUALITY(global_count,0);
     TEST_EQUALITY(instance_count,0);
 
     // Second  Stop / Start (should have the original count)
     Tpetra::Details::FenceCounter::start();
-    exec_space.fence();    
-    Tpetra::Details::FenceCounter::stop();   
-    global_count =Tpetra::Details::FenceCounter::get_count_global(space);   
-    instance_count = Tpetra::Details::FenceCounter::get_count_instance(space);   
+    exec_space.fence();
+    Tpetra::Details::FenceCounter::stop();
+    global_count =Tpetra::Details::FenceCounter::get_count_global(space);
+    instance_count = Tpetra::Details::FenceCounter::get_count_instance(space);
     TEST_EQUALITY(global_count,0);
     TEST_EQUALITY(instance_count,instance_correct_count);
 
     // This guy should not get counted, since the counter is stopped
-    exec_space.fence();        
-    global_count =Tpetra::Details::FenceCounter::get_count_global(space);   
-    instance_count = Tpetra::Details::FenceCounter::get_count_instance(space);   
+    exec_space.fence();
+    global_count =Tpetra::Details::FenceCounter::get_count_global(space);
+    instance_count = Tpetra::Details::FenceCounter::get_count_instance(space);
     TEST_EQUALITY(global_count,0);
     TEST_EQUALITY(instance_count,instance_correct_count);
 
     // Third Second  Stop / Start (should have double the original count)
     Tpetra::Details::FenceCounter::start();
-    exec_space.fence();        
-    Tpetra::Details::FenceCounter::stop();   
-    global_count =Tpetra::Details::FenceCounter::get_count_global(space);   
-    instance_count = Tpetra::Details::FenceCounter::get_count_instance(space);   
+    exec_space.fence();
+    Tpetra::Details::FenceCounter::stop();
+    global_count =Tpetra::Details::FenceCounter::get_count_global(space);
+    instance_count = Tpetra::Details::FenceCounter::get_count_instance(space);
     TEST_EQUALITY(global_count,0);
-    TEST_EQUALITY(instance_count,2*instance_correct_count);      
+    TEST_EQUALITY(instance_count,2*instance_correct_count);
   }
 
 

@@ -120,7 +120,7 @@ testImpl (Teuchos::FancyOStream& out,
     reader_type::readMap (mapInFile, comm,
                           false, false);
   std::istringstream mvInFile (mvOutFile.str ());
-  RCP<MV> read_mv = reader_type::readDense (mvInFile, comm, 
+  RCP<MV> read_mv = reader_type::readDense (mvInFile, comm,
                                             readMap, false, false);
 
   out << "Write MultiVector again" << endl;

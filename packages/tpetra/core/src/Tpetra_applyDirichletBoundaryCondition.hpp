@@ -181,8 +181,8 @@ struct ApplyDirichletBoundaryConditionToLocalMatrixRows {
        const local_row_indices_type& lclRowInds,
        const bool runOnHost)
   {
-    // Notes for future refactoring:  This routine seems to have one more layer 
-    // of options than it probably needs.  For instance, if you passed a Kokkos::Serial 
+    // Notes for future refactoring:  This routine seems to have one more layer
+    // of options than it probably needs.  For instance, if you passed a Kokkos::Serial
     // execution_space instance as the first argument you probably wound't need the runOnHost
     // option and then the code below could be collapsed out removing one of the parallel_for's
 
@@ -271,8 +271,8 @@ struct ApplyDirichletBoundaryConditionToLocalMatrixColumns {
        const local_col_flag_type& lclColFlags,
        const bool runOnHost)
   {
-    // Notes for future refactoring:  This routine seems to have one more layer 
-    // of options than it probably needs.  For instance, if you passed a Kokkos::Serial 
+    // Notes for future refactoring:  This routine seems to have one more layer
+    // of options than it probably needs.  For instance, if you passed a Kokkos::Serial
     // execution_space instance as the first argument you probably wound't need the runOnHost
     // option and then the code below could be collapsed out removing one of the parallel_for's
 
@@ -371,12 +371,12 @@ void localRowsToColumns(const typename ::Tpetra::CrsMatrix<SC, LO, GO, NT>::exec
     Kokkos::parallel_for
         ("Tpetra::CrsMatrix flag Dirichlet cols",
          range_type (execSpace, 0, numDirichletRows),
-         KOKKOS_LAMBDA (const LO i) {          
+         KOKKOS_LAMBDA (const LO i) {
           GO row_gid = lclRowMap.getGlobalElement(dirichletRowIds[i]);
           LO col_lid = lclColMap.getLocalElement(row_gid);
           if(col_lid != LO_INVALID)
-            dirichletColFlags[col_lid] = true;          
-        });  
+            dirichletColFlags[col_lid] = true;
+        });
   }
   else {
     // Parallel case: Use A's importer to halo-exchange Dirichlet information
@@ -392,12 +392,12 @@ void localRowsToColumns(const typename ::Tpetra::CrsMatrix<SC, LO, GO, NT>::exec
       Kokkos::parallel_for
         ("Tpetra::CrsMatrix flag Dirichlet domains",
          range_type (execSpace, 0, numDirichletRows),
-         KOKKOS_LAMBDA (const LO i) {          
+         KOKKOS_LAMBDA (const LO i) {
           GO row_gid = lclRowMap.getGlobalElement(dirichletRowIds[i]);
           LO col_lid = lclColMap.getLocalElement(row_gid);
           if(col_lid != LO_INVALID)
-            domain_data(col_lid,0) = one;          
-        });  
+            domain_data(col_lid,0) = one;
+        });
     }
     colDirichlet.doImport(domainDirichlet,*Importer,::Tpetra::INSERT);
     LO numCols = (LO) A.getColMap()->getLocalNumElements();
@@ -406,9 +406,9 @@ void localRowsToColumns(const typename ::Tpetra::CrsMatrix<SC, LO, GO, NT>::exec
       Kokkos::parallel_for
         ("Tpetra::CrsMatrix flag Dirichlet cols",
          range_type (execSpace, 0, numCols),
-         KOKKOS_LAMBDA (const LO i) {          
+         KOKKOS_LAMBDA (const LO i) {
           dirichletColFlags[i] = (col_data(i,0) == one) ? true : false;
-        });  
+        });
     }
   }
 }

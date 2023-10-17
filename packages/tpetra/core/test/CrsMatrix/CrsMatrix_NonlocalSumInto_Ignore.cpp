@@ -230,7 +230,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL( CrsMatrix, NonlocalSumInto_Ignore, LocalOrdin
   std::ostringstream graphFailMsg;
   {
     using indices_type = typename crs_graph_type::nonconst_global_inds_host_view_type;
-    indices_type indView("indices",2);//upper bound    
+    indices_type indView("indices",2);//upper bound
 
     for (GO globalRow = globalMinRow; globalRow <= globalMaxRow; ++globalRow) {
       size_t numEntries = 0; // output argument of below line.

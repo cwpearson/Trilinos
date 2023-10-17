@@ -582,7 +582,7 @@ size_t Behavior::spacesIdWarnLimit ()
     (value_, initialized_, envVarName, defaultValue);
 }
 
-bool Behavior::timeKokkosDeepCopy() 
+bool Behavior::timeKokkosDeepCopy()
 {
   constexpr char envVarName[] = "TPETRA_TIME_KOKKOS_DEEP_COPY";
   constexpr bool defaultValue(false);
@@ -592,9 +592,9 @@ bool Behavior::timeKokkosDeepCopy()
   return idempotentlyGetEnvironmentVariableAsBool
     (value_, initialized_, envVarName, defaultValue);
 
-}    
+}
 
-bool Behavior::timeKokkosDeepCopyVerbose1() 
+bool Behavior::timeKokkosDeepCopyVerbose1()
 {
   constexpr char envVarName[] = "TPETRA_TIME_KOKKOS_DEEP_COPY_VERBOSE1";
   constexpr bool defaultValue(false);
@@ -604,9 +604,9 @@ bool Behavior::timeKokkosDeepCopyVerbose1()
   return idempotentlyGetEnvironmentVariableAsBool
     (value_, initialized_, envVarName, defaultValue);
 
-}    
+}
 
-bool Behavior::timeKokkosDeepCopyVerbose2() 
+bool Behavior::timeKokkosDeepCopyVerbose2()
 {
   constexpr char envVarName[] = "TPETRA_TIME_KOKKOS_DEEP_COPY_VERBOSE2";
   constexpr bool defaultValue(false);
@@ -616,9 +616,9 @@ bool Behavior::timeKokkosDeepCopyVerbose2()
   return idempotentlyGetEnvironmentVariableAsBool
     (value_, initialized_, envVarName, defaultValue);
 
-}    
+}
 
-bool Behavior::timeKokkosFence() 
+bool Behavior::timeKokkosFence()
 {
   constexpr char envVarName[] = "TPETRA_TIME_KOKKOS_FENCE";
   constexpr bool defaultValue(false);
@@ -628,7 +628,7 @@ bool Behavior::timeKokkosFence()
   return idempotentlyGetEnvironmentVariableAsBool
     (value_, initialized_, envVarName, defaultValue);
 
-}  
+}
 
 } // namespace Details
 } // namespace Tpetra

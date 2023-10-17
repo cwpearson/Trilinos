@@ -42,10 +42,10 @@
 // This program tests matrix creation and matrix apply using matrices with
 // arbitrarily distributed nonzeros (not necessarily row-based distribution).
 //
-// Create global matrix nonzeros randomly; store all global nonzeros on 
+// Create global matrix nonzeros randomly; store all global nonzeros on
 // each proc in a std::map.
 // Create distributed vectors with randomized entries using Trilinos' default
-// maps 
+// maps
 // For each test (linear row-wise distribution, linear column-wise distribution,
 //                random distribution of nonzeros (2D) to processors)
 //    distribute matrix nonzeros (each proc selects subset of global nonzeros)
@@ -58,7 +58,7 @@
 // NOTE:  timings are also reported but should be interpreted carefully.
 // This test does not attempt to optimize the distribution of the vectors to
 // minimize communication costs.  Moreover, 2D random distribution of nonzeros
-// can lead to high communication volume; a better 2D approach would be a 
+// can lead to high communication volume; a better 2D approach would be a
 // block-based approach that better aligns vector entries with matrix entries.
 
 #include "Tpetra_Core.hpp"
@@ -69,26 +69,26 @@
 #include "Teuchos_Array.hpp"
 #include "MatrixMarket_Tpetra.hpp"
 
-// TestReader:  
+// TestReader:
 // Assume Tpetra's existing matrix-market reader is correct.
 //    Read the matrix; do SpMV with resulting matrix; compute norms
 //
 // Exercise the file reader multiple ways:
-//   1D 
+//   1D
 //   1D Random
 //   1D with 1D partition
 //   2D
 //   2D Random
 //   2D with 1D partition
 //   2D with nonzero value = part assignment
-// 
+//
 // For each, read the matrix; do SpMV; compute norms; compare to baseline
 
 class TestReader {
 public:
   using map_t = Tpetra::Map<>;
   using gno_t = map_t::global_ordinal_type;
-  using scalar_t = Tpetra::Details::DefaultTypes::scalar_type; 
+  using scalar_t = Tpetra::Details::DefaultTypes::scalar_type;
   using matrix_t = Tpetra::CrsMatrix<scalar_t>;
   using vector_t = Tpetra::Vector<scalar_t>;
   using reader_t = Tpetra::MatrixMarket::Reader<matrix_t>;
@@ -96,7 +96,7 @@ public:
   //////////////////////////////
   // Constructor
   TestReader(
-    const std::string filename_, 
+    const std::string filename_,
     const std::string diagonal_,
     const Teuchos::RCP<const Teuchos::Comm<int> > &comm_
   ) : filename(filename_), diagonal(diagonal_), comm(comm_), norm_baseline(3)
@@ -133,9 +133,9 @@ public:
       A_baseline->fillComplete();
     }
 
-    nRow = A_baseline->getRowMap()->getMaxAllGlobalIndex() 
+    nRow = A_baseline->getRowMap()->getMaxAllGlobalIndex()
          + 1;  // Since Trilinos' reader converts one-based to zero-based
-    nCol = A_baseline->getColMap()->getMaxAllGlobalIndex() 
+    nCol = A_baseline->getColMap()->getMaxAllGlobalIndex()
          + 1;  // Since Trilinos' reader converts one-based to zero-based
     nNz = A_baseline->getGlobalNumEntries();
 
@@ -224,7 +224,7 @@ public:
         if (np % npRow) {
           // runTest should fail on when np is not a multiple of npRow; ignore
           // the throw in this case
-          if (comm->getRank() == 0) 
+          if (comm->getRank() == 0)
             std::cout << "Correctly caught error in " << testname << std::endl;
         }
         else {
@@ -251,7 +251,7 @@ public:
         if (np % npCol) {
           // runTest should fail on when np is not a multiple of npCol; ignore
           // the throw in this case
-          if (comm->getRank() == 0) 
+          if (comm->getRank() == 0)
             std::cout << "Correctly caught error in " << testname << std::endl;
         }
         else {
@@ -280,7 +280,7 @@ public:
         if (npRow * npCol != np) {
           // runTest should fail on when npRow * npCol != np; ignore
           // the throw in this case
-          if (comm->getRank() == 0) 
+          if (comm->getRank() == 0)
             std::cout << "Correctly caught error in " << testname << std::endl;
         }
         else {
@@ -305,7 +305,7 @@ public:
         if (q * (q + 1) != 2 * np) {
           // runTest should fail with this processor count; ignore
           // the throw in this case
-          if (comm->getRank() == 0) 
+          if (comm->getRank() == 0)
             std::cout << "Correctly caught error in " << testname << std::endl;
         }
         else {
@@ -331,7 +331,7 @@ public:
         if (q * (q + 1) != 2 * np) {
           // runTest should fail with this processor count; ignore
           // the throw in this case
-          if (comm->getRank() == 0) 
+          if (comm->getRank() == 0)
             std::cout << "Correctly caught error in " << testname << std::endl;
         }
         else {
@@ -368,8 +368,8 @@ private:
     }
     catch (std::exception &e) {
       if (comm->getRank() == 0) {
-        std::cout << "In test " << testname 
-                  << ":  matrix reading failed " << filename 
+        std::cout << "In test " << testname
+                  << ":  matrix reading failed " << filename
                   << std::endl;
         std::cout << e.what() << std::endl;
       }
@@ -379,7 +379,7 @@ private:
   }
 
   //////////////////////////////
-  // Apply a matrix to a vector; 
+  // Apply a matrix to a vector;
   // compute three norms of product vector
   Teuchos::RCP<vector_t> applyMatrix(
     const std::string testname,
@@ -407,9 +407,9 @@ private:
     }
 
     // Import result to a vector with default Tpetra map for easy comparisons
-    Teuchos::RCP<map_t> defMap = 
+    Teuchos::RCP<map_t> defMap =
              rcp(new map_t(yvec.getGlobalLength(),0,yvec.getMap()->getComm()));
-    Teuchos::RCP<vector_t> ydef = 
+    Teuchos::RCP<vector_t> ydef =
              rcp(new vector_t(defMap, yvec.getNumVectors()));
     Tpetra::Export<> exportDef(yvec.getMap(), defMap);
     ydef->doExport(yvec, exportDef, Tpetra::INSERT);
@@ -420,7 +420,7 @@ private:
   //////////////////////////////
   //  Compare computed norms to the baseline norms
   int compareToBaseline(
-    const std::string testname, 
+    const std::string testname,
     const Teuchos::RCP<vector_t> &y_test
   )
   {
@@ -439,10 +439,10 @@ private:
         ierr++;
         if (comm->getRank() == 0) {
           std::cout << "FAIL in test " << testname << ":  norm " << i << ": "
-                    << std::abs(norm_baseline[i] - norm_test[i]) 
+                    << std::abs(norm_baseline[i] - norm_test[i])
                     << " > " << epsilon
                     << std::endl;
-          std::cout << "FAIL in test " << testname 
+          std::cout << "FAIL in test " << testname
                     << ": baseline " << norm_baseline[i]
                     << ": test " << norm_test[i]
                     << std::endl;
@@ -450,7 +450,7 @@ private:
       }
     }
 
-    // If norms match, make sure the vector entries match, too 
+    // If norms match, make sure the vector entries match, too
     // (Norms are indifferent to errors in permutation)
     if (ierr == 0) {
       //y_test->sync_host();
@@ -461,7 +461,7 @@ private:
         if (std::abs(ytestData(i,0) - ybaseData(i,0)) > epsilon) ierr++;
       }
       if (ierr > 0) {
-        std::cout << "FAIL in test " << testname << ": " 
+        std::cout << "FAIL in test " << testname << ": "
                   << ierr << " vector entries differ on rank "
                   << comm->getRank() << std::endl;
       }
@@ -479,7 +479,7 @@ private:
     Teuchos::ParameterList &params
   )
   {
-    if (comm->getRank() == 0) 
+    if (comm->getRank() == 0)
       std::cout << "\n\nBEGIN " << testname << "\n" << std::endl;
 
     params.set("verbose", true);
@@ -491,7 +491,7 @@ private:
     Teuchos::RCP<matrix_t> Amat = readFile(testname, params, dist);
 
     using distltb_t = Tpetra::DistributionLowerTriangularBlock<gno_t, scalar_t>;
-    Tpetra::LowerTriangularBlockOperator<scalar_t> lto(Amat, 
+    Tpetra::LowerTriangularBlockOperator<scalar_t> lto(Amat,
                                dynamic_cast<distltb_t&>(*dist));
 
     Teuchos::RCP<vector_t> yvec = applyMatrix(testname, lto);
@@ -506,7 +506,7 @@ private:
     Teuchos::ParameterList &params
   )
   {
-    if (comm->getRank() == 0) 
+    if (comm->getRank() == 0)
       std::cout << "\n\nBEGIN " << testname << "\n" << std::endl;
 
     params.set("verbose", true);
@@ -523,7 +523,7 @@ private:
 private:
 
   const std::string filename;    // MatrixMarket filename
-  const std::string diagonal;    // Special handling of the matrix diagonal:  
+  const std::string diagonal;    // Special handling of the matrix diagonal:
                                  // require or exclude?
   const Teuchos::RCP<const Teuchos::Comm<int> > comm;
 
@@ -536,7 +536,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////
 
-int main(int narg, char *arg[]) 
+int main(int narg, char *arg[])
 {
   Tpetra::ScopeGuard scope(&narg, &arg);
   const Teuchos::RCP<const Teuchos::Comm<int> > comm = Tpetra::getDefaultComm();
@@ -579,10 +579,10 @@ int main(int narg, char *arg[])
 
   // Report test result
   if (comm->getRank() == 0) {
-    if (ierr == 0) 
+    if (ierr == 0)
       std::cout << "End Result: TEST PASSED" << std::endl;
-    else  
-      std::cout << "End Result: TEST FAILED with " << ierr << " failures" 
+    else
+      std::cout << "End Result: TEST FAILED with " << ierr << " failures"
                 << std::endl;
   }
 

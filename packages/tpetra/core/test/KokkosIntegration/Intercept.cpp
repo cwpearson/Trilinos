@@ -65,7 +65,7 @@ void initialize(int& narg, char* arg[]) {
 
   fprintf(stderr, "Kokkos::initialize()\n");
   o_init(narg, arg);
-} 
+}
 
 void finalize() {
   void (*o_finalize)(void);
@@ -127,7 +127,7 @@ __host__ __device__ cudaError_t cudaMemcpyAsync ( void* dst, const void* src, si
 
 //Copies data to the given symbol on the device.
 __host__ cudaError_t cudaMemcpy(void* dst, const void* src, size_t count, cudaMemcpyKind kind) {
-  cudaError_t (*o_cudaMemcpy)(void*, const void*, size_t, cudaMemcpyKind);  
+  cudaError_t (*o_cudaMemcpy)(void*, const void*, size_t, cudaMemcpyKind);
   o_cudaMemcpy = (cudaError_t (*)(void*, const void*, size_t, cudaMemcpyKind))dlsym(RTLD_NEXT, "cudaMemcpy");
   ApiTest *ctr = ApiTest::getInstance();
 

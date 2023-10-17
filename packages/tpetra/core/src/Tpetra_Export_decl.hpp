@@ -109,7 +109,7 @@ namespace Tpetra {
   /// This method accepts an optional list of parameters, either
   /// through the constructor or through the setParameterList()
   /// method.  Most users do not need to worry about these parameters;
-  /// the default values are fine.  
+  /// the default values are fine.
   ///
   template<class LocalOrdinal,
            class GlobalOrdinal,

@@ -126,7 +126,7 @@ namespace { // (anonymous)
 
     if (myProc == 0) {
       cerr << "The matrix is now a FEM-type tri-diagonal mass matrix. "
-           << "Replace all diagonal entries by the rank of the owning proc." 
+           << "Replace all diagonal entries by the rank of the owning proc."
            << endl;
     }
     comm->barrier ();
@@ -146,7 +146,7 @@ namespace { // (anonymous)
       newDiag->putScalar(rankAsScalar);
 
       // Replace the diagonal
-      LO numReplacedDiagEntries = 
+      LO numReplacedDiagEntries =
          Tpetra::replaceDiagonalCrsMatrix<Scalar,LO,GO,Node>(*matrix, *newDiag);
 
       // Tests
@@ -219,7 +219,7 @@ namespace { // (anonymous)
     }
   }
 
-  // Unit test of replacing the diagonal of a Tpetra::CrsMatrix with 
+  // Unit test of replacing the diagonal of a Tpetra::CrsMatrix with
   // overlapped row map
   TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL( CrsMatrix, ReplaceDiagonalOverlapRowMap, Scalar, LO, GO, Node )
   {
@@ -268,14 +268,14 @@ namespace { // (anonymous)
       int myProcRow = myProc % nProcRow;
       int myProcCol = myProc / nProcRow;
 
-      // create a Map with overlapped entries 
+      // create a Map with overlapped entries
       const int nRowPerProc = 10;
       const int nRows = nRowPerProc * nProcRow;
       const int nCols = nRows; // square matrix
       GO myFirstRow = myProcRow * nRowPerProc;
       GO myLastRow = myFirstRow + nRowPerProc - 1;
       GO myFirstCol = myProcCol * (nCols / nProcCol);
-      GO myLastCol = (myProcCol < nProcCol-1 ? (myProcCol+1)*(nCols/nProcCol) 
+      GO myLastCol = (myProcCol < nProcCol-1 ? (myProcCol+1)*(nCols/nProcCol)
                                              : nRows) - 1;
 
       const int maxNZPerRow = 3;
@@ -306,7 +306,7 @@ namespace { // (anonymous)
         }
       }
 
-      Tpetra::global_size_t dummy = 
+      Tpetra::global_size_t dummy =
               Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid();
       RCP<const map_type> map = rcp(new map_type(dummy, myRows(), 0, comm));
 
@@ -316,7 +316,7 @@ namespace { // (anonymous)
       Teuchos::Array<Scalar> vals(maxNZPerRow, SC_MONE);
       for (int i = 0; i < nRowPerProc; i++) {
         int nnz = nNZPerRow[i];
-        if (nnz > 0) 
+        if (nnz > 0)
           matrix->insertGlobalValues(i+myFirstRow, myJ(curJ,nnz), vals(0,nnz));
         curJ += nnz;
       }
@@ -346,19 +346,19 @@ namespace { // (anonymous)
        * 3. Replace the diagonal
        * 4. Test for
        *    - successful replacement of diagonal values
-       *    - unchanged off-diagonal values 
+       *    - unchanged off-diagonal values
        */
 
       // Create vector with new diagonal values (row GO)
       RCP<vec_type> newDiag = rcp(new vec_type(matrix->getRowMap()));
       {
         auto newDiagData = newDiag->getLocalViewHost(Tpetra::Access::OverwriteAll);
-        for (size_t i = 0; i < newDiag->getLocalLength(); i++) 
+        for (size_t i = 0; i < newDiag->getLocalLength(); i++)
           newDiagData(i,0) = newDiag->getMap()->getGlobalElement(i);
       }
 
       // Replace the diagonal
-      LO numReplacedDiagEntries = 
+      LO numReplacedDiagEntries =
          Tpetra::replaceDiagonalCrsMatrix<Scalar,LO,GO,Node>(*matrix, *newDiag);
 
       // Tests
@@ -382,7 +382,7 @@ namespace { // (anonymous)
             GO gJ = matrix->getColMap()->getGlobalElement(lcols[j]);
             if (gI == gJ) {
               // Diagonal entry; value should be row GO
-	      const impl_scalar_type expected = 
+	      const impl_scalar_type expected =
     	            static_cast<impl_scalar_type> (gI);
               TEST_EQUALITY_CONST(lvals[j], expected);
             }

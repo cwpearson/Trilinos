@@ -31,35 +31,35 @@ public:
 
     ~TpetraFunctions() = default;
 
-    void importSquareMatrix(Teuchos::RCP<const CrsMatrix> inputMatrix, 
-                            Teuchos::RCP<const Map> outputRowMap, 
+    void importSquareMatrix(Teuchos::RCP<const CrsMatrix> inputMatrix,
+                            Teuchos::RCP<const Map> outputRowMap,
                             Teuchos::RCP<CrsMatrix> & outputMatrix);
 
 
   // CMS Hackery
-  void importSquareMatrixFromImporter(Teuchos::RCP<const CrsMatrix> inputMatrix, 
+  void importSquareMatrixFromImporter(Teuchos::RCP<const CrsMatrix> inputMatrix,
                                       Teuchos::RCP<const Import> importer,
                                       Teuchos::RCP<CrsMatrix> & outputMatrix);
 
- void importSquareMatrixFromImporter2(Teuchos::RCP<const CrsMatrix> inputMatrix, 
+ void importSquareMatrixFromImporter2(Teuchos::RCP<const CrsMatrix> inputMatrix,
                                       Teuchos::RCP<const Import> importer,
                                       Teuchos::RCP<CrsMatrix> & outputMatrix);
 
- void importSquareMatrixFromImporter3(Teuchos::RCP<const CrsMatrix> inputMatrix, 
+ void importSquareMatrixFromImporter3(Teuchos::RCP<const CrsMatrix> inputMatrix,
                                       Teuchos::RCP<const Import> importer,
                                       Teuchos::RCP<CrsMatrix> & outputMatrix);
 
 
-  void importSquareMatrixFromImporter4(Teuchos::RCP<const CrsMatrix> inputMatrix, 
+  void importSquareMatrixFromImporter4(Teuchos::RCP<const CrsMatrix> inputMatrix,
                                        Teuchos::RCP<const Import> importer,
                                        Teuchos::RCP<CrsMatrix> & outputMatrix);
 
 private:
   template<class LOVector>
-    void communicateMatrixData(Teuchos::RCP<const CrsMatrix> inputMatrix, 
+    void communicateMatrixData(Teuchos::RCP<const CrsMatrix> inputMatrix,
                                Teuchos::RCP<const Map> rowMap,
                                Teuchos::RCP<Tpetra::Distributor> distributor,
-                               const std::vector<GO> & targetMapGIDs, 
+                               const std::vector<GO> & targetMapGIDs,
                                const std::vector<LO> & targetMapGIDsBegin,
                                const std::vector<GO> & ownedRowGIDs,
                                const LOVector & localRowsSend,
@@ -69,10 +69,10 @@ private:
                                Teuchos::RCP<CrsMatrix> & outputMatrix);
 
   template<class LOVector, class STVector>
-    void communicateMatrixData2(Teuchos::RCP<const CrsMatrix> inputMatrix, 
+    void communicateMatrixData2(Teuchos::RCP<const CrsMatrix> inputMatrix,
                                Teuchos::RCP<const Map> rowMap,
                                Teuchos::RCP<Tpetra::Distributor> distributor,
-                               const std::vector<GO> & targetMapGIDs, 
+                               const std::vector<GO> & targetMapGIDs,
                                const std::vector<LO> & targetMapGIDsBegin,
                                const std::vector<GO> & ownedRowGIDs,
                                const LOVector & localRowsSend,
@@ -82,21 +82,21 @@ private:
                                Teuchos::RCP<CrsMatrix> & outputMatrix);
 
 
-  void communicateMatrixData3(Teuchos::RCP<const CrsMatrix> inputMatrix, 
+  void communicateMatrixData3(Teuchos::RCP<const CrsMatrix> inputMatrix,
                               Teuchos::RCP<const Tpetra::Import<LO,GO,NT> > importer,
-                              const std::vector<GO> & targetMapGIDs, 
+                              const std::vector<GO> & targetMapGIDs,
                               const std::vector<LO> & targetMapGIDsBegin,
                               Teuchos::RCP<CrsMatrix> & outputMatrix);
 
 
 
-    void communicateRowMap(Teuchos::RCP<const Map> rowMap, 
-                           Teuchos::RCP<Tpetra::Distributor> distributor, 
-                           std::vector<GO> & rowMapGIDs, 
+    void communicateRowMap(Teuchos::RCP<const Map> rowMap,
+                           Teuchos::RCP<Tpetra::Distributor> distributor,
+                           std::vector<GO> & rowMapGIDs,
                            std::vector<LO> & rowMapGIDsBegin);
 
-    void constructDistributor(Teuchos::RCP<const CrsMatrix> inputMatrix, 
-                              Teuchos::RCP<const Map> rowMap, 
+    void constructDistributor(Teuchos::RCP<const CrsMatrix> inputMatrix,
+                              Teuchos::RCP<const Map> rowMap,
                               Teuchos::RCP<Tpetra::Distributor> & distributor,
                               std::vector<GO> & ownedRowGIDs,
                               std::vector<LO> & localRowsSend,
@@ -104,7 +104,7 @@ private:
                               std::vector<LO> & localRowsRecv,
                               std::vector<LO> & localRowsRecvBegin);
 
-    void getUniqueEntries(const std::vector<int> & vector, 
+    void getUniqueEntries(const std::vector<int> & vector,
                           std::vector<int> & vectorUnique);
 
 };

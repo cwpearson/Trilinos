@@ -47,7 +47,7 @@
  */
 inline void Fake_Alltoall(const void *sendbuf, int sendcount,
                       MPI_Datatype sendtype, void *recvbuf,
-                      int recvcount, MPI_Datatype recvtype, 
+                      int recvcount, MPI_Datatype recvtype,
                       MPI_Comm comm) {
 
   constexpr int ARBITRARY_TAG = 0;

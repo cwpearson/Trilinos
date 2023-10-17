@@ -424,7 +424,7 @@ unpackAndCombineWithOwningPIDsCount(
         KOKKOS_LAMBDA(const int& i, size_t& lsum) {
           lsum += num_packets_per_lid(i) / 2;
         }, Kokkos::Sum<size_t>(tot_num_ent));
-    count += tot_num_ent; 
+    count += tot_num_ent;
   }
 
   return count;

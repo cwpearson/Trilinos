@@ -539,7 +539,7 @@ namespace Tpetra {
     Teuchos::ArrayRCP<typename View1::non_const_value_type> view1_rcp =  Kokkos::Compat::persistingView(view1, 0, size);
     Teuchos::ArrayRCP<typename View2::non_const_value_type> view2_rcp =  Kokkos::Compat::persistingView(view2, 0, size);
 
-    sort2(view1_rcp.begin(),view1_rcp.end(),view2_rcp.begin());    
+    sort2(view1_rcp.begin(),view1_rcp.end(),view2_rcp.begin());
   }
 
 /**
@@ -557,7 +557,7 @@ namespace Tpetra {
     // Wrap the view as rcps (this happens to preserve the reference counting, but that doesn't really matter here)
     Teuchos::ArrayRCP<typename View::non_const_value_type> view_rcp =  Kokkos::Compat::persistingView(view, 0, size);
 
-    std::sort(view_rcp.begin(),view_rcp.end());    
+    std::sort(view_rcp.begin(),view_rcp.end());
   }
 
   /**
@@ -574,7 +574,7 @@ namespace Tpetra {
     // Wrap the view as rcps (this happens to preserve the reference counting, but that doesn't really matter here)
     Teuchos::ArrayRCP<typename View::non_const_value_type> view_rcp =  Kokkos::Compat::persistingView(view, 0, size);
 
-    std::sort(view_rcp.rbegin(),view_rcp.rend());    
+    std::sort(view_rcp.rbegin(),view_rcp.rend());
   }
 
 

@@ -41,7 +41,7 @@
 
 //  2D matrix distribution
 //  Assumes square matrix
-//  Karen Devine, SNL 
+//  Karen Devine, SNL
 //
 
 #ifndef __TPETRA_DISTRIBUTION2D_HPP
@@ -53,7 +53,7 @@ namespace Tpetra
 /////////////////////////////////////////////////////////////////////////////
 template <typename gno_t, typename scalar_t>
 class Distribution2D : public Distribution<gno_t,scalar_t> {
-// Processors will be laid out logically first down columns then 
+// Processors will be laid out logically first down columns then
 // across rows.  For example, assume np = 8, npRows=2, npCols=4.
 // Then the processors will be laid out in 2D as
 //   0  2  4  6
@@ -68,9 +68,9 @@ class Distribution2D : public Distribution<gno_t,scalar_t> {
 //   1  3  5  7
 //   0  2  4  6
 //   1  3  5  7
-// 
-// The vector will be distributed linearly or randomly.  The row and 
-// column maps will be built to allow only row- or column-based 
+//
+// The vector will be distributed linearly or randomly.  The row and
+// column maps will be built to allow only row- or column-based
 // communication in the matvec.
 
 public:
@@ -80,8 +80,8 @@ public:
   using Distribution<gno_t,scalar_t>::nrows;
   using Distribution<gno_t,scalar_t>::Mine;
 
-  Distribution2D(size_t nrows_, 
-                 const Teuchos::RCP<const Teuchos::Comm<int> > &comm_, 
+  Distribution2D(size_t nrows_,
+                 const Teuchos::RCP<const Teuchos::Comm<int> > &comm_,
                  const Teuchos::ParameterList &params) :
                  Distribution<gno_t,scalar_t>(nrows_, comm_, params),
                  npRows(-1), npCols(-1)
@@ -101,9 +101,9 @@ public:
 
     // Compute the processor configuration npRows * npCols
 
-    if (npRows == -1 && npCols == -1) { // Compute both npRows and npCols 
+    if (npRows == -1 && npCols == -1) { // Compute both npRows and npCols
       // First guess
-      npRows = (int)(sqrt(np));   
+      npRows = (int)(sqrt(np));
       npCols = np / npRows;
       // Adjust npRows so that npRows * npCols == np
       while (npRows * npCols != np) {
@@ -126,8 +126,8 @@ public:
                                    " for 2D distribution");
       }
     }
-    if (me == 0) 
-      std::cout << "\n2D Distribution: " 
+    if (me == 0)
+      std::cout << "\n2D Distribution: "
                 << "\n    npRows = " << npRows
                 << "\n    npCols = " << npCols
                 << "\n    np     = " << np << std::endl;
@@ -169,7 +169,7 @@ public:
   using Distribution2D<gno_t,scalar_t>::mypCol;
 
   Distribution2DLinear(size_t nrows_,
-                       const Teuchos::RCP<const Teuchos::Comm<int> > &comm_, 
+                       const Teuchos::RCP<const Teuchos::Comm<int> > &comm_,
                        const Teuchos::ParameterList &params) :
                        Distribution2D<gno_t,scalar_t>(nrows_, comm_, params)
   {
@@ -178,17 +178,17 @@ public:
     int nExtraEntries = nrows % np;
 
     // Distribute the extra entries evenly among processors.
-    // To evenly distribute them extra entries among processor rows and 
+    // To evenly distribute them extra entries among processor rows and
     // columns, we distribute them along diagonals of the matrix distribution.
     // For our example, assume we have seven extra values (the max possible
-    // with np=8).  Then we give one extra entry each to ranks 
+    // with np=8).  Then we give one extra entry each to ranks
     // [0, 3, 4, 7, 1, 2, 5].  For fewer extra entries, we follow the same
     // order of assignment, and just stop early.
 
     for (int cnt = 0, i = 0; (cnt < nExtraEntries) && (i < npRows); i++) {
       for (int j = 0; (cnt < nExtraEntries) && (j < npCols); cnt++, j++) {
-        int rankForExtra = Distribution2D<gno_t,scalar_t>::TWODPRANK(i, j); 
-        entries[rankForExtra+1]++;  // Store in rankForExtra+1 to simplify 
+        int rankForExtra = Distribution2D<gno_t,scalar_t>::TWODPRANK(i, j);
+        entries[rankForExtra+1]++;  // Store in rankForExtra+1 to simplify
                                     // prefix sum.
       }
     }
@@ -211,7 +211,7 @@ public:
 
   inline enum DistributionType DistType() { return TwoDLinear; }
 
-  bool Mine(gno_t i, gno_t j) { 
+  bool Mine(gno_t i, gno_t j) {
     int idx = int(float(i) * float(np) / float(nrows));
     while (i < entries[idx]) idx--;
     while (i >= entries[idx+1]) idx++;
@@ -221,7 +221,7 @@ public:
   inline bool Mine(gno_t i, gno_t j, int p) {return Mine(i,j);}
 
   inline bool VecMine(gno_t i) {
-    return(i >= entries[me] && i < entries[me+1]); 
+    return(i >= entries[me] && i < entries[me+1]);
   }
 
 
@@ -242,14 +242,14 @@ public:
   using Distribution2D<gno_t,scalar_t>::mypCol;
 
   Distribution2DRandom(size_t nrows_,
-                       const Teuchos::RCP<const Teuchos::Comm<int> > &comm_, 
+                       const Teuchos::RCP<const Teuchos::Comm<int> > &comm_,
                        const Teuchos::ParameterList &params) :
                        Distribution2D<gno_t,scalar_t>(nrows_, comm_, params)
   { if (me == 0) std::cout << "    randomize = true" << std::endl; }
 
   inline enum DistributionType DistType() { return TwoDRandom; }
 
-  inline bool Mine(gno_t i, gno_t j) { 
+  inline bool Mine(gno_t i, gno_t j) {
     return ((mypRow == this->TWODPROW(this->HashToProc(i))) &&  // RowMine
             (mypCol == this->TWODPCOL(this->HashToProc(j))));   // ColMine
   }
@@ -275,8 +275,8 @@ public:
   using Distribution2D<gno_t,scalar_t>::npRows;
   using Distribution2D<gno_t,scalar_t>::npCols;
 
-  Distribution2DVec(size_t nrows_, 
-                    const Teuchos::RCP<const Teuchos::Comm<int> > &comm_, 
+  Distribution2DVec(size_t nrows_,
+                    const Teuchos::RCP<const Teuchos::Comm<int> > &comm_,
                     const Teuchos::ParameterList &params,
                     std::string &distributionfile) :
                     Distribution2D<gno_t,scalar_t>(nrows_, comm_, params)
@@ -295,7 +295,7 @@ public:
 
     // Read the vector part assignment and broadcast it to all processes.
     // Broadcast in chunks of bcastsize values.
-    // TODO:  Make the vector part assignment more scalable instead of 
+    // TODO:  Make the vector part assignment more scalable instead of
     // TODO:  storing entire vector on every process.
 
     vecpart = new int[nrows];

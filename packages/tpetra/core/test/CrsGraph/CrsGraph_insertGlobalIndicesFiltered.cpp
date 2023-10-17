@@ -166,8 +166,8 @@ namespace { // (anonymous)
             }
           }
         }
-      } 
-    } 
+      }
+    }
 
     // Make sure that the test succeeded on all processes.
     lclSuccess = success ? 1 : 0;

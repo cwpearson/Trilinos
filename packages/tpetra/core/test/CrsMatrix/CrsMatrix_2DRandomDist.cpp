@@ -42,10 +42,10 @@
 // This program tests matrix creation and matrix apply using matrices with
 // arbitrarily distributed nonzeros (not necessarily row-based distribution).
 //
-// Create global matrix nonzeros randomly; store all global nonzeros on 
+// Create global matrix nonzeros randomly; store all global nonzeros on
 // each proc in a std::map.
 // Create distributed vectors with randomized entries using Trilinos' default
-// maps 
+// maps
 // For each test (linear row-wise distribution, linear column-wise distribution,
 //                random distribution of nonzeros (2D) to processors)
 //    distribute matrix nonzeros (each proc selects subset of global nonzeros)
@@ -58,7 +58,7 @@
 // NOTE:  timings are also reported but should be interpreted carefully.
 // This test does not attempt to optimize the distribution of the vectors to
 // minimize communication costs.  Moreover, 2D random distribution of nonzeros
-// can lead to high communication volume; a better 2D approach would be a 
+// can lead to high communication volume; a better 2D approach would be a
 // block-based approach that better aligns vector entries with matrix entries.
 
 #include "Tpetra_Core.hpp"
@@ -67,7 +67,7 @@
 #include "Tpetra_Vector.hpp"
 #include "Teuchos_TimeMonitor.hpp"
 
-// Class to generate, distribute and apply nonzeros 
+// Class to generate, distribute and apply nonzeros
 template <typename scalar_t, typename gno_t>
 class generatedNonzeros
 {
@@ -107,7 +107,7 @@ public:
     Teuchos::Array<gno_t> &rowIdx,    // output:  unique row indices of
                                       // nonzeros on this proc (sorted
                                       // in ascending order)
-    Teuchos::Array<size_t> &nPerRow,  // output:  nPerRow[i] == 
+    Teuchos::Array<size_t> &nPerRow,  // output:  nPerRow[i] ==
                                       // number of nonzeros
                                       // in rowIdx[i] on this proc
     Teuchos::Array<size_t> &offsets,  // output:  CRS offset array;
@@ -212,7 +212,7 @@ public:
     size_t nRowIdx = size_t(rowIdx.size());
     for (size_t r = 0; r < nRowIdx; r++) {
       size_t tmp = offsets[r+1] - offsets[r];
-      Amat->insertGlobalValues(rowIdx[r], 
+      Amat->insertGlobalValues(rowIdx[r],
                                colIdx(offsets[r],tmp), val(offsets[r],tmp));
     }
 
@@ -229,15 +229,15 @@ public:
       Amat->fillComplete(xvec.getMap(), yvec.getMap());
     }
 
-    std::cout << comm->getRank() 
+    std::cout << comm->getRank()
               << ": nRows " << Amat->getLocalNumRows()
               << "; nCols " << Amat->getLocalNumCols()
               << "; nnz " << Amat->getLocalNumEntries()
-              << "; import " 
+              << "; import "
               << (Amat->getGraph()->getImporter() == Teuchos::null ? 0 :
                   Amat->getGraph()->getImporter()->getNumExportIDs())
-              << "; export " 
-              << (Amat->getGraph()->getExporter() == Teuchos::null ? 0 : 
+              << "; export "
+              << (Amat->getGraph()->getExporter() == Teuchos::null ? 0 :
                   Amat->getGraph()->getExporter()->getNumExportIDs())
               << std::endl;
 
@@ -259,7 +259,7 @@ public:
     }
   }
 
-  // Distribute nonzeros to processors, create CrsMatrix, then apply its 
+  // Distribute nonzeros to processors, create CrsMatrix, then apply its
   // transpose to input vector x, giving y
   // Time the SpMV application
   void distributeAndApplyTranspose(
@@ -293,7 +293,7 @@ public:
     size_t nRowIdx = size_t(rowIdx.size());
     for (size_t r = 0; r < nRowIdx; r++) {
       size_t tmp = offsets[r+1] - offsets[r];
-      Amat->insertGlobalValues(rowIdx[r], 
+      Amat->insertGlobalValues(rowIdx[r],
                                colIdx(offsets[r],tmp), val(offsets[r],tmp));
     }
 
@@ -310,15 +310,15 @@ public:
       Amat->fillComplete(xvec.getMap(), yvec.getMap());
     }
 
-    std::cout << comm->getRank() 
+    std::cout << comm->getRank()
               << ": nRows " << Amat->getLocalNumRows()
               << "; nCols " << Amat->getLocalNumCols()
               << "; nnz " << Amat->getLocalNumEntries()
-              << "; import " 
+              << "; import "
               << (Amat->getGraph()->getImporter() == Teuchos::null ? 0 :
                   Amat->getGraph()->getImporter()->getNumExportIDs())
-              << "; export " 
-              << (Amat->getGraph()->getExporter() == Teuchos::null ? 0 : 
+              << "; export "
+              << (Amat->getGraph()->getExporter() == Teuchos::null ? 0 :
                   Amat->getGraph()->getExporter()->getNumExportIDs())
               << std::endl;
 
@@ -359,12 +359,12 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////
 
-int main(int narg, char *arg[]) 
+int main(int narg, char *arg[])
 {
   Tpetra::ScopeGuard scope(&narg, &arg);
   Teuchos::RCP<const Teuchos::Comm<int> > comm = Tpetra::getDefaultComm();
 
-  using scalar_t = Tpetra::Details::DefaultTypes::scalar_type; 
+  using scalar_t = Tpetra::Details::DefaultTypes::scalar_type;
   using gno_t = Tpetra::Map<>::global_ordinal_type;
 
   int me = comm->getRank();
@@ -396,7 +396,7 @@ int main(int narg, char *arg[])
   scalar_t row1DNorm1 = yvec.norm1();
   scalar_t row1DNorm2 = yvec.norm2();
   scalar_t row1DNormInf = yvec.normInf();
-  if (me == 0) 
+  if (me == 0)
     std::cout << "Row-wise 1D distribution:  norm1 " << row1DNorm1
               << "; norm2 " << row1DNorm2
               << "; norminf " << row1DNormInf
@@ -408,7 +408,7 @@ int main(int narg, char *arg[])
   scalar_t col1DNorm1 = yvec.norm1();
   scalar_t col1DNorm2 = yvec.norm2();
   scalar_t col1DNormInf = yvec.normInf();
-  if (me == 0) 
+  if (me == 0)
     std::cout << "Col-wise 1D distribution:  norm1 " << col1DNorm1
               << "; norm2 " << col1DNorm2
               << "; norminf " << col1DNormInf
@@ -420,7 +420,7 @@ int main(int narg, char *arg[])
   scalar_t random2DNorm1 = yvec.norm1();
   scalar_t random2DNorm2 = yvec.norm2();
   scalar_t random2DNormInf = yvec.normInf();
-  if (me == 0) 
+  if (me == 0)
     std::cout << "Random 2D distribution:   norm1 " << random2DNorm1
               << "; norm2 " << random2DNorm2
               << "; norminf " << random2DNormInf
@@ -432,17 +432,17 @@ int main(int narg, char *arg[])
   const scalar_t epsilon = 0.0000001;
   if (std::abs(col1DNorm2 - row1DNorm2) > epsilon) {
     ierr++;
-    if (me == 0) 
+    if (me == 0)
       std::cout << "FAIL:  column-wise 1D norm " << col1DNorm2
-                << " - " << row1DNorm2 << " row-wise 1D norm" 
+                << " - " << row1DNorm2 << " row-wise 1D norm"
                 << " = " << std::abs(col1DNorm2 - row1DNorm2) << std::endl;
   }
 
   if (std::abs(random2DNorm2 - row1DNorm2) > epsilon) {
     ierr++;
-    if (me == 0) 
+    if (me == 0)
       std::cout << "FAIL:  random 2D norm " << random2DNorm2
-                << " = " << row1DNorm2 << " row-wise 1D norm" 
+                << " = " << row1DNorm2 << " row-wise 1D norm"
                 << " = " << std::abs(random2DNorm2 - row1DNorm2) << std::endl;
   }
 
@@ -455,7 +455,7 @@ int main(int narg, char *arg[])
   row1DNorm1 = yvec.norm1();
   row1DNorm2 = xvec.norm2();
   row1DNormInf = xvec.normInf();
-  if (me == 0) 
+  if (me == 0)
     std::cout << "Row-wise 1D distribution Transpose:  norm1 " << row1DNorm1
               << "; norm2 " << row1DNorm2
               << "; norminf " << row1DNormInf
@@ -467,7 +467,7 @@ int main(int narg, char *arg[])
   col1DNorm1 = xvec.norm1();
   col1DNorm2 = xvec.norm2();
   col1DNormInf = xvec.normInf();
-  if (me == 0) 
+  if (me == 0)
     std::cout << "Col-wise 1D distribution Transpose:  norm1 " << col1DNorm1
               << "; norm2 " << col1DNorm2
               << "; norminf " << col1DNormInf
@@ -479,7 +479,7 @@ int main(int narg, char *arg[])
   random2DNorm1 = xvec.norm1();
   random2DNorm2 = xvec.norm2();
   random2DNormInf = xvec.normInf();
-  if (me == 0) 
+  if (me == 0)
     std::cout << "Random 2D distribution Transpose:   norm1 " << random2DNorm1
               << "; norm2 " << random2DNorm2
               << "; norminf " << random2DNormInf
@@ -488,21 +488,21 @@ int main(int narg, char *arg[])
   // Check results
   if (std::abs(col1DNorm2 - row1DNorm2) > epsilon) {
     ierr++;
-    if (me == 0) 
+    if (me == 0)
       std::cout << "FAIL:  Transpose column-wise 1D norm " << col1DNorm2
-                << " - " << row1DNorm2 << " row-wise 1D norm" 
+                << " - " << row1DNorm2 << " row-wise 1D norm"
                 << " = " << std::abs(col1DNorm2 - row1DNorm2) << std::endl;
   }
 
   if (std::abs(random2DNorm2 - row1DNorm2) > epsilon) {
     ierr++;
-    if (me == 0) 
+    if (me == 0)
       std::cout << "FAIL:  Transpose random 2D norm " << random2DNorm2
-                << " = " << row1DNorm2 << " row-wise 1D norm" 
+                << " = " << row1DNorm2 << " row-wise 1D norm"
                 << " = " << std::abs(random2DNorm2 - row1DNorm2) << std::endl;
   }
 
-  if (ierr == 0 && me == 0) 
+  if (ierr == 0 && me == 0)
     std::cout << "PASS" << std::endl;
 
   Teuchos::TimeMonitor::summarize();

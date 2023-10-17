@@ -84,13 +84,13 @@ namespace { // (anonymous)
     using map_type = Tpetra::Map<LO,GO,NT>;
     using vec_type = Tpetra::Vector<SC,LO,GO,NT>;
     using mag_type = typename vec_type::mag_type;
-    using IST = typename vec_type::impl_scalar_type;    
+    using IST = typename vec_type::impl_scalar_type;
     using GST = Tpetra::global_size_t;
     using STS = Teuchos::ScalarTraits<SC>;
-    using KAT = Kokkos::ArithTraits<IST>;    
-    using local_matrix_device_type = 
+    using KAT = Kokkos::ArithTraits<IST>;
+    using local_matrix_device_type =
           typename crs_matrix_type::local_matrix_device_type;
-    using local_graph_device_type = 
+    using local_graph_device_type =
           typename local_matrix_device_type::staticcrsgraph_type;
     using device_type = typename crs_matrix_type::device_type;
     using execution_space = typename crs_matrix_type::execution_space;
@@ -136,7 +136,7 @@ namespace { // (anonymous)
     // Input matrix: Dense all 2's.
     local_matrix_device_type I_A_lcl;
     {
-      row_offsets_type I_rowOffsets ("rowOffsets", lclNumRows+1);    
+      row_offsets_type I_rowOffsets ("rowOffsets", lclNumRows+1);
       lcl_col_inds_type I_lclColInds ("lclColInds", lclNumRows*lclNumRows);
       Kokkos::View<IST*, device_type> I_values ("values", lclNumRows*lclNumRows);
       Kokkos::parallel_for
@@ -155,10 +155,10 @@ namespace { // (anonymous)
     }
     crs_matrix_type input_matrix (I_A_lcl, rowMap, colMap, domMap, ranMap);
 
-    // Output matrix: Dense all 2's except for the last row on the rank, which get cleaned up    
+    // Output matrix: Dense all 2's except for the last row on the rank, which get cleaned up
     local_matrix_device_type O_A_lcl;
     {
-      row_offsets_type O_rowOffsets ("rowOffsets", lclNumRows+1);    
+      row_offsets_type O_rowOffsets ("rowOffsets", lclNumRows+1);
       lcl_col_inds_type O_lclColInds ("lclColInds", lclNumRows*lclNumRows);
       Kokkos::View<IST*, device_type> O_values ("values", lclNumRows*lclNumRows);
       Kokkos::parallel_for
@@ -171,13 +171,13 @@ namespace { // (anonymous)
           for(LO j=0; j<lclNumRows; j++) {
             O_lclColInds(base + j) = j;
             if(lclRow == lclNumRows-1)  {
-              if(j==lclNumRows-1) O_values(base+j) = KAT::one();                  
+              if(j==lclNumRows-1) O_values(base+j) = KAT::one();
               else O_values(base+j) = KAT::zero();
             }
             else {
               O_values(base+j) = KAT::one () + KAT::one ();
             }
-          }            
+          }
         });
       local_graph_device_type O_G_lcl (O_lclColInds, O_rowOffsets);
       O_A_lcl = local_matrix_device_type("A_lcl", colMap->getLocalNumElements(),O_values,O_G_lcl);
@@ -185,7 +185,7 @@ namespace { // (anonymous)
     crs_matrix_type output_matrix (O_A_lcl, rowMap, colMap, domMap, ranMap);
 
     // Generate a comparison vector
-    output_matrix.apply(vec1, vec2_compare);      
+    output_matrix.apply(vec1, vec2_compare);
 
     /*** Test device-filled boundary list, no execution space ***/
     {
@@ -196,8 +196,8 @@ namespace { // (anonymous)
       vec2.update (-STS::one (), vec2_compare, STS::one ());
 
       const mag_type resNorm1 = vec2.norm1 ();
-      TEST_EQUALITY( resNorm1, Teuchos::ScalarTraits<mag_type>::zero () );      
-    }      
+      TEST_EQUALITY( resNorm1, Teuchos::ScalarTraits<mag_type>::zero () );
+    }
 
     /*** Test device-filled boundary list, provided execution space ***/
     {
@@ -207,8 +207,8 @@ namespace { // (anonymous)
       vec2.update (-STS::one (), vec2_compare, STS::one ());
 
       const mag_type resNorm1 = vec2.norm1 ();
-      TEST_EQUALITY( resNorm1, Teuchos::ScalarTraits<mag_type>::zero () );      
-    }    
+      TEST_EQUALITY( resNorm1, Teuchos::ScalarTraits<mag_type>::zero () );
+    }
 
 
     /*** Test host-filled boundary list ***/
@@ -219,8 +219,8 @@ namespace { // (anonymous)
       vec2.update (-STS::one (), vec2_compare, STS::one ());
 
       const mag_type resNorm1 = vec2.norm1 ();
-      TEST_EQUALITY( resNorm1, Teuchos::ScalarTraits<mag_type>::zero () );      
-    }    
+      TEST_EQUALITY( resNorm1, Teuchos::ScalarTraits<mag_type>::zero () );
+    }
 
   }
 
@@ -234,13 +234,13 @@ namespace { // (anonymous)
     using map_type = Tpetra::Map<LO,GO,NT>;
     using vec_type = Tpetra::Vector<SC,LO,GO,NT>;
     using mag_type = typename vec_type::mag_type;
-    using IST = typename vec_type::impl_scalar_type;    
+    using IST = typename vec_type::impl_scalar_type;
     using GST = Tpetra::global_size_t;
     using STS = Teuchos::ScalarTraits<SC>;
-    using KAT = Kokkos::ArithTraits<IST>;    
-    using local_matrix_device_type = 
+    using KAT = Kokkos::ArithTraits<IST>;
+    using local_matrix_device_type =
           typename crs_matrix_type::local_matrix_device_type;
-    using local_graph_device_type = 
+    using local_graph_device_type =
           typename local_matrix_device_type::staticcrsgraph_type;
     using device_type = typename crs_matrix_type::device_type;
     using execution_space = typename crs_matrix_type::execution_space;
@@ -286,7 +286,7 @@ namespace { // (anonymous)
     // Input matrix: Dense all 2's.
     local_matrix_device_type I_A_lcl;
     {
-      row_offsets_type I_rowOffsets ("rowOffsets", lclNumRows+1);    
+      row_offsets_type I_rowOffsets ("rowOffsets", lclNumRows+1);
       lcl_col_inds_type I_lclColInds ("lclColInds", lclNumRows*lclNumRows);
       Kokkos::View<IST*, device_type> I_values ("values", lclNumRows*lclNumRows);
       Kokkos::parallel_for
@@ -305,10 +305,10 @@ namespace { // (anonymous)
     }
     crs_matrix_type input_matrix (I_A_lcl, rowMap, colMap, domMap, ranMap);
 
-    // Output matrix: Dense all 2's except for the last row on the rank, which get cleaned up    
+    // Output matrix: Dense all 2's except for the last row on the rank, which get cleaned up
     local_matrix_device_type O_A_lcl;
     {
-      row_offsets_type O_rowOffsets ("rowOffsets", lclNumRows+1);    
+      row_offsets_type O_rowOffsets ("rowOffsets", lclNumRows+1);
       lcl_col_inds_type O_lclColInds ("lclColInds", lclNumRows*lclNumRows);
       Kokkos::View<IST*, device_type> O_values ("values", lclNumRows*lclNumRows);
       Kokkos::parallel_for
@@ -328,7 +328,7 @@ namespace { // (anonymous)
               if(j==lclNumRows-1) O_values(base+j) = KAT::zero();
               else O_values(base+j) = KAT::one () + KAT::one ();
             }
-          }            
+          }
         });
       local_graph_device_type O_G_lcl (O_lclColInds, O_rowOffsets);
       O_A_lcl = local_matrix_device_type("A_lcl", colMap->getLocalNumElements(),O_values,O_G_lcl);
@@ -347,8 +347,8 @@ namespace { // (anonymous)
       vec2.update (-STS::one (), vec2_compare, STS::one ());
 
       const mag_type resNorm1 = vec2.norm1 ();
-      TEST_EQUALITY( resNorm1, Teuchos::ScalarTraits<mag_type>::zero () );      
-    }      
+      TEST_EQUALITY( resNorm1, Teuchos::ScalarTraits<mag_type>::zero () );
+    }
 
     /*** Test device-filled boundary list, provided execution space ***/
     {
@@ -358,8 +358,8 @@ namespace { // (anonymous)
       vec2.update (-STS::one (), vec2_compare, STS::one ());
 
       const mag_type resNorm1 = vec2.norm1 ();
-      TEST_EQUALITY( resNorm1, Teuchos::ScalarTraits<mag_type>::zero () );      
-    }    
+      TEST_EQUALITY( resNorm1, Teuchos::ScalarTraits<mag_type>::zero () );
+    }
 
 
     /*** Test host-filled boundary list ***/
@@ -370,8 +370,8 @@ namespace { // (anonymous)
       vec2.update (-STS::one (), vec2_compare, STS::one ());
 
       const mag_type resNorm1 = vec2.norm1 ();
-      TEST_EQUALITY( resNorm1, Teuchos::ScalarTraits<mag_type>::zero () );      
-    }    
+      TEST_EQUALITY( resNorm1, Teuchos::ScalarTraits<mag_type>::zero () );
+    }
 
   }
 

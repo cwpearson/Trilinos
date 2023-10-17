@@ -116,7 +116,7 @@ Transfer (const Transfer<LO, GO, NT>& rhs, reverse_tag)
 {
   TEUCHOS_ASSERT( ! (rhs.TransferData_).is_null () );
   this->TransferData_ = rhs.TransferData_->reverseClone ();
-  TEUCHOS_ASSERT( ! this->TransferData_->out_.is_null () );  
+  TEUCHOS_ASSERT( ! this->TransferData_->out_.is_null () );
 }
 
 template <class LO, class GO, class NT>
@@ -158,7 +158,7 @@ getNumPermuteIDs () const {
   return static_cast<size_t> (TransferData_->permuteFromLIDs_.extent (0));
 }
 
-template <class LO, class GO, class NT>  
+template <class LO, class GO, class NT>
 Kokkos::DualView<const LO*, typename Transfer<LO, GO, NT>::device_type>
 Transfer<LO, GO, NT>::
 getPermuteFromLIDs_dv () const {
@@ -166,7 +166,7 @@ getPermuteFromLIDs_dv () const {
   TEUCHOS_TEST_FOR_EXCEPTION
     (dv.need_sync_device (), std::logic_error,
      "Tpetra::Details::Transfer::getPermuteFromLIDs_dv: "
-     "DualView needs sync to device" );  
+     "DualView needs sync to device" );
   TEUCHOS_TEST_FOR_EXCEPTION
     (dv.need_sync_host (), std::logic_error,
      "Tpetra::Details::Transfer::getPermuteFromLIDs_dv: "
@@ -174,14 +174,14 @@ getPermuteFromLIDs_dv () const {
   return dv;
 }
 
-template <class LO, class GO, class NT>  
+template <class LO, class GO, class NT>
 Teuchos::ArrayView<const LO>
 Transfer<LO, GO, NT>::
 getPermuteFromLIDs () const {
-  return makeConstArrayViewFromDualView (TransferData_->permuteFromLIDs_);    
+  return makeConstArrayViewFromDualView (TransferData_->permuteFromLIDs_);
 }
 
-template <class LO, class GO, class NT>  
+template <class LO, class GO, class NT>
 Kokkos::DualView<const LO*, typename Transfer<LO, GO, NT>::device_type>
 Transfer<LO, GO, NT>::
 getPermuteToLIDs_dv () const {
@@ -189,7 +189,7 @@ getPermuteToLIDs_dv () const {
   TEUCHOS_TEST_FOR_EXCEPTION
     (dv.need_sync_device (), std::logic_error,
      "Tpetra::Details::Transfer::getPermuteToLIDs_dv: "
-     "DualView needs sync to device" );  
+     "DualView needs sync to device" );
   TEUCHOS_TEST_FOR_EXCEPTION
     (dv.need_sync_host (), std::logic_error,
      "Tpetra::Details::Transfer::getPermuteToLIDs_dv: "
@@ -197,21 +197,21 @@ getPermuteToLIDs_dv () const {
   return dv;
 }
 
-template <class LO, class GO, class NT>  
+template <class LO, class GO, class NT>
 Teuchos::ArrayView<const LO>
 Transfer<LO, GO, NT>::
 getPermuteToLIDs () const {
   return makeConstArrayViewFromDualView (TransferData_->permuteToLIDs_);
 }
 
-template <class LO, class GO, class NT>  
+template <class LO, class GO, class NT>
 size_t
 Transfer<LO, GO, NT>::
 getNumRemoteIDs () const {
   return static_cast<size_t> (TransferData_->remoteLIDs_.extent (0));
 }
 
-template <class LO, class GO, class NT>  
+template <class LO, class GO, class NT>
 Kokkos::DualView<const LO*, typename Transfer<LO, GO, NT>::device_type>
 Transfer<LO, GO, NT>::
 getRemoteLIDs_dv () const {
@@ -219,7 +219,7 @@ getRemoteLIDs_dv () const {
   TEUCHOS_TEST_FOR_EXCEPTION
     (dv.need_sync_device (), std::logic_error,
      "Tpetra::Details::Transfer::getRemoteLIDs_dv: "
-     "DualView needs sync to device" );  
+     "DualView needs sync to device" );
   TEUCHOS_TEST_FOR_EXCEPTION
     (dv.need_sync_host (), std::logic_error,
      "Tpetra::Details::Transfer::getRemoteLIDs_dv: "
@@ -227,7 +227,7 @@ getRemoteLIDs_dv () const {
   return dv;
 }
 
-template <class LO, class GO, class NT>  
+template <class LO, class GO, class NT>
 Teuchos::ArrayView<const LO>
 Transfer<LO, GO, NT>::
 getRemoteLIDs () const {
@@ -241,7 +241,7 @@ getNumExportIDs () const {
   return static_cast<size_t> (TransferData_->exportLIDs_.extent (0));
 }
 
-template <class LO, class GO, class NT>  
+template <class LO, class GO, class NT>
 Kokkos::DualView<const LO*, typename Transfer<LO, GO, NT>::device_type>
 Transfer<LO, GO, NT>::
 getExportLIDs_dv () const {
@@ -249,7 +249,7 @@ getExportLIDs_dv () const {
   TEUCHOS_TEST_FOR_EXCEPTION
     (dv.need_sync_device (), std::logic_error,
      "Tpetra::Details::Transfer::getExportLIDs_dv: "
-     "DualView needs sync to device" );  
+     "DualView needs sync to device" );
   TEUCHOS_TEST_FOR_EXCEPTION
     (dv.need_sync_host (), std::logic_error,
      "Tpetra::Details::Transfer::getExportLIDs_dv: "

@@ -17,7 +17,7 @@
 
 namespace Kokkos {
 
-  // can't just do 
+  // can't just do
   // namespace Compat = Tpetra::KokkosCompat;
   // because Teuchos defines a Kokkos::Compat namespace
   // if no one does this, then we could make the alias
@@ -25,7 +25,7 @@ namespace Kokkos {
 namespace [[deprecated]] Compat {
 
   template <typename ExecutionSpace,
-            typename MemorySpace = 
+            typename MemorySpace =
               typename ExecutionSpace::memory_space>
   using KokkosDeviceWrapperNode [[deprecated]] = Tpetra::KokkosCompat::KokkosDeviceWrapperNode<ExecutionSpace, MemorySpace>;
 

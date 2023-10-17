@@ -193,7 +193,7 @@ namespace {
 
     const int rank = newsource->getComm()->getRank();
 
-    Teuchos::Array<LO> newexportLIDs = newimport.getExportLIDs();    
+    Teuchos::Array<LO> newexportLIDs = newimport.getExportLIDs();
     if (newexportLIDs.size () != exportLIDs.size ()) {
       out << "Rank " << rank << " newexportLIDs.size() != exportLIDs.size()" << endl
 	  << "Rank " << rank << " oldExportLIDs " << exportLIDs << endl

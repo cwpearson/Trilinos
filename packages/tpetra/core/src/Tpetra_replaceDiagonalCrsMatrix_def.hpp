@@ -121,11 +121,11 @@ replaceDiagonalCrsMatrix (CrsMatrix<SC, LO, GO, NT>& matrix,
     numReplacedEntriesPerRow = matrix.replaceLocalValues(lclRowInd, oneLO,
                                                          vals, cols);
 
-    // Check for success of replacement. 
+    // Check for success of replacement.
     // numReplacedEntriesPerRow is one if the diagonal was replaced.
-    // numReplacedEntriesPerRow is zero if the diagonal is not on 
+    // numReplacedEntriesPerRow is zero if the diagonal is not on
     // this processor.  For example, in a 2D matrix distribution, gblInd may
-    // be in both the row and column map, but the diagonal may not be on 
+    // be in both the row and column map, but the diagonal may not be on
     // this processor.
     if (numReplacedEntriesPerRow == oneLO) {
       ++numReplacedDiagEntries;

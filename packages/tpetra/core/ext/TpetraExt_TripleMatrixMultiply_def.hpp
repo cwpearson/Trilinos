@@ -1531,7 +1531,7 @@ namespace Tpetra {
 
       using Teuchos::ParameterList;
       RCP<ParameterList> transposeParams (new ParameterList);
-      transposeParams->set ("sort", false);  
+      transposeParams->set ("sort", false);
       if (! params.is_null ()) {
         transposeParams->set ("compute global constants",
                               params->get ("compute global constants: temporaries",

@@ -8,8 +8,8 @@ using Teuchos::RCP;
 
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void TpetraFunctions<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
-importSquareMatrix(RCP<const CrsMatrix> inputMatrix, 
-                   RCP<const Map> outputRowMap, 
+importSquareMatrix(RCP<const CrsMatrix> inputMatrix,
+                   RCP<const Map> outputRowMap,
                    RCP<CrsMatrix> & outputMatrix)
 {
     RCP<Tpetra::Distributor> distributor;
@@ -28,10 +28,10 @@ importSquareMatrix(RCP<const CrsMatrix> inputMatrix,
     // targetMapGIDs[indices] = globalIDs of outputRowMap for the i'th process
     //                          receiving matrix data
     //         indices = targetMapGIDsBegin[i]:targetMapGIDsBegin[i+1]-1;
-    // Note: length of targetMapGIDsBegin is the number of processes receiving 
+    // Note: length of targetMapGIDsBegin is the number of processes receiving
     //       matrix data plus 1
     communicateRowMap(outputRowMap, distributor, targetMapGIDs, targetMapGIDsBegin);
-    communicateMatrixData(inputMatrix, outputRowMap, distributor, targetMapGIDs, 
+    communicateMatrixData(inputMatrix, outputRowMap, distributor, targetMapGIDs,
                           targetMapGIDsBegin, ownedRowGIDs,
                           localRowsSend, localRowsSendBegin, localRowsRecv,
                           localRowsRecvBegin, outputMatrix);
@@ -40,7 +40,7 @@ importSquareMatrix(RCP<const CrsMatrix> inputMatrix,
 
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void TpetraFunctions<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
-importSquareMatrixFromImporter(RCP<const CrsMatrix> inputMatrix, 
+importSquareMatrixFromImporter(RCP<const CrsMatrix> inputMatrix,
                                RCP<const Import> importer,
                                RCP<CrsMatrix> & outputMatrix)
 {
@@ -91,10 +91,10 @@ importSquareMatrixFromImporter(RCP<const CrsMatrix> inputMatrix,
     // targetMapGIDs[indices] = globalIDs of outputRowMap for the i'th process
     //                          receiving matrix data
     //         indices = targetMapGIDsBegin[i]:targetMapGIDsBegin[i+1]-1;
-    // Note: length of targetMapGIDsBegin is the number of processes receiving 
+    // Note: length of targetMapGIDsBegin is the number of processes receiving
     //       matrix data plus 1
     communicateRowMap(outputRowMap, distributor, targetMapGIDs, targetMapGIDsBegin);
-    communicateMatrixData(inputMatrix, outputRowMap, distributor, targetMapGIDs, 
+    communicateMatrixData(inputMatrix, outputRowMap, distributor, targetMapGIDs,
                           targetMapGIDsBegin, ownedRowGIDs,
                           localRowsSend, localRowsSendBegin, localRowsRecv,
                           localRowsRecvBegin, outputMatrix);
@@ -127,7 +127,7 @@ public:
   typedef typename CountsViewType::non_const_value_type count_type;
   typedef typename InputOffsetsViewType::data_type input_offset_data_type;
   typedef typename InputLocalRowIndicesViewType::non_const_value_type local_row_index_type;
-  typedef typename InputLocalRowPidsViewType::non_const_value_type local_row_pid_type;  
+  typedef typename InputLocalRowPidsViewType::non_const_value_type local_row_pid_type;
   // output Views drive where execution happens.
   typedef typename OutputOffsetsViewType::device_type device_type;
   static_assert (std::is_same<typename CountsViewType::device_type::execution_space,
@@ -288,7 +288,7 @@ private:
   CountsViewType counts_;
   typename InputOffsetsViewType::const_type rowOffsets_;
   typename InputColIndicesViewType::const_type entries_;
-  typename InputColMapViewType::const_type colMap_,  
+  typename InputColMapViewType::const_type colMap_,
   typename InputLocalRowIndicesViewType::const_type lclRowInds_;
   typename InputLocalRowPidsViewType::const_type lclRowPids_;
   typename AllowedColumnsViewType::const_type &allowedColumns_;
@@ -468,7 +468,7 @@ packCrsMatrixRestricted (const CrsMatrix<ST, LO, GO, NT>& sourceMatrix,
   // corresponding offsets (the prefix sum of the packet counts).
   const size_t count =
     computeNumPacketsAndOffsetsRestricted (offsets, num_packets_per_lid,
-                                           local_matrix.graph.row_map, 
+                                           local_matrix.graph.row_map,
                                            local_matrix.graph.entries,
                                            local_col_map,
                                            export_lids,
@@ -524,9 +524,9 @@ packCrsMatrixRestricted (const CrsMatrix<ST, LO, GO, NT>& sourceMatrix,
 
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void TpetraFunctions<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
-importSquareMatrixFromImporter4(RCP<const CrsMatrix> inputMatrix, 
+importSquareMatrixFromImporter4(RCP<const CrsMatrix> inputMatrix,
                                RCP<const Import> importer,
-                                RCP<CrsMatrix> & outputMatrix) {  
+                                RCP<CrsMatrix> & outputMatrix) {
   // Approach:  Modify the packing to only pack the rows we need, then use the IAFC comm & unpack pat
 
   // This will need to get Kokkos-ified later, but for now this is fine
@@ -552,7 +552,7 @@ importSquareMatrixFromImporter4(RCP<const CrsMatrix> inputMatrix,
 
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void TpetraFunctions<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
-importSquareMatrixFromImporter3(RCP<const CrsMatrix> inputMatrix, 
+importSquareMatrixFromImporter3(RCP<const CrsMatrix> inputMatrix,
                                RCP<const Import> importer,
                                RCP<CrsMatrix> & outputMatrix)
 {
@@ -561,10 +561,10 @@ importSquareMatrixFromImporter3(RCP<const CrsMatrix> inputMatrix,
     // targetMapGIDs[indices] = globalIDs of outputRowMap for the i'th process
     //                          receiving matrix data
     //         indices = targetMapGIDsBegin[i]:targetMapGIDsBegin[i+1]-1;
-    // Note: length of targetMapGIDsBegin is the number of processes receiving 
+    // Note: length of targetMapGIDsBegin is the number of processes receiving
     //       matrix data plus 1
     communicateRowMap( importer->getTargetMap(),Teuchos::rcpFromRef(importer->getDistributor()) , targetMapGIDs, targetMapGIDsBegin);
-    communicateMatrixData3(inputMatrix, importer, targetMapGIDs, 
+    communicateMatrixData3(inputMatrix, importer, targetMapGIDs,
                            targetMapGIDsBegin, outputMatrix);
 }
 
@@ -573,9 +573,9 @@ importSquareMatrixFromImporter3(RCP<const CrsMatrix> inputMatrix,
 
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void TpetraFunctions<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
-communicateMatrixData3(RCP<const CrsMatrix> inputMatrix, 
+communicateMatrixData3(RCP<const CrsMatrix> inputMatrix,
                        RCP<const Tpetra::Import<LO,GO,NT> > importer,
-                      const std::vector<GO> & targetMapGIDs, 
+                      const std::vector<GO> & targetMapGIDs,
                       const std::vector<LO> & targetMapGIDsBegin,
                       RCP<CrsMatrix> & outputMatrix)
 {
@@ -620,7 +620,7 @@ communicateMatrixData3(RCP<const CrsMatrix> inputMatrix,
     for (size_t i=0, send_buff_start = 0; i<numSends; i++) {
         const GO* targetGIDs = &targetMapGIDs[targetMapGIDsBegin[i]];
         const size_t numTargetGIDs = targetMapGIDsBegin[i+1] - targetMapGIDsBegin[i];
-        RCP<const Map> targetMap = 
+        RCP<const Map> targetMap =
             RCP( new Map(IGO, Teuchos::ArrayView<const GO>(targetGIDs, numTargetGIDs),
                          0, serialComm) );
         for (LO jj=0; jj<(LO)localRowsSendSize[i]; jj++) {
@@ -656,7 +656,7 @@ communicateMatrixData3(RCP<const CrsMatrix> inputMatrix,
     for (size_t i=0, send_buff_start = 0; i<numSends; i++) {
         const GO* targetGIDs = &targetMapGIDs[targetMapGIDsBegin[i]];
         const size_t numTargetGIDs = targetMapGIDsBegin[i+1] - targetMapGIDsBegin[i];
-        RCP<const Map> targetMap = 
+        RCP<const Map> targetMap =
             RCP( new Map(IGO, Teuchos::ArrayView<const GO>(targetGIDs, numTargetGIDs),
                          0, serialComm) );
         for (LO jj=0; jj<(LO)localRowsSendSize[i]; jj++) {
@@ -694,7 +694,7 @@ communicateMatrixData3(RCP<const CrsMatrix> inputMatrix,
       << recvRowNumNonzeros[j] << std::endl;
       }
       }
-    */ 
+    */
     std::vector<size_t> sourceSize(numSends);
     for (size_t i=0,send_buff_start=0; i<numSends; i++) {
         size_t procCount(0);
@@ -766,7 +766,7 @@ communicateMatrixData3(RCP<const CrsMatrix> inputMatrix,
       }
     */
     // CMS: Unpack the nonzeros
-    outputMatrix = 
+    outputMatrix =
         RCP( new CrsMatrix(rowMap, rowMap, Teuchos::ArrayView<const size_t>(rowCount)) );
     std::vector<LO> indicesVec(numRows);
     std::vector<SC> valuesVec(numRows);
@@ -786,7 +786,7 @@ communicateMatrixData3(RCP<const CrsMatrix> inputMatrix,
                 valuesVec.push_back(values[j]);
             }
         }
-        outputMatrix->insertLocalValues(localRowTarget, 
+        outputMatrix->insertLocalValues(localRowTarget,
                                         Teuchos::ArrayView<const LO>(indicesVec),
                                         Teuchos::ArrayView<const SC>(valuesVec));
     }
@@ -800,7 +800,7 @@ communicateMatrixData3(RCP<const CrsMatrix> inputMatrix,
             indicesVec[k] = columnsRecv[numTerms];
             valuesVec[k] = valuesRecv[numTerms++];
         }
-        outputMatrix->insertLocalValues(localRow, 
+        outputMatrix->insertLocalValues(localRow,
                                         Teuchos::ArrayView<const LO>(indicesVec),
                                         Teuchos::ArrayView<const SC>(valuesVec));
     }
@@ -830,7 +830,7 @@ communicateMatrixData3(RCP<const CrsMatrix> inputMatrix,
 
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void TpetraFunctions<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
-importSquareMatrixFromImporter2(RCP<const CrsMatrix> inputMatrix, 
+importSquareMatrixFromImporter2(RCP<const CrsMatrix> inputMatrix,
                                RCP<const Import> importer,
                                RCP<CrsMatrix> & outputMatrix)
 {
@@ -874,10 +874,10 @@ importSquareMatrixFromImporter2(RCP<const CrsMatrix> inputMatrix,
     // targetMapGIDs[indices] = globalIDs of outputRowMap for the i'th process
     //                          receiving matrix data
     //         indices = targetMapGIDsBegin[i]:targetMapGIDsBegin[i+1]-1;
-    // Note: length of targetMapGIDsBegin is the number of processes receiving 
+    // Note: length of targetMapGIDsBegin is the number of processes receiving
     //       matrix data plus 1
     communicateRowMap(outputRowMap, distributor, targetMapGIDs, targetMapGIDsBegin);
-    communicateMatrixData2(inputMatrix, outputRowMap, distributor, targetMapGIDs, 
+    communicateMatrixData2(inputMatrix, outputRowMap, distributor, targetMapGIDs,
                           targetMapGIDsBegin, ownedRowGIDs,
                           localRowsSend, lengthsTo, localRowsRecv,
                            lengthsFrom, outputMatrix);
@@ -890,12 +890,12 @@ importSquareMatrixFromImporter2(RCP<const CrsMatrix> inputMatrix,
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 template<class LOVector, class STVector>
 void TpetraFunctions<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
-communicateMatrixData2(RCP<const CrsMatrix> inputMatrix, 
+communicateMatrixData2(RCP<const CrsMatrix> inputMatrix,
                       RCP<const Map> rowMap,
                       RCP<Tpetra::Distributor> distributor,
-                      const std::vector<GO> & targetMapGIDs, 
+                      const std::vector<GO> & targetMapGIDs,
                       const std::vector<LO> & targetMapGIDsBegin,
-                      const std::vector<GO> & ownedRowGIDs,                       
+                      const std::vector<GO> & ownedRowGIDs,
                       const LOVector & localRowsSend,
                       const STVector & localRowsSendSize,
                       const LOVector & localRowsRecv,
@@ -922,7 +922,7 @@ communicateMatrixData2(RCP<const CrsMatrix> inputMatrix,
     for (size_t i=0, send_buff_start = 0; i<numSends; i++) {
         const GO* targetGIDs = &targetMapGIDs[targetMapGIDsBegin[i]];
         const size_t numTargetGIDs = targetMapGIDsBegin[i+1] - targetMapGIDsBegin[i];
-        RCP<const Map> targetMap = 
+        RCP<const Map> targetMap =
             RCP( new Map(IGO, Teuchos::ArrayView<const GO>(targetGIDs, numTargetGIDs),
                          0, serialComm) );
         for (LO jj=0; jj<(LO)localRowsSendSize[i]; jj++) {
@@ -958,7 +958,7 @@ communicateMatrixData2(RCP<const CrsMatrix> inputMatrix,
     for (size_t i=0, send_buff_start = 0; i<numSends; i++) {
         const GO* targetGIDs = &targetMapGIDs[targetMapGIDsBegin[i]];
         const size_t numTargetGIDs = targetMapGIDsBegin[i+1] - targetMapGIDsBegin[i];
-        RCP<const Map> targetMap = 
+        RCP<const Map> targetMap =
             RCP( new Map(IGO, Teuchos::ArrayView<const GO>(targetGIDs, numTargetGIDs),
                          0, serialComm) );
         for (LO jj=0; jj<(LO)localRowsSendSize[i]; jj++) {
@@ -996,7 +996,7 @@ communicateMatrixData2(RCP<const CrsMatrix> inputMatrix,
       << recvRowNumNonzeros[j] << std::endl;
       }
       }
-    */ 
+    */
     std::vector<size_t> sourceSize(numSends);
     for (size_t i=0,send_buff_start=0; i<numSends; i++) {
         size_t procCount(0);
@@ -1068,7 +1068,7 @@ communicateMatrixData2(RCP<const CrsMatrix> inputMatrix,
       }
     */
     // CMS: Unpack the nonzeros
-    outputMatrix = 
+    outputMatrix =
         RCP( new CrsMatrix(rowMap, rowMap, Teuchos::ArrayView<const size_t>(rowCount)) );
     std::vector<LO> indicesVec(numRows);
     std::vector<SC> valuesVec(numRows);
@@ -1088,7 +1088,7 @@ communicateMatrixData2(RCP<const CrsMatrix> inputMatrix,
                 valuesVec.push_back(values[j]);
             }
         }
-        outputMatrix->insertLocalValues(localRowTarget, 
+        outputMatrix->insertLocalValues(localRowTarget,
                                         Teuchos::ArrayView<const LO>(indicesVec),
                                         Teuchos::ArrayView<const SC>(valuesVec));
     }
@@ -1102,7 +1102,7 @@ communicateMatrixData2(RCP<const CrsMatrix> inputMatrix,
             indicesVec[k] = columnsRecv[numTerms];
             valuesVec[k] = valuesRecv[numTerms++];
         }
-        outputMatrix->insertLocalValues(localRow, 
+        outputMatrix->insertLocalValues(localRow,
                                         Teuchos::ArrayView<const LO>(indicesVec),
                                         Teuchos::ArrayView<const SC>(valuesVec));
     }
@@ -1131,9 +1131,9 @@ communicateMatrixData2(RCP<const CrsMatrix> inputMatrix,
 
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void TpetraFunctions<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
-communicateRowMap(RCP<const Map> rowMap, 
-                  RCP<Tpetra::Distributor> distributor, 
-                  std::vector<GO> & rowMapGIDs, 
+communicateRowMap(RCP<const Map> rowMap,
+                  RCP<Tpetra::Distributor> distributor,
+                  std::vector<GO> & rowMapGIDs,
                   std::vector<LO> & rowMapGIDsBegin)
 {
     size_t numSends = distributor->getNumSends();
@@ -1142,7 +1142,7 @@ communicateRowMap(RCP<const Map> rowMap,
     std::vector<size_t> targetValues(numSends);
     std::vector<size_t> targetSizes(numSends, 1);
     std::vector<size_t> sourceValues(numRecvs, numRows);
-    std::vector<size_t> sourceSizes(numRecvs, 1); 
+    std::vector<size_t> sourceSizes(numRecvs, 1);
 
     // CMS: Reverse sends the # of rows on each proc to all neighbors (I think)
     distributor->doReversePostsAndWaits(Kokkos::View<const size_t*, Kokkos::HostSpace>(sourceValues.data(), sourceValues.size()),
@@ -1193,10 +1193,10 @@ communicateRowMap(RCP<const Map> rowMap,
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 template<class LOVector>
 void TpetraFunctions<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
-communicateMatrixData(RCP<const CrsMatrix> inputMatrix, 
+communicateMatrixData(RCP<const CrsMatrix> inputMatrix,
                       RCP<const Map> rowMap,
                       RCP<Tpetra::Distributor> distributor,
-                      const std::vector<GO> & targetMapGIDs, 
+                      const std::vector<GO> & targetMapGIDs,
                       const std::vector<LO> & targetMapGIDsBegin,
                       const std::vector<GO> & ownedRowGIDs,
                       const LOVector & localRowsSend,
@@ -1225,7 +1225,7 @@ communicateMatrixData(RCP<const CrsMatrix> inputMatrix,
     for (size_t i=0; i<numSends; i++) {
         const GO* targetGIDs = &targetMapGIDs[targetMapGIDsBegin[i]];
         const size_t numTargetGIDs = targetMapGIDsBegin[i+1] - targetMapGIDsBegin[i];
-        RCP<const Map> targetMap = 
+        RCP<const Map> targetMap =
             RCP( new Map(IGO, Teuchos::ArrayView<const GO>(targetGIDs, numTargetGIDs),
                          0, serialComm) );
         for (LO j=localRowsSendBegin[i]; j<localRowsSendBegin[i+1]; j++) {
@@ -1261,7 +1261,7 @@ communicateMatrixData(RCP<const CrsMatrix> inputMatrix,
     for (size_t i=0; i<numSends; i++) {
         const GO* targetGIDs = &targetMapGIDs[targetMapGIDsBegin[i]];
         const size_t numTargetGIDs = targetMapGIDsBegin[i+1] - targetMapGIDsBegin[i];
-        RCP<const Map> targetMap = 
+        RCP<const Map> targetMap =
             RCP( new Map(IGO, Teuchos::ArrayView<const GO>(targetGIDs, numTargetGIDs),
                          0, serialComm) );
         for (LO j=localRowsSendBegin[i]; j<localRowsSendBegin[i+1]; j++) {
@@ -1305,7 +1305,7 @@ communicateMatrixData(RCP<const CrsMatrix> inputMatrix,
       << recvRowNumNonzeros[j] << std::endl;
       }
       }
-    */ 
+    */
     std::vector<size_t> sourceSize(numSends);
     for (size_t i=0; i<numSends; i++) {
         size_t procCount(0);
@@ -1377,7 +1377,7 @@ communicateMatrixData(RCP<const CrsMatrix> inputMatrix,
       }
     */
 
-    outputMatrix = 
+    outputMatrix =
         RCP( new CrsMatrix(rowMap, rowMap, Teuchos::ArrayView<const size_t>(rowCount)) );
     std::vector<LO> indicesVec(numRows);
     std::vector<SC> valuesVec(numRows);
@@ -1397,7 +1397,7 @@ communicateMatrixData(RCP<const CrsMatrix> inputMatrix,
                 valuesVec.push_back(values[j]);
             }
         }
-        outputMatrix->insertLocalValues(localRowTarget, 
+        outputMatrix->insertLocalValues(localRowTarget,
                                         Teuchos::ArrayView<const LO>(indicesVec),
                                         Teuchos::ArrayView<const SC>(valuesVec));
     }
@@ -1411,7 +1411,7 @@ communicateMatrixData(RCP<const CrsMatrix> inputMatrix,
             indicesVec[k] = columnsRecv[numTerms];
             valuesVec[k] = valuesRecv[numTerms++];
         }
-        outputMatrix->insertLocalValues(localRow, 
+        outputMatrix->insertLocalValues(localRow,
                                         Teuchos::ArrayView<const LO>(indicesVec),
                                         Teuchos::ArrayView<const SC>(valuesVec));
     }
@@ -1441,8 +1441,8 @@ communicateMatrixData(RCP<const CrsMatrix> inputMatrix,
 
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void TpetraFunctions<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
-constructDistributor(RCP<const CrsMatrix> inputMatrix, 
-                     RCP<const Map> rowMap, 
+constructDistributor(RCP<const CrsMatrix> inputMatrix,
+                     RCP<const Map> rowMap,
                      RCP<Tpetra::Distributor> & distributor,
                      std::vector<GO> & ownedRowGIDs,
                      std::vector<LO> & localRowsSend,
@@ -1543,7 +1543,7 @@ constructDistributor(RCP<const CrsMatrix> inputMatrix,
     size_t numSends = distributor->getNumSends();
     std::vector<size_t> targetValues(numSends);
     std::vector<size_t> targetSizes(numSends, 1);
-    std::vector<size_t> sourceSizes(numRecvs, 1); 
+    std::vector<size_t> sourceSizes(numRecvs, 1);
     distributor->doReversePostsAndWaits(Kokkos::View<const size_t*, Kokkos::HostSpace>(count.data(), count.size()),
                                         1,
                                         Kokkos::View<size_t*, Kokkos::HostSpace>(targetValues.data(), targetValues.size()));
@@ -1560,7 +1560,7 @@ constructDistributor(RCP<const CrsMatrix> inputMatrix,
     /*
       Teuchos::ArrayView<const int> procsTo = distributor->getProcsTo();
       for (size_t i=0; i<numSends; i++) {
-      std::cout << "proc " << myPID << " globalIDs for rows of matrix to be sent to proc " 
+      std::cout << "proc " << myPID << " globalIDs for rows of matrix to be sent to proc "
       << procsTo[i] << std::endl;
       for (int j=localRowsSendBegin[i]; j<localRowsSendBegin[i+1]; j++) {
       std::cout << rowMap1to1->getGlobalElement(localRowsSend[j]) << " ";
@@ -1581,7 +1581,7 @@ constructDistributor(RCP<const CrsMatrix> inputMatrix,
 
 template <class Scalar, class LocalOrdinal, class GlobalOrdinal, class Node>
 void TpetraFunctions<Scalar,LocalOrdinal,GlobalOrdinal,Node>::
-getUniqueEntries(const std::vector<int> & vector, 
+getUniqueEntries(const std::vector<int> & vector,
                  std::vector<int> & vectorUnique)
 {
     vectorUnique = vector;

@@ -277,8 +277,8 @@ inline void tupleToArray(Array<T> &arr, const tuple &tup)
       typename MAT::nonconst_local_inds_host_view_type LCopy_toshort("lids",1);
       typename MAT::nonconst_values_host_view_type SCopy_toshort("vals",1);
 
-      typename MAT::global_inds_host_view_type CGView; 
-      typename MAT::local_inds_host_view_type CLView; 
+      typename MAT::global_inds_host_view_type CGView;
+      typename MAT::local_inds_host_view_type CLView;
       typename MAT::values_host_view_type CSView;
 
       size_t numentries;

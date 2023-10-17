@@ -234,7 +234,7 @@ int main (int argc, char *argv[])
     ////////////////////////////////////////////////////////////////
     const bool myProcessPrintsDuringTheTest = commTest->getRank () == 0;
 
-    // When multiple GPUs are used, we would like to see a different mpi 
+    // When multiple GPUs are used, we would like to see a different mpi
     // uses a different device. An easy check is device configuration for
     // 4 mpi nodes as the typical number of GPUs per node is 4.
     if (commTest->getRank () < 4) {
@@ -367,13 +367,13 @@ int main (int argc, char *argv[])
       RCP<tpetra_crs_graph_type> bcrs_graph;
       {
         TimeMonitor timerGlobalGraphConstruction(*TimeMonitor::getNewTimer("1) GlobalGraphConstruction"));
-        rowptr_view_type rowptr_tpetra = 
+        rowptr_view_type rowptr_tpetra =
           rowptr_view_type(Kokkos::ViewAllocateWithoutInitializing("rowptr_tpetra"), rowptr.extent(0));
         colidx_view_type colidx_tpetra =
           colidx_view_type(Kokkos::ViewAllocateWithoutInitializing("colidx_tpetra"), colidx.extent(0));
         Kokkos::deep_copy(rowptr_tpetra, rowptr);
         Kokkos::deep_copy(colidx_tpetra, colidx);
-        bcrs_graph = rcp(new tpetra_crs_graph_type(row_map, col_map, 
+        bcrs_graph = rcp(new tpetra_crs_graph_type(row_map, col_map,
                                                    local_graph_device_type(colidx_tpetra, rowptr_tpetra),
                                                    Teuchos::null));
       } // end global graph timer
@@ -412,8 +412,8 @@ int main (int argc, char *argv[])
         // getLocalBlock.  This means we must NOT use KOKKOS_LAMBDA,
         // since that would build the lambda for both host AND device.
 
-        /// without UVM, the getLocalBlockDeviceNonConst cannot be called within the parallel for 
-        /// even though it is host execution space as the method can involve kernel launch 
+        /// without UVM, the getLocalBlockDeviceNonConst cannot be called within the parallel for
+        /// even though it is host execution space as the method can involve kernel launch
         /// for memory transfers.
         // Kokkos::parallel_for
         //   (Kokkos::RangePolicy<host_space, LO> (0, num_owned_elements),

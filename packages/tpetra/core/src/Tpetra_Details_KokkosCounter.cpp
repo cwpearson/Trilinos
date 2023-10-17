@@ -56,7 +56,7 @@ namespace Details {
     size_t count_different=0;
     bool count_active=false;
 
-    void kokkosp_begin_deep_copy(Kokkos::Tools::SpaceHandle dst_handle, const char* dst_name, const void* dst_ptr,                                 
+    void kokkosp_begin_deep_copy(Kokkos::Tools::SpaceHandle dst_handle, const char* dst_name, const void* dst_ptr,
                                  Kokkos::Tools::SpaceHandle src_handle, const char* src_name, const void* src_ptr,
                                  uint64_t size) {
 
@@ -64,7 +64,7 @@ namespace Details {
         if(strcmp(dst_handle.name,src_handle.name))
           count_different++;
         else
-          count_same++;        
+          count_same++;
       }
     }
 
@@ -159,7 +159,7 @@ namespace Details {
 
 
   void FenceCounter::start() {
-    if(!FenceCounterDetails::is_initialized) 
+    if(!FenceCounterDetails::is_initialized)
       FenceCounterDetails::initialize();
     FenceCounterDetails::count_active=true;
     Kokkos::Tools::Experimental::set_begin_fence_callback(FenceCounterDetails::kokkosp_begin_fence);
@@ -177,7 +177,7 @@ namespace Details {
   size_t FenceCounter::get_count_global(const std::string & device) {
     using namespace Kokkos::Tools::Experimental;
     for(int i=0;i<FenceCounterDetails::num_devices; i++) {
-      std::string device_label = FenceCounterDetails::get_label(i);      
+      std::string device_label = FenceCounterDetails::get_label(i);
 
       if(device == device_label)
         return FenceCounterDetails::count_global[i];
@@ -191,7 +191,7 @@ namespace Details {
   size_t FenceCounter::get_count_instance(const std::string & device) {
     using namespace Kokkos::Tools::Experimental;
     for(int i=0;i<FenceCounterDetails::num_devices; i++) {
-      std::string device_label = FenceCounterDetails::get_label(i);      
+      std::string device_label = FenceCounterDetails::get_label(i);
 
       if(device == device_label)
         return FenceCounterDetails::count_instance[i];

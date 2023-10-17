@@ -82,7 +82,7 @@ namespace { // (anonymous)
 #endif // defined(HAVE_TPETRACORE_MPI)
   }
 
-#if defined(HAVE_TPETRACORE_MPI)  
+#if defined(HAVE_TPETRACORE_MPI)
   bool isMpiComm (const Teuchos::Comm<int>& comm)
   {
     using mpi_comm_type = Teuchos::MpiComm<int>;
@@ -93,7 +93,7 @@ namespace { // (anonymous)
   {
     return false;
   }
-#endif // defined(HAVE_TPETRACORE_MPI)    
+#endif // defined(HAVE_TPETRACORE_MPI)
 
   int getRankHarmlessly (const Teuchos::Comm<int>& comm)
   {
@@ -104,7 +104,7 @@ namespace { // (anonymous)
       return 0;
     }
   }
-} // namespace (anonymous)  
+} // namespace (anonymous)
 
 namespace Tpetra {
   namespace Details {

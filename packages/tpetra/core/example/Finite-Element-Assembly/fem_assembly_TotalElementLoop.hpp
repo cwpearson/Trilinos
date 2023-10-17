@@ -224,7 +224,7 @@ namespace TpetraExamples
       TimeMonitor timer(*TimeMonitor::getNewTimer("3.1) Ghosting Material State (Matrix)"));
       state.doGhost();
 
-    }  
+    }
 
     // Matrix Fill
     // -------------------
@@ -430,7 +430,7 @@ namespace TpetraExamples
     auto range_map  = row_map;
 
 
-    Teuchos::TimeMonitor::getStackedTimer()->startBaseTimer(); 
+    Teuchos::TimeMonitor::getStackedTimer()->startBaseTimer();
     RCP<TimeMonitor> timerElementLoopGraph = rcp(new TimeMonitor(*TimeMonitor::getNewTimer("1) ElementLoop  (Graph)")));
     RCP<crs_graph_type> crs_graph = rcp(new crs_graph_type(row_map, maxEntriesPerRow));
     {
@@ -502,7 +502,7 @@ namespace TpetraExamples
       TimeMonitor timer(*TimeMonitor::getNewTimer("3.1) Ghosting Material State (Matrix)"));
       state.doGhost();
 
-    }  
+    }
 
 
     // Matrix Fill
@@ -551,7 +551,7 @@ namespace TpetraExamples
     {
 
       auto owned_element_to_node_ids = mesh.getOwnedElementToNode().getDeviceView(Tpetra::Access::ReadOnly);
-      auto ghost_element_to_node_ids = mesh.getGhostElementToNode().getDeviceView(Tpetra::Access::ReadOnly);    
+      auto ghost_element_to_node_ids = mesh.getGhostElementToNode().getDeviceView(Tpetra::Access::ReadOnly);
       auto localMatrix  = crs_matrix->getLocalMatrixDevice();
       auto localRHS     = rhs->getLocalViewDevice(Tpetra::Access::OverwriteAll);
       auto localRowMap  = crs_matrix->getRowMap()->getLocalMap();
@@ -640,7 +640,7 @@ namespace TpetraExamples
               }
             }
         });
-      execution_space ().fence ();    
+      execution_space ().fence ();
     timerElementLoopMatrix = Teuchos::null;
     }
 

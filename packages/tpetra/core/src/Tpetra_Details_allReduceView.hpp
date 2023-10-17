@@ -72,7 +72,7 @@ allReduceRawContiguous (const OutputViewType& output,
   {
     //Can't do in-place collective on an intercomm,
     //so use a separate copy as the input.
-    typename InputViewType::array_layout layout(input.extent(0), input.extent(1), input.extent(2), input.extent(3), input.extent(4), input.extent(5), input.extent(6), input.extent(7)); 
+    typename InputViewType::array_layout layout(input.extent(0), input.extent(1), input.extent(2), input.extent(3), input.extent(4), input.extent(5), input.extent(6), input.extent(7));
     Kokkos::View<typename InputViewType::non_const_data_type, typename InputViewType::array_layout, typename InputViewType::device_type>
       tempInput(Kokkos::ViewAllocateWithoutInitializing("tempInput"), layout);
     // DEEP_COPY REVIEW - This could be either DEVICE-TO-DEVICE or HOST-TO-HOST

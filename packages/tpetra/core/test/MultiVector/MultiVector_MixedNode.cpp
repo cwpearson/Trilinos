@@ -190,7 +190,7 @@ namespace {
     out << *mvec << endl;
 
     Magnitude onesNorm = map->getGlobalNumElements() * ScalarTraits<Magnitude>::one();
-    Teuchos::Array<Magnitude> checks(numVecs);      
+    Teuchos::Array<Magnitude> checks(numVecs);
     std::fill(checks.begin(),checks.end(),onesNorm);
     out << "Fill with all ones and check norm" <<endl;
     mvec->putScalar(ScalarTraits<Scalar>::one());
@@ -232,7 +232,7 @@ namespace {
     if(myRank==0) map0=rcp (new CudaMap (INVALID, numLocal, indexBase, comm));
     else map1=rcp (new SerialMap (INVALID, numLocal, indexBase, comm));
 
-    myOut << "Test MultiVector's usual constructor" << endl;  
+    myOut << "Test MultiVector's usual constructor" << endl;
     if(myRank==0) success=mv_test_basic<Scalar,CudaMap>(map0,numVecs,myOut);
     else success=mv_test_basic<Scalar,SerialMap>(map1,numVecs,myOut);
 
@@ -248,7 +248,7 @@ namespace {
 //
 
 #define UNIT_TEST_GROUP( SCALAR, LO, GO ) \
-  TEUCHOS_UNIT_TEST_TEMPLATE_3_INSTANT( MultiVector, mixed_node_basic, SCALAR, LO, GO ) 
+  TEUCHOS_UNIT_TEST_TEMPLATE_3_INSTANT( MultiVector, mixed_node_basic, SCALAR, LO, GO )
 
 
   typedef Tpetra::Map<>::local_ordinal_type default_local_ordinal_type;

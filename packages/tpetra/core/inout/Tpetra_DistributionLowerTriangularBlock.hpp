@@ -52,7 +52,7 @@
 #include "Tpetra_Vector.hpp"
 #include "Tpetra_CrsMatrix.hpp"
 
-namespace Tpetra 
+namespace Tpetra
 {
 
 /////////////////////////////////////////////////////////////////////////////
@@ -61,11 +61,11 @@ class DistributionLowerTriangularBlock : public Distribution<gno_t,scalar_t> {
 // Seher Acer's lower-triangular block decomposition for triangle counting
 // See also:  LowerTriangularBlockOperator below that allows this distribution
 // to be used in Tpetra SpMV.
-// 
+//
 // Requirements:
 //    Matrix must be square (undirected graph)
 //    Number of processors np = q(q+1)/2 for some q.
-// 
+//
 // Only the lower triangular portion of the matrix is stored.
 // Processors are arranged logically as follows:
 //    0
@@ -88,38 +88,38 @@ class DistributionLowerTriangularBlock : public Distribution<gno_t,scalar_t> {
 //    ...
 // (Note that we expect the matrix to be sparse.  For dense matrices,
 // CrsMatrix is the wrong tool.)
-//    
-// Matrix rows are assigned to processor rows greedily to roughly balance 
+//
+// Matrix rows are assigned to processor rows greedily to roughly balance
 //   (# nonzeros in processor row / # processors in processor row)
 // across processor rows.
 // The same cuts are used to divide rows and columns among processors
 // (that is, all processors have a square block).
-// 
+//
 // The lower triangular algorithm:
 // 1. distribute all matrix entries via 1D linear distribution
-//    (this initial distribution is needed to avoid storing the entire 
+//    (this initial distribution is needed to avoid storing the entire
 //    matrix on one processor, while providing info about the nonzeros per row
 //    needed in step 2.
-// 2. (optional) sort rows in decreasing order wrt the number of nonzeros 
+// 2. (optional) sort rows in decreasing order wrt the number of nonzeros
 //    per row
-// 3. find "chunk cuts":  divisions in row assignments such that 
-//    (# nonzeros in processor row / # processors in processor row) is 
+// 3. find "chunk cuts":  divisions in row assignments such that
+//    (# nonzeros in processor row / # processors in processor row) is
 //    roughly equal for all processor rows
 // 4. send nonzeros to their new processor assignment
-// 
+//
 // Known issues:  (TODO)
-// - The sorting in Step 2 and computation of chunk cuts in step 3 are 
-//   currently done in serial and requires O(number of rows) storage each 
+// - The sorting in Step 2 and computation of chunk cuts in step 3 are
+//   currently done in serial and requires O(number of rows) storage each
 //   processor.  More effort could parallelize this computation, but parallel
 //   load balancing algorithms are more appropriate in Zoltan2 than Tpetra.
-// - The sorting in Step 2 renumbers the rows (assigns new Global Ordinals to 
-//   the rows) to make them contiguous, as needed in Acer's triangle counting 
-//   algorithm.  
+// - The sorting in Step 2 renumbers the rows (assigns new Global Ordinals to
+//   the rows) to make them contiguous, as needed in Acer's triangle counting
+//   algorithm.
 //   (Acer's algorithm relies on local indexing from the chunk boundaries to
 //   find neighbors needed for communication.)
-//   The class currently provides a permutation matrix P describing the 
+//   The class currently provides a permutation matrix P describing the
 //   reordering.  Thus, the matrix stored in the lower triangular block
-//   distribution is actually P A P -- the row and column permutation of 
+//   distribution is actually P A P -- the row and column permutation of
 //   matrix A in the Matrix Market file.
 //   The fact that a permuted matrix is stored complicates use of the matrix
 //   in algorithms other than Acer's triangle counting.  For SpMV with the
@@ -129,13 +129,13 @@ class DistributionLowerTriangularBlock : public Distribution<gno_t,scalar_t> {
 //   permutation matrix is used.
 //
 // Before addressing these issues, we will decide (TODO)
-// -  Is this Distribution general enough to be in Tpetra? 
+// -  Is this Distribution general enough to be in Tpetra?
 // -  Should we, instead, have a separate package for distributions (that could
-//    use Zoltan2 and Tpetra without circular dependence)? 
-// -  Or should we allow users (such as the triangle counting algorithm) to 
-//    provide their own distributions (e.g., LowerTriangularBlock) that 
+//    use Zoltan2 and Tpetra without circular dependence)?
+// -  Or should we allow users (such as the triangle counting algorithm) to
+//    provide their own distributions (e.g., LowerTriangularBlock) that
 //    inherit from Tpetra's Distribution class?
-// For now, we will push this Distribution into Tpetra, but we will revisit 
+// For now, we will push this Distribution into Tpetra, but we will revisit
 // this decision.
 
 public:
@@ -149,7 +149,7 @@ public:
   using map_t = Tpetra::Map<>;
   using matrix_t = Tpetra::CrsMatrix<scalar_t>;
 
-  DistributionLowerTriangularBlock(size_t nrows_, 
+  DistributionLowerTriangularBlock(size_t nrows_,
                   const Teuchos::RCP<const Teuchos::Comm<int> > &comm_,
                   const Teuchos::ParameterList &params) :
                   Distribution<gno_t,scalar_t>(nrows_, comm_, params),
@@ -174,7 +174,7 @@ public:
     if (pe != NULL) redistributed = pe->getValue<bool>(&redistributed);
 
     if (me == 0) std::cout << "\n LowerTriangularBlock Distribution: "
-                           << "\n     np      = " << np 
+                           << "\n     np      = " << np
                            << "\n     nChunks = " << nChunks
                            << std::endl;
   }
@@ -183,9 +183,9 @@ public:
 
   bool areChunksComputed() {return chunksComputed; }
 
-  Teuchos::Array<gno_t> getChunkCuts() { 
+  Teuchos::Array<gno_t> getChunkCuts() {
     if(chunksComputed)
-      return chunkCuts; 
+      return chunkCuts;
     else {
       throw std::runtime_error("Error:  Requested chunk cuts have not been computed yet.");
     }
@@ -213,7 +213,7 @@ public:
   // How to redistribute according to chunk-based row distribution
   void Redistribute(LocalNZmap_t &localNZ)
   {
-    // Going to do chunking and sorting serially for now; 
+    // Going to do chunking and sorting serially for now;
     // need to gather per-row information from each processor
     // TODO:  think about a parallel implementation
 
@@ -239,9 +239,9 @@ public:
     Teuchos::Array<gno_t> sortedOrder;   // This is the original permutation
 
     Teuchos::Array<gno_t> globalRowBuf;
-    // TODO Dunno why there isn't a Teuchos::gatherAllv; 
+    // TODO Dunno why there isn't a Teuchos::gatherAllv;
     // TODO for now, compute and broadcast
-    if (me == 0) { 
+    if (me == 0) {
       globalRowBuf.resize(nrows, 0);  // TODO:  Ick!  Need parallel
     }
 
@@ -253,8 +253,8 @@ public:
       }
 
       Teuchos::gatherv<int,gno_t>(nnzPerRow.getRawPtr(), nMyRows,
-                                  globalRowBuf.getRawPtr(), 
-                                  rcvcnt.getRawPtr(), disp.getRawPtr(), 
+                                  globalRowBuf.getRawPtr(),
+                                  rcvcnt.getRawPtr(), disp.getRawPtr(),
                                   0, *comm);
 
       permuteIndex.resize(nrows); // TODO:  Ick!  Need parallel
@@ -276,13 +276,13 @@ public:
         }
       }
 
-      Teuchos::broadcast<int,gno_t>(*comm, 0, permuteIndex(0,nrows)); 
+      Teuchos::broadcast<int,gno_t>(*comm, 0, permuteIndex(0,nrows));
                                    // Ick!  Use a directory  TODO
 
       // Sorting is changing the global IDs associated
       // with rows/columns.  To make this distribution applicable beyond
-      // triangle counting (e.g., in a Tpetra operator), we need a way 
-      // to map from the original global IDs and back again.  
+      // triangle counting (e.g., in a Tpetra operator), we need a way
+      // to map from the original global IDs and back again.
       // Create a permutation matrix for use in the operator; use
       // default Tpetra layout.
       Teuchos::Array<gno_t> myRows;
@@ -290,9 +290,9 @@ public:
         if (VecMine(i)) myRows.push_back(i);
       }
 
-      Tpetra::global_size_t dummy = 
+      Tpetra::global_size_t dummy =
               Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid();
-      Teuchos::RCP<const map_t> permMap = 
+      Teuchos::RCP<const map_t> permMap =
                                 rcp(new map_t(dummy, myRows(), 0, comm));
 
       permMatrix = rcp(new matrix_t(permMap, 1)); // one nz / row in permMatrix
@@ -309,28 +309,28 @@ public:
       permMatrix->fillComplete(permMap, permMap);
     }
 
-    // Now, to determine the chunks, we care only about the number of 
+    // Now, to determine the chunks, we care only about the number of
     // nonzeros in the lower triangular matrix.
-    // Compute nnzPerRow; distribution is currently 1D 
+    // Compute nnzPerRow; distribution is currently 1D
     nnzPerRow.assign(nMyRows, 0);
     size_t nnz = 0;
     for (auto it = localNZ.begin(); it != localNZ.end(); it++) {
-      gno_t I = (sortByDegree ? permuteIndex[it->first.first] 
+      gno_t I = (sortByDegree ? permuteIndex[it->first.first]
                               : it->first.first);
       gno_t J = (sortByDegree ? permuteIndex[it->first.second]
                               : it->first.second);
-      if (J <= I) {// Lower-triangular part 
+      if (J <= I) {// Lower-triangular part
         nnzPerRow[it->first.first - myFirstRow]++;
 	nnz++;
       }
     }
 
-    // TODO Dunno why there isn't a Teuchos::gatherAllv; 
+    // TODO Dunno why there isn't a Teuchos::gatherAllv;
     // TODO for now, compute and broadcast
 
     Teuchos::gatherv<int,gno_t>(nnzPerRow.getRawPtr(), nMyRows,
-                                globalRowBuf.getRawPtr(), 
-                                rcvcnt.getRawPtr(), disp.getRawPtr(), 
+                                globalRowBuf.getRawPtr(),
+                                rcvcnt.getRawPtr(), disp.getRawPtr(),
                                 0, *comm);
 
     Teuchos::Array<int>().swap(rcvcnt);  // no longer needed
@@ -362,7 +362,7 @@ public:
           }
           else
             break;
-        } 
+        }
         chunkCuts[chunkCnt+1] = I;
       }
       chunkCuts[nChunks] = static_cast<gno_t>(nrows);
@@ -382,7 +382,7 @@ public:
 
     size_t sendCnt = 0;
     for (auto it = localNZ.begin(); it != localNZ.end(); it++) {
-      iOut[sendCnt] = (sortByDegree ? permuteIndex[it->first.first] 
+      iOut[sendCnt] = (sortByDegree ? permuteIndex[it->first.first]
                                     : it->first.first);
       jOut[sendCnt] = (sortByDegree ? permuteIndex[it->first.second]
                                     : it->first.second);
@@ -420,13 +420,13 @@ public:
     redistributed = true;
   }
 
-  Teuchos::RCP<matrix_t> getPermutationMatrix() const { return permMatrix; } 
+  Teuchos::RCP<matrix_t> getPermutationMatrix() const { return permMatrix; }
 
 private:
   // Initially distribute nonzeros with a 1D linear distribution
-  Distribution1DLinear<gno_t,scalar_t> initialDist;  
+  Distribution1DLinear<gno_t,scalar_t> initialDist;
 
-  // Flag indicating whether matrix should be reordered and renumbered 
+  // Flag indicating whether matrix should be reordered and renumbered
   // in decreasing sort order of number of nonzeros per row in full matrix
   bool sortByDegree;
 
@@ -434,13 +434,13 @@ private:
   Teuchos::RCP<matrix_t> permMatrix;
 
   // Flag whether redistribution has occurred yet
-  // This is true 
-  //   i) after Tpetra performs the redistribution or 
+  // This is true
+  //   i) after Tpetra performs the redistribution or
   //  ii) when Tpetra reads already-distributed nonzeros by readPerProcess function
-  bool redistributed;  
+  bool redistributed;
 
-  // If we read the already-distributed nonzeros from per-process files, 
-  //  this will remain false until a triangle counting code actually computes 
+  // If we read the already-distributed nonzeros from per-process files,
+  //  this will remain false until a triangle counting code actually computes
   //  the chunks when the need arises.
   bool chunksComputed;
 
@@ -458,7 +458,7 @@ private:
   int procFromChunks(gno_t I, gno_t J) {
     int m = findIdxInChunks(I);
     int n = findIdxInChunks(J);
-    int p = m*(m+1)/2 + n; 
+    int p = m*(m+1)/2 + n;
     return p;
   }
 };
@@ -467,12 +467,12 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 // Tpetra::Operator that works with the DistributionLowerTriangularBlock
 
-template <typename scalar_t, 
+template <typename scalar_t,
           class Node = ::Tpetra::Details::DefaultTypes::node_type>
-class LowerTriangularBlockOperator : 
+class LowerTriangularBlockOperator :
       public Tpetra::Operator<scalar_t, Tpetra::Map<>::local_ordinal_type,
                                         Tpetra::Map<>::global_ordinal_type,
-                                        Node> 
+                                        Node>
 {
 public:
   using lno_t = Tpetra::Map<>::local_ordinal_type;
@@ -491,11 +491,11 @@ public:
   : lowerTriangularMatrix(lowerTriangularMatrix_),
     permMatrix(dist.getPermutationMatrix())
   {
-    // LowerTriangularBlockOperator requires the range map and domain map 
+    // LowerTriangularBlockOperator requires the range map and domain map
     // to be the same.  Check it here.
     TEUCHOS_TEST_FOR_EXCEPTION(
       !lowerTriangularMatrix->getRangeMap()->isSameAs(
-                             *lowerTriangularMatrix->getDomainMap()), 
+                             *lowerTriangularMatrix->getDomainMap()),
        std::logic_error,
        "The Domain and Range maps of the LowerTriangularBlock matrix "
        "must be the same");
@@ -505,7 +505,7 @@ public:
     vector_t diagByRowMap(lowerTriangularMatrix->getRowMap());
     lowerTriangularMatrix->getLocalDiagCopy(diagByRowMap);
     diag = Teuchos::rcp(new vector_t(lowerTriangularMatrix->getRangeMap()));
-    Tpetra::Export<> exporter(lowerTriangularMatrix->getRowMap(), 
+    Tpetra::Export<> exporter(lowerTriangularMatrix->getRowMap(),
                               lowerTriangularMatrix->getRangeMap());
     diag->doExport(diagByRowMap, exporter, Tpetra::ADD);
   }
@@ -535,7 +535,7 @@ public:
     else {
 
       // With sorting, the LowerTriangularBlock distribution stores (P^T A P)
-      // in the CrsMatrix, for permutation matrix P. 
+      // in the CrsMatrix, for permutation matrix P.
       // Thus, apply must compute
       // y = P (beta (P^T y) + alpha (P^T A P) (P^T x))
 

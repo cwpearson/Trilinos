@@ -310,7 +310,7 @@ namespace Tpetra {
           MV Y (Y_in, Teuchos::Copy);
           nonconst_view_type Y_lcl;
           if(Y_is_overwritten) Y_lcl = Y.getLocalViewDevice(Access::OverwriteAll);
-          else                 Y_lcl = Y.getLocalViewDevice(Access::ReadWrite); 
+          else                 Y_lcl = Y.getLocalViewDevice(Access::ReadWrite);
 
           localMultiply_.apply (X_lcl, Y_lcl, mode, alpha, beta);
           Tpetra::deep_copy (Y_in, Y);
@@ -318,7 +318,7 @@ namespace Tpetra {
         else {
           nonconst_view_type Y_lcl;
           if(Y_is_overwritten) Y_lcl = Y_in.getLocalViewDevice(Access::OverwriteAll);
-          else                 Y_lcl = Y_in.getLocalViewDevice(Access::ReadWrite); 
+          else                 Y_lcl = Y_in.getLocalViewDevice(Access::ReadWrite);
 
           localMultiply_.apply (X_lcl, Y_lcl, mode, alpha, beta);
         }
@@ -486,7 +486,7 @@ namespace Tpetra {
           }
           nonconst_view_type Y_lcl;
           if(Y_is_overwritten) Y_lcl = Y_rowMap->getLocalViewDevice(Access::OverwriteAll);
-          else                 Y_lcl = Y_rowMap->getLocalViewDevice(Access::ReadWrite); 
+          else                 Y_lcl = Y_rowMap->getLocalViewDevice(Access::ReadWrite);
 
           localMultiply_.apply (X_lcl, Y_lcl, NO_TRANS, alpha, beta);
           Tpetra::deep_copy (Y_in, *Y_rowMap);
@@ -494,7 +494,7 @@ namespace Tpetra {
         else {
           nonconst_view_type Y_lcl;
           if(Y_is_overwritten) Y_lcl = Y_in.getLocalViewDevice(Access::OverwriteAll);
-          else                 Y_lcl = Y_in.getLocalViewDevice(Access::ReadWrite); 
+          else                 Y_lcl = Y_in.getLocalViewDevice(Access::ReadWrite);
 
           localMultiply_.apply (X_lcl, Y_lcl, NO_TRANS, alpha, beta);
         }

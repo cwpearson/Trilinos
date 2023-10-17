@@ -168,7 +168,7 @@ namespace Impl {
       TEUCHOS_TEST_FOR_EXCEPTION
         (! G.supportsRowViews (), std::logic_error, "Not implemented!");
 
-      typename ::Tpetra::RowGraph<LO, GO, NT>::local_inds_host_view_type 
+      typename ::Tpetra::RowGraph<LO, GO, NT>::local_inds_host_view_type
                lclColInds;
       const LO lclNumRows = static_cast<LO> (G.getLocalNumRows ());
 
@@ -252,7 +252,7 @@ namespace Impl {
       return 0; // this process does not participate
     }
     else {
-      typename ::Tpetra::RowGraph<LO,GO,NT>::global_inds_host_view_type 
+      typename ::Tpetra::RowGraph<LO,GO,NT>::global_inds_host_view_type
                gblColInds;
       const LO lclNumRows = static_cast<LO> (G.getLocalNumRows ());
 

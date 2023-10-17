@@ -1035,7 +1035,7 @@ namespace Tpetra {
         std::string line; // If read from stream successful: the Banner line
 
         // Try to read a line from the input stream.
-        const bool readFailed = ! getline(in, line);        
+        const bool readFailed = ! getline(in, line);
         TEUCHOS_TEST_FOR_EXCEPTION(readFailed, std::invalid_argument,
                                    "Failed to get Matrix Market banner line from input.");
 
@@ -5804,13 +5804,13 @@ namespace Tpetra {
         // Setup
         const int myRank  = comm->getRank();
         const int numProc = comm->getSize();
-        std::string filename = filename_prefix + std::to_string(myRank) + filename_suffix;  
+        std::string filename = filename_prefix + std::to_string(myRank) + filename_suffix;
 
         // Bounds check the writing limits
         int rank_limit = std::min(std::max(ranksToReadAtOnce,1),numProc);
 
         // Data structures for constructor
-        ArrayRCP<size_t> numEntriesPerRow;             
+        ArrayRCP<size_t> numEntriesPerRow;
         ArrayRCP<size_t> rowPtr;
         ArrayRCP<global_ordinal_type> colInd;
         ArrayRCP<scalar_type> values;
@@ -5818,7 +5818,7 @@ namespace Tpetra {
 
         ///////////////////////////////////////////////
         // Start the reading of the banners to get
-        // local row / nnz counts and then read the 
+        // local row / nnz counts and then read the
         // data.  We'll pack everything into big ol'
         // rowptr/colind/values ArrayRCPs
         bool success = true;
@@ -5954,7 +5954,7 @@ namespace Tpetra {
               TEUCHOS_TEST_FOR_EXCEPTION(l_curRow == INVALID,std::logic_error,
                                          "Current global row "<< curRow << " is invalid.");
 
-              TEUCHOS_TEST_FOR_EXCEPTION(l_curRow < l_prvRow, std::logic_error,      
+              TEUCHOS_TEST_FOR_EXCEPTION(l_curRow < l_prvRow, std::logic_error,
                                          "Row indices are out of order, even though they are supposed "
                                          "to be sorted.  curRow = " << l_curRow << ", prvRow = "
                                          << l_prvRow << ", at curPos = " << curPos << ".  Please report "
@@ -5998,7 +5998,7 @@ namespace Tpetra {
         }
         else {
           throw std::runtime_error("Reading with a column map is not yet implemented");
-        }       
+        }
         RCP<const map_type> myDomainMap = domainMap.is_null() ? rowMap : domainMap;
         RCP<const map_type> myRangeMap  = rangeMap.is_null() ? rowMap : rangeMap;
 
@@ -6007,7 +6007,7 @@ namespace Tpetra {
         if(!readSuccess)
           success = false;
         TEUCHOS_TEST_FOR_EXCEPTION(success == false, std::runtime_error,
-                                   "Read failed.");        
+                                   "Read failed.");
 
         return A;
       }// end readSparsePerRank
@@ -8935,7 +8935,7 @@ namespace Tpetra {
       //! make any guarantees.
 
       static
-      void 
+      void
       writeSparsePerRank (const std::string& filename_prefix,
                           const std::string& filename_suffix,
                           const sparse_matrix_type& matrix,
@@ -8962,9 +8962,9 @@ namespace Tpetra {
         // Setup
         const int myRank  = comm->getRank();
         const int numProc = comm->getSize();
-        std::string filename = filename_prefix + std::to_string(myRank) + filename_suffix;  
+        std::string filename = filename_prefix + std::to_string(myRank) + filename_suffix;
         RCP<const map_type> rowMap = matrix.getRowMap();
-        RCP<const map_type> colMap = matrix.getColMap();  
+        RCP<const map_type> colMap = matrix.getColMap();
         size_t local_nnz      = matrix.getLocalNumEntries();
         size_t local_num_rows = rowMap->getLocalNumElements();
         size_t local_num_cols = colMap->getLocalNumElements();
@@ -8978,7 +8978,7 @@ namespace Tpetra {
         for(int base_rank = 0; base_rank < numProc; base_rank += rank_limit) {
           int stop = std::min(base_rank+rank_limit,numProc);
 
-          if(base_rank <= myRank  && myRank < stop) {          
+          if(base_rank <= myRank  && myRank < stop) {
             // My turn to write
             std::ofstream out(filename);
 
@@ -9007,8 +9007,8 @@ namespace Tpetra {
               // terminates.
               Teuchos::SetScientific<ST> sci (out);
 
-              for(size_t l_row = 0; l_row < local_num_rows; l_row++) { 
-                GO g_row = rowMap->getGlobalElement(l_row);            
+              for(size_t l_row = 0; l_row < local_num_rows; l_row++) {
+                GO g_row = rowMap->getGlobalElement(l_row);
 
                 typename sparse_matrix_type::local_inds_host_view_type indices;
                 typename sparse_matrix_type::values_host_view_type values;

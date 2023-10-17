@@ -177,7 +177,7 @@ namespace TSQR {
     using mag_type =
       typename Teuchos::ScalarTraits<Scalar>::magnitudeType;
     using execution_space = Kokkos::DefaultHostExecutionSpace;
-    using memory_space = Kokkos::HostSpace;    
+    using memory_space = Kokkos::HostSpace;
     using device_type = Kokkos::Device<execution_space, memory_space>;
     template<class SC>
     using matrix_type =

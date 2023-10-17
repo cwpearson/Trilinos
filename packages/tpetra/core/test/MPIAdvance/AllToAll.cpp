@@ -121,7 +121,7 @@ void test_random(MPI_Comm comm, int seed, Teuchos::FancyOStream &out,
 
   // seeded rng so all ranks generate the same count
   std::mt19937 rng(seed);
-  std::uniform_int_distribution<int> dist(1, 100);  
+  std::uniform_int_distribution<int> dist(1, 100);
   sendcount = dist(rng);
   recvcount = sendcount;
 
@@ -130,7 +130,7 @@ void test_random(MPI_Comm comm, int seed, Teuchos::FancyOStream &out,
   MPIX_Comm_init(&mpixComm, comm);
 
   // allocate send/recv bufs
-  Kokkos::View<char *, typename Device::memory_space> 
+  Kokkos::View<char *, typename Device::memory_space>
     sbuf("sbuf", sendcount * size),
     exp("exp", recvcount * size),
     act("act", recvcount * size);

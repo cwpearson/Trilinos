@@ -46,7 +46,7 @@
 #include <Tpetra_Core.hpp>
 #include <Tpetra_Details_ExecutionSpaces.hpp>
 
-/*! \file Spaces.cpp 
+/*! \file Spaces.cpp
     \brief Make sure Tpetra::Details::Spaces interfaces compile and don't crash
 */
 

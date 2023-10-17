@@ -277,7 +277,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MapOutputInput, ContigNonuniformIndexBase0, L
   std::istringstream mapInStream (mapOutStream.str ());
   typedef Tpetra::MatrixMarket::Reader<crs_matrix_type> reader_type;
   RCP<const map_type> inMap =
-    reader_type::readMap (mapInStream, map.getComm (), 
+    reader_type::readMap (mapInStream, map.getComm (),
                           tolerant, debug);
 
   TEST_EQUALITY(map.isSameAs (*inMap), true);
@@ -321,7 +321,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MapOutputInput, ContigNonuniformIndexBase1, L
   std::istringstream mapInStream (mapOutStream.str ());
   typedef Tpetra::MatrixMarket::Reader<crs_matrix_type> reader_type;
   RCP<const map_type> inMap =
-    reader_type::readMap (mapInStream, map.getComm (), 
+    reader_type::readMap (mapInStream, map.getComm (),
                           tolerant, debug);
 
   TEST_EQUALITY(map.isSameAs (*inMap), true);
@@ -371,7 +371,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MapOutputInput, NoncontigIndexBase0, LO, GO )
   std::istringstream mapInStream (mapOutStream.str ());
   typedef Tpetra::MatrixMarket::Reader<crs_matrix_type> reader_type;
   RCP<const map_type> inMap =
-    reader_type::readMap (mapInStream, map.getComm (), 
+    reader_type::readMap (mapInStream, map.getComm (),
                           tolerant, debug);
 
   TEST_EQUALITY(map.isSameAs (*inMap), true);
@@ -421,7 +421,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MapOutputInput, NoncontigIndexBase1, LO, GO )
   std::istringstream mapInStream (mapOutStream.str ());
   typedef Tpetra::MatrixMarket::Reader<crs_matrix_type> reader_type;
   RCP<const map_type> inMap =
-    reader_type::readMap (mapInStream, map.getComm (), 
+    reader_type::readMap (mapInStream, map.getComm (),
                           tolerant, debug);
 
   TEST_EQUALITY(map.isSameAs (*inMap), true);
@@ -476,7 +476,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MapOutputInput, NoncontigOvrlpngIndBase0, LO,
   std::istringstream mapInStream (mapOutStream.str ());
   typedef Tpetra::MatrixMarket::Reader<crs_matrix_type> reader_type;
   RCP<const map_type> inMap =
-    reader_type::readMap (mapInStream, map.getComm (), 
+    reader_type::readMap (mapInStream, map.getComm (),
                           tolerant, debug);
 
   TEST_EQUALITY(map.isSameAs (*inMap), true);

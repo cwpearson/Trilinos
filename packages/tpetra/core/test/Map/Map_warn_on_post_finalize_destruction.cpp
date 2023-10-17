@@ -64,7 +64,7 @@ public:
     originalStream_.rdbuf (tempStream_.rdbuf ());
   }
 
-  std::string getCapturedOutput () const {  
+  std::string getCapturedOutput () const {
     return tempStream_.str ();
   }
 
@@ -74,11 +74,11 @@ public:
 private:
   std::ostream& originalStream_;
   std::ostringstream tempStream_;
-  using buf_ptr_type = decltype (originalStream_.rdbuf ());  
+  using buf_ptr_type = decltype (originalStream_.rdbuf ());
   buf_ptr_type originalBuffer_;
 };
 
-} // namespace (anonymous)  
+} // namespace (anonymous)
 
 int main (int argc, char* argv[])
 {

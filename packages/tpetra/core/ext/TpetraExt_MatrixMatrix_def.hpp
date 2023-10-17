@@ -1126,10 +1126,10 @@ void Add(
         }
 
         if (C->isFillComplete ()) {
-          C->sumIntoGlobalValues (globalRow, numEntries, 
+          C->sumIntoGlobalValues (globalRow, numEntries,
                                   reinterpret_cast<Scalar *>(Values.data()), Indices.data());
         } else {
-          C->insertGlobalValues (globalRow,  numEntries, 
+          C->insertGlobalValues (globalRow,  numEntries,
                                  reinterpret_cast<Scalar *>(Values.data()), Indices.data());
         }
       }
@@ -2672,7 +2672,7 @@ void KernelWrappers2<Scalar,LocalOrdinal,GlobalOrdinal,Node,LocalOrdinalViewType
   }
 
   // Jacobi-specific inner stuff
-  auto Dvals = 
+  auto Dvals =
        Dinv.template getLocalView<scalar_memory_space>(Access::ReadOnly);
 
   // Teuchos::ArrayView::operator[].
@@ -3010,7 +3010,7 @@ void KernelWrappers2<Scalar,LocalOrdinal,GlobalOrdinal,Node,LocalOrdinalViewType
   }
 
   // Jacobi-specific inner stuff
-  auto Dvals = 
+  auto Dvals =
        Dinv.template getLocalView<scalar_memory_space>(Access::ReadOnly);
 
 #ifdef HAVE_TPETRA_MMM_TIMINGS
@@ -3541,7 +3541,7 @@ merge_matrices(BlockCrsMatrixStruct<Scalar, LocalOrdinal, GlobalOrdinal, Node>& 
                const LocalOrdinalViewType & Acol2Irow,
                const LocalOrdinalViewType & Bcol2Ccol,
                const LocalOrdinalViewType & Icol2Ccol,
-               const size_t mergedNodeNumCols) 
+               const size_t mergedNodeNumCols)
 {
   using Teuchos::RCP;
   typedef typename Tpetra::BlockCrsMatrix<Scalar,LocalOrdinal,GlobalOrdinal,Node>::local_matrix_device_type KBCRS;

@@ -81,7 +81,7 @@ namespace { // anonymous
     // and then have the first guy go out of scope.
     RCP<BV> Vec2;
     {
-      BV Vec1 (*Map,block_size);     
+      BV Vec1 (*Map,block_size);
       Vec2 = Teuchos::rcp(new BV(std::move(Vec1)));
     }
 
@@ -100,7 +100,7 @@ namespace { // anonymous
 //
 
 #define UNIT_TEST_GROUP( SCALAR, LO, GO, NODE ) \
-  TEUCHOS_UNIT_TEST_TEMPLATE_4_INSTANT( BlockVector, Issue11931, SCALAR, LO, GO, NODE ) 
+  TEUCHOS_UNIT_TEST_TEMPLATE_4_INSTANT( BlockVector, Issue11931, SCALAR, LO, GO, NODE )
 
 
   TPETRA_ETI_MANGLING_TYPEDEFS()

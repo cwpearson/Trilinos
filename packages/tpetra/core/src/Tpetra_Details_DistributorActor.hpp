@@ -465,16 +465,16 @@ void DistributorActor::doPosts(const DistributorPlan& plan,
 
     // This buffer is long enough for only one message at a time.
     // Thus, we use DISTRIBUTOR_SEND always in this case, regardless
-    // of sendType requested by user. 
+    // of sendType requested by user.
     // This code path formerly errored out with message:
-    //     Tpetra::Distributor::doPosts(3 args, Kokkos): 
+    //     Tpetra::Distributor::doPosts(3 args, Kokkos):
     //     The "send buffer" code path
     //     doesn't currently work with nonblocking sends.
     // Now, we opt to just do the communication in a way that works.
 #ifdef HAVE_TPETRA_DEBUG
     if (sendType != Details::DISTRIBUTOR_SEND) {
       if (plan.getComm()->getRank() == 0)
-        std::cout << "The requested Tpetra send type " 
+        std::cout << "The requested Tpetra send type "
                   << DistributorSendTypeEnumToString(sendType)
                   << " requires Distributor data to be ordered by"
                   << " the receiving processor rank.  Since these"
@@ -836,16 +836,16 @@ void DistributorActor::doPosts(const DistributorPlan& plan,
 
     // This buffer is long enough for only one message at a time.
     // Thus, we use DISTRIBUTOR_SEND always in this case, regardless
-    // of sendType requested by user. 
+    // of sendType requested by user.
     // This code path formerly errored out with message:
-    //     Tpetra::Distributor::doPosts(4-arg, Kokkos): 
+    //     Tpetra::Distributor::doPosts(4-arg, Kokkos):
     //     The "send buffer" code path
     //     doesn't currently work with nonblocking sends.
     // Now, we opt to just do the communication in a way that works.
 #ifdef HAVE_TPETRA_DEBUG
     if (sendType != Details::DISTRIBUTOR_SEND) {
       if (plan.getComm()->getRank() == 0)
-        std::cout << "The requested Tpetra send type " 
+        std::cout << "The requested Tpetra send type "
                   << DistributorSendTypeEnumToString(sendType)
                   << " requires Distributor data to be ordered by"
                   << " the receiving processor rank.  Since these"
@@ -854,7 +854,7 @@ void DistributorActor::doPosts(const DistributorPlan& plan,
     }
 #endif
 
-    Kokkos::View<Packet*,Layout,Device,Mem> sendArray ("sendArray", 
+    Kokkos::View<Packet*,Layout,Device,Mem> sendArray ("sendArray",
                                                         maxNumPackets);
 
     Array<size_t> indicesOffsets (numExportPacketsPerLID.size(), 0);

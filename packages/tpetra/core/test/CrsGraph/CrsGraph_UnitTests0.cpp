@@ -709,7 +709,7 @@ namespace { // (anonymous)
             grow = 0;
           }
           diaggraph.insertGlobalIndices (grow, tuple<GO> (grow));
-          // before globalAssemble(), there should be no local entries if 
+          // before globalAssemble(), there should be no local entries if
           // numProcs > 1
           {
             typename GRAPH::global_inds_host_view_type myrow_gbl;
@@ -726,11 +726,11 @@ namespace { // (anonymous)
           }
 
           { // no room for more
-            out << "Attempt to insert global column index " << (myrowind+1) 
-                << " into global row " << myrowind 
+            out << "Attempt to insert global column index " << (myrowind+1)
+                << " into global row " << myrowind
                 << "; it should throw, because the graph"
                 << " has an upper bound of one entry "
-                << "per row, and already has a different column index " 
+                << "per row, and already has a different column index "
                 << grow << " in this row."
                 << endl;
             TEST_THROW( diaggraph.insertGlobalIndices(myrowind,
@@ -747,7 +747,7 @@ namespace { // (anonymous)
             diaggraph.getLocalRowView (0, myrow_lcl);
             TEST_EQUALITY_CONST( myrow_lcl.size (), 1 );
             if (myrow_lcl.size() == 1) {
-              TEST_EQUALITY( 
+              TEST_EQUALITY(
                    diaggraph.getColMap()->getGlobalElement(myrow_lcl[0]),
                    myrowind );
             }
@@ -785,7 +785,7 @@ namespace { // (anonymous)
           out << "Calling globalAssemble()" << endl;
           ngraph.globalAssemble();
           TEST_EQUALITY( ngraph.getNumEntriesInLocalRow(0),
-                         (numProcs == 1 ? 1 
+                         (numProcs == 1 ? 1
                                         : ngraph.getNumAllocatedEntriesInLocalRow(0) ));
           out << "Calling fillComplete(params)" << endl;
           ngraph.fillComplete (params);

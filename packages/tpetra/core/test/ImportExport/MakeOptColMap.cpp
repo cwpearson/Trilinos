@@ -389,7 +389,7 @@ namespace {
     if (gblSuccess != 1) {
       reportErrors (comm, errStrm3, lclErr3);
     }
-    // Check that calling makeOptimizedColMapAndImport 
+    // Check that calling makeOptimizedColMapAndImport
     // produces the same column Map as makeOptimizedColMap.
     {
       const bool sameMaps = result3.first->isSameAs (*newColMap);

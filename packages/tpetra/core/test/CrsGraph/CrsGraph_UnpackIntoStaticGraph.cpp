@@ -105,7 +105,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_3_DECL(CrsGraph, PackThenUnpackAndCombine, LO, GO, NT
 
   // Off diagonal graph with half-bandwidth=1 and no diagonal entries
   out << "Building second graph" << endl;
-  auto B = rcp(new graph_type(map1, 2)); 
+  auto B = rcp(new graph_type(map1, 2));
   for (LO loc_row=0; loc_row<num_loc_rows; loc_row++) {
     const auto gbl_row = map1->getGlobalElement(loc_row);
     // B[0,0:1] = [-, 1]

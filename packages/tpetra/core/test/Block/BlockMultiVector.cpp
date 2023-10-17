@@ -427,7 +427,7 @@ namespace {
     const LO colToModify = 1;
     {
       auto X_overlap =
-        X.getLocalBlockHost (meshMap.getLocalElement (meshMap.getMinGlobalIndex ()), 
+        X.getLocalBlockHost (meshMap.getLocalElement (meshMap.getMinGlobalIndex ()),
                          colToModify, Tpetra::Access::ReadWrite);
       TEST_ASSERT( X_overlap.data () != NULL );
       TEST_EQUALITY_CONST( static_cast<size_t> (X_overlap.extent (0)),
@@ -455,7 +455,7 @@ namespace {
 
     {
       auto X_overlap =
-           X.getLocalBlockHost (meshMap.getLocalElement(meshMap.getMinGlobalIndex()), 
+           X.getLocalBlockHost (meshMap.getLocalElement(meshMap.getMinGlobalIndex()),
                             colToModify, Tpetra::Access::ReadOnly);
 
       typename BMV::little_host_vec_type zeroLittleVector ("zero", blockSize);

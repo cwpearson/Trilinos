@@ -55,7 +55,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug8794, InsertDenseRows,
 // Build a matrix using insertGlobalValues
 // The matrix will have some sparse rows (number of nonzeros <= 5) and
 // some dense rows (number of nonzeros = 501).
-// The two implementations of insert_crs_indices that differ depending 
+// The two implementations of insert_crs_indices that differ depending
 // on the number of indices being inserted are tested.
 // Multiply the matrix time a vector of global IDs and compare the result
 // to expected values.
@@ -80,8 +80,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug8794, InsertDenseRows,
   vector_t x(map);
   vector_t y(map);
 
-  // Build matrix distributed across np-1 processors:  
-  // insert nonzeros on np processors; 
+  // Build matrix distributed across np-1 processors:
+  // insert nonzeros on np processors;
   // let fillComplete migrate according to mapNpM1
 
   Teuchos::Array<GO> cols(maxNzPerRow);
@@ -152,7 +152,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug8794, InsertDenseRows,
   // Initialize domain vector for SpMV
   {
     auto xData = x.getLocalViewHost(Tpetra::Access::OverwriteAll);
-    for (size_t i = 0; i < map->getLocalNumElements(); i++) 
+    for (size_t i = 0; i < map->getLocalNumElements(); i++)
       xData(i, 0) = map->getGlobalElement(i);
   }
 
@@ -183,7 +183,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug8794, InsertDenseRows,
 }
 
 #define UNIT_TEST_GROUP( SCALAR, LO, GO, NODE ) \
-  TEUCHOS_UNIT_TEST_TEMPLATE_4_INSTANT(Bug8794, InsertDenseRows, SCALAR, LO, GO, NODE) 
+  TEUCHOS_UNIT_TEST_TEMPLATE_4_INSTANT(Bug8794, InsertDenseRows, SCALAR, LO, GO, NODE)
 
   TPETRA_ETI_MANGLING_TYPEDEFS()
 

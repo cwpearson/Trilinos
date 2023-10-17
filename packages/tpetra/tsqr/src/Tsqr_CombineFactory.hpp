@@ -85,12 +85,12 @@ namespace TSQR {
           combineType == "Native") {
         using impl_type = CombineNative<Ordinal, Scalar>;
         return std::unique_ptr<impl_type> (new impl_type);
-      }        
+      }
       else if (combineType == "CombineDefault" ||
                combineType == "Default") {
         using impl_type = CombineDefault<Ordinal, Scalar>;
         return std::unique_ptr<impl_type> (new impl_type);
-      }        
+      }
       else {
         TEUCHOS_TEST_FOR_EXCEPTION
           (true, std::invalid_argument, "TSQR::CombineFactory: "

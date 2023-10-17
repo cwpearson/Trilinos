@@ -39,7 +39,7 @@
 // @HEADER
 */
 
-// Computes norms in both host and device space to exercise calls 
+// Computes norms in both host and device space to exercise calls
 // to KokkosBlas in both cases.
 
 #include "Tpetra_Core.hpp"
@@ -63,7 +63,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug9856, HostNorm180, Scalar,LO,GO,Node)
   using map_t = Tpetra::Map<LO,GO,Node>;
   using mv_t = Tpetra::MultiVector<Scalar,LO,GO,Node>;
 
-  const size_t nGlobalEntries = 100;  
+  const size_t nGlobalEntries = 100;
   const size_t nVecs = 180;
 
   Teuchos::RCP<const map_t> map = rcp(new map_t(nGlobalEntries, 0, comm));
@@ -91,7 +91,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug9856, HostNorm181, Scalar,LO,GO,Node)
   using map_t = Tpetra::Map<LO,GO,Node>;
   using mv_t = Tpetra::MultiVector<Scalar,LO,GO,Node>;
 
-  const size_t nGlobalEntries = 100;  
+  const size_t nGlobalEntries = 100;
   const size_t nVecs = 181;
 
   Teuchos::RCP<const map_t> map = rcp(new map_t(nGlobalEntries, 0, comm));
@@ -119,7 +119,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug9856, DeviceNorm180, Scalar,LO,GO,Node)
   using map_t = Tpetra::Map<LO,GO,Node>;
   using mv_t = Tpetra::MultiVector<Scalar,LO,GO,Node>;
 
-  const size_t nGlobalEntries = 100;  
+  const size_t nGlobalEntries = 100;
   const size_t nVecs = 180;
 
   Teuchos::RCP<const map_t> map = rcp(new map_t(nGlobalEntries, 0, comm));
@@ -148,7 +148,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug9856, DeviceNorm181, Scalar,LO,GO,Node)
   using map_t = Tpetra::Map<LO,GO,Node>;
   using mv_t = Tpetra::MultiVector<Scalar,LO,GO,Node>;
 
-  const size_t nGlobalEntries = 100;  
+  const size_t nGlobalEntries = 100;
   const size_t nVecs = 181;
 
   Teuchos::RCP<const map_t> map = rcp(new map_t(nGlobalEntries, 0, comm));
@@ -172,12 +172,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug9856, KokkosDeviceNorm180, Scalar,LO,GO,Nod
   // Compute the norm on the device with 180 vectors
   // Kokkos only version
 
-  const size_t nGlobalEntries = 100;  
+  const size_t nGlobalEntries = 100;
   const size_t nVecs = 180;
 
   using IST = typename Kokkos::ArithTraits<Scalar>::val_type;
 
-  Kokkos::View<IST **, Kokkos::LayoutLeft, typename Node::device_type> 
+  Kokkos::View<IST **, Kokkos::LayoutLeft, typename Node::device_type>
           mv("mv", nGlobalEntries, nVecs);
   Kokkos::deep_copy(mv, 3.14);
 
@@ -195,12 +195,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug9856, KokkosDeviceNorm181, Scalar,LO,GO,Nod
   // Compute the norm on the device with 181 vectors
   // Kokkos only version
 
-  const size_t nGlobalEntries = 100;  
+  const size_t nGlobalEntries = 100;
   const size_t nVecs = 181;
 
   using IST = typename Kokkos::ArithTraits<Scalar>::val_type;
 
-  Kokkos::View<IST **, Kokkos::LayoutLeft, typename Node::device_type> 
+  Kokkos::View<IST **, Kokkos::LayoutLeft, typename Node::device_type>
           mv("mv", nGlobalEntries, nVecs);
   Kokkos::deep_copy(mv, 3.14);
 
@@ -221,7 +221,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug9856, LongDeviceNorm180, Scalar,LO,GO,Node)
   using map_t = Tpetra::Map<LO,GO,Node>;
   using mv_t = Tpetra::MultiVector<Scalar,LO,GO,Node>;
 
-  const size_t threshold = 
+  const size_t threshold =
                Tpetra::Details::Behavior::multivectorKernelLocationThreshold();
   const size_t nGlobalEntries = comm->getSize() * 1.1 * threshold;
   const size_t nVecs = 180;
@@ -252,7 +252,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug9856, LongDeviceNorm181, Scalar,LO,GO,Node)
   using map_t = Tpetra::Map<LO,GO,Node>;
   using mv_t = Tpetra::MultiVector<Scalar,LO,GO,Node>;
 
-  const size_t threshold = 
+  const size_t threshold =
                Tpetra::Details::Behavior::multivectorKernelLocationThreshold();
   const size_t nGlobalEntries = comm->getSize() * 1.1 * threshold;
   const size_t nVecs = 181;
@@ -281,7 +281,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug9856, LongDeviceNorm181, Scalar,LO,GO,Node)
   TEUCHOS_UNIT_TEST_TEMPLATE_4_INSTANT(Bug9856, HostNorm180, SCALAR, LO, GO, NODE) \
   TEUCHOS_UNIT_TEST_TEMPLATE_4_INSTANT(Bug9856, HostNorm181, SCALAR, LO, GO, NODE) \
   TEUCHOS_UNIT_TEST_TEMPLATE_4_INSTANT(Bug9856, LongDeviceNorm180, SCALAR, LO, GO, NODE) \
-  TEUCHOS_UNIT_TEST_TEMPLATE_4_INSTANT(Bug9856, LongDeviceNorm181, SCALAR, LO, GO, NODE) 
+  TEUCHOS_UNIT_TEST_TEMPLATE_4_INSTANT(Bug9856, LongDeviceNorm181, SCALAR, LO, GO, NODE)
 
   TPETRA_ETI_MANGLING_TYPEDEFS()
 

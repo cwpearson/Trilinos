@@ -491,7 +491,7 @@ namespace Tpetra {
     /// This routine fills in the <tt>remoteLIDs_</tt> field of
     /// <tt>TransferData_</tt>.
     void
-    setupExport (Teuchos::Array<GlobalOrdinal>& remoteGIDs, 
+    setupExport (Teuchos::Array<GlobalOrdinal>& remoteGIDs,
                  bool useRemotePIDs, Teuchos::Array<int> & remotePIDs,
                  const Teuchos::RCP<Teuchos::ParameterList>& plist= Teuchos::null);
     //@}

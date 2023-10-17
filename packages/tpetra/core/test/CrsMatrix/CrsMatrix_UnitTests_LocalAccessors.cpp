@@ -62,7 +62,7 @@ buildMatrix(const Teuchos::RCP<const Teuchos::Comm<int> > &comm)
   using map_t = Tpetra::Map<LO,GO,Node>;
 
   const size_t nRows = 10;
-  const Tpetra::global_size_t dummy = 
+  const Tpetra::global_size_t dummy =
         Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid();
   Teuchos::RCP<const map_t> rowmap = rcp(new map_t(dummy, nRows, 0, comm));
 
@@ -118,9 +118,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(CrsMatrix, localValues, LO, GO, Scalar, Node)
 
   auto mat = buildMatrix<Scalar, LO, GO, Node>(comm);
 
-  using host_range_policy = 
+  using host_range_policy =
         Kokkos::RangePolicy<Kokkos::HostSpace::execution_space, LO>;
-  using dev_range_policy = 
+  using dev_range_policy =
         Kokkos::RangePolicy<typename Node::device_type::execution_space, LO>;
 
   // check the host values view
@@ -131,13 +131,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(CrsMatrix, localValues, LO, GO, Scalar, Node)
     auto view = mat->getLocalValuesHost(Tpetra::Access::ReadOnly);
     auto map = mat->getRowMap();
     Kokkos::parallel_reduce(
-      "checkHostValues", 
+      "checkHostValues",
       host_range_policy(0, mat->getLocalNumRows()),
       [&] (const LO i, int &lerr) {
         GO gid = map->getGlobalElement(i);
         for (size_t j = offs[i]; j < offs[i+1]; j++) {
           if (view[j] != impl_scalar_t(gid)) lerr++;
-        } 
+        }
       },
       checkHostValuesErrors);
     TEST_EQUALITY(checkHostValuesErrors, 0);
@@ -151,13 +151,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(CrsMatrix, localValues, LO, GO, Scalar, Node)
     auto view = mat->getLocalValuesDevice(Tpetra::Access::ReadOnly);
     auto lclMap = mat->getRowMap()->getLocalMap();
     Kokkos::parallel_reduce(
-      "checkDeviceValues", 
+      "checkDeviceValues",
       dev_range_policy(0, mat->getLocalNumRows()),
       KOKKOS_LAMBDA (const LO i, int &lerr) {
         GO gid = lclMap.getGlobalElement(i);
         for (size_t j = offs[i]; j < offs[i+1]; j++) {
           if (view[j] != impl_scalar_t(gid)) lerr++;
-        } 
+        }
       },
       checkDeviceValuesErrors);
     TEST_EQUALITY(checkDeviceValuesErrors, 0);
@@ -168,7 +168,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(CrsMatrix, localValues, LO, GO, Scalar, Node)
     {
       auto view = mat->getLocalValuesDevice(Tpetra::Access::ReadWrite);
       Kokkos::parallel_for(
-        "modifyValuesOnDevice", 
+        "modifyValuesOnDevice",
         dev_range_policy(0, mat->getLocalNumEntries()),
         KOKKOS_LAMBDA (const LO i) { view[i] *= 2; }
         );
@@ -181,13 +181,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(CrsMatrix, localValues, LO, GO, Scalar, Node)
       auto view = mat->getLocalValuesHost(Tpetra::Access::ReadOnly);
       auto map = mat->getRowMap();
       Kokkos::parallel_reduce(
-        "checkDeviceModifiedValuesOnHost", 
+        "checkDeviceModifiedValuesOnHost",
         host_range_policy(0, mat->getLocalNumRows()),
         [&] (const LO i, int &lerr) {
           GO gid = map->getGlobalElement(i);
           for (size_t j = offs[i]; j < offs[i+1]; j++) {
             if (view[j] != impl_scalar_t(2 * gid)) lerr++;
-          } 
+          }
         },
         checkDeviceModifiedValuesOnHostErrors);
       TEST_EQUALITY(checkDeviceModifiedValuesOnHostErrors, 0);
@@ -199,7 +199,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(CrsMatrix, localValues, LO, GO, Scalar, Node)
     {
       auto view = mat->getLocalValuesHost(Tpetra::Access::ReadWrite);
       Kokkos::parallel_for(
-        "modifyValuesOnHost", 
+        "modifyValuesOnHost",
         host_range_policy(0, mat->getLocalNumEntries()),
         [&] (const LO i) { view[i] *= 2; }
         );
@@ -211,13 +211,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(CrsMatrix, localValues, LO, GO, Scalar, Node)
       auto view = mat->getLocalValuesDevice(Tpetra::Access::ReadOnly);
       auto lclMap = mat->getRowMap()->getLocalMap();
       Kokkos::parallel_reduce(
-        "checkHostModifiedValuesOnDevice", 
+        "checkHostModifiedValuesOnDevice",
         dev_range_policy(0, mat->getLocalNumRows()),
         KOKKOS_LAMBDA (const LO i, int &lerr) {
           GO gid = lclMap.getGlobalElement(i);
           for (size_t j = offs[i]; j < offs[i+1]; j++) {
             if (view[j] != impl_scalar_t(4 * gid)) lerr++;
-          } 
+          }
         },
         checkHostModifiedValuesOnDeviceErrors);
       TEST_EQUALITY(checkHostModifiedValuesOnDeviceErrors, 0);
@@ -229,7 +229,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(CrsMatrix, localValues, LO, GO, Scalar, Node)
     {
       auto view = mat->getLocalValuesDevice(Tpetra::Access::OverwriteAll);
       Kokkos::parallel_for(
-        "overwriteValuesOnDevice", 
+        "overwriteValuesOnDevice",
         dev_range_policy(0, mat->getLocalNumEntries()),
         KOKKOS_LAMBDA (const LO i) { view[i] = me; }
         );
@@ -239,7 +239,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(CrsMatrix, localValues, LO, GO, Scalar, Node)
       int checkDeviceOverwrittenValuesOnHostErrors = 0;
       auto view = mat->getLocalValuesHost(Tpetra::Access::ReadOnly);
       Kokkos::parallel_reduce(
-        "checkDeviceOverwrittenValuesOnHost", 
+        "checkDeviceOverwrittenValuesOnHost",
         host_range_policy(0, mat->getLocalNumEntries()),
         [&] (const LO i, int &lerr) {
           if (view[i] != impl_scalar_t(me)) lerr++;
@@ -254,7 +254,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(CrsMatrix, localValues, LO, GO, Scalar, Node)
     {
       auto view = mat->getLocalValuesHost(Tpetra::Access::OverwriteAll);
       Kokkos::parallel_for(
-        "overwriteValuesOnHost", 
+        "overwriteValuesOnHost",
         host_range_policy(0, mat->getLocalNumEntries()),
         [&] (const LO i) { view[i] = np; }
         );
@@ -263,7 +263,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(CrsMatrix, localValues, LO, GO, Scalar, Node)
       int checkHostOverwrittenValuesOnDeviceErrors = 0;
       auto view = mat->getLocalValuesDevice(Tpetra::Access::ReadOnly);
       Kokkos::parallel_reduce(
-        "checkHostOverwrittenValuesOnDevice", 
+        "checkHostOverwrittenValuesOnDevice",
         dev_range_policy(0, mat->getLocalNumEntries()),
         KOKKOS_LAMBDA (const LO i, int &lerr) {
           if (view[i] != impl_scalar_t(np)) lerr++;
@@ -279,7 +279,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(CrsMatrix, copyOrView, LO, GO, Scalar, Node)
   // Test CrsMatrix constructor that accepts Teuchos' copyOrView argument
   auto comm = Tpetra::getDefaultComm();
 
-  using host_range_policy = 
+  using host_range_policy =
         Kokkos::RangePolicy<Kokkos::HostSpace::execution_space, LO>;
 
   using matrix_t = Tpetra::CrsMatrix<Scalar,LO,GO,Node>;
@@ -287,7 +287,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(CrsMatrix, copyOrView, LO, GO, Scalar, Node)
   origMat->setAllToScalar(1965);
 
   {
-    // Create a deep copy, change its values, and 
+    // Create a deep copy, change its values, and
     // confirm that the matrices have different values
     matrix_t copyMat(*origMat, Teuchos::Copy);
 
@@ -305,7 +305,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(CrsMatrix, copyOrView, LO, GO, Scalar, Node)
   }
 
   {
-    // Create a view copy, change its values, and 
+    // Create a view copy, change its values, and
     // confirm that the matrices have different values
     matrix_t viewMat(*origMat, Teuchos::View);
 
@@ -329,7 +329,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(CrsMatrix, copyOrView, LO, GO, Scalar, Node)
 
 #define UNIT_TEST_GROUP( SCALAR, LO, GO, NODE ) \
       TEUCHOS_UNIT_TEST_TEMPLATE_4_INSTANT( CrsMatrix, localValues, LO, GO, SCALAR, NODE ) \
-      TEUCHOS_UNIT_TEST_TEMPLATE_4_INSTANT( CrsMatrix, copyOrView, LO, GO, SCALAR, NODE ) 
+      TEUCHOS_UNIT_TEST_TEMPLATE_4_INSTANT( CrsMatrix, copyOrView, LO, GO, SCALAR, NODE )
 
   TPETRA_ETI_MANGLING_TYPEDEFS()
 

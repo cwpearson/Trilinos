@@ -290,7 +290,7 @@ checkImportValidity (const Tpetra::Import<LocalOrdinal,GlobalOrdinal,Node>& Impo
     }
   }
 
- // Zeroth order test: Remote *** GID *** and Export **GID**'s should be disjoint.  
+ // Zeroth order test: Remote *** GID *** and Export **GID**'s should be disjoint.
   for( auto &&rgid : remoteGIDs) {
     if(std::find(exportGIDs.begin(),exportGIDs.end(),rgid) != exportGIDs.end()) {
         is_valid = false;
@@ -303,13 +303,13 @@ checkImportValidity (const Tpetra::Import<LocalOrdinal,GlobalOrdinal,Node>& Impo
     // Get the (source) owner.
     // Abuse reductions to make up for the fact we don't know the owner is.
     // NOTE: If nobody owns this guy, it we'll get -1.
-    LocalOrdinal slid = source->getLocalElement(i);    
+    LocalOrdinal slid = source->getLocalElement(i);
     if(slid == LO_INVALID) TempPID = -1;
     else TempPID = MyPID;
     Teuchos::reduceAll<int, int> (*comm, Teuchos::REDUCE_MAX,TempPID, Teuchos::outArg(OwningPID));
 
     // Check to see if I have this guy in the target.  If so, make sure I am receiving him from the owner
-    LocalOrdinal tlid = target->getLocalElement(i);    
+    LocalOrdinal tlid = target->getLocalElement(i);
 
     if(tlid != LO_INVALID) {
       // This guy is in my target map, now to check if I'm receiving him from the owner (which I now know)
@@ -328,7 +328,7 @@ checkImportValidity (const Tpetra::Import<LocalOrdinal,GlobalOrdinal,Node>& Impo
 	  // Check permutes
 	  for (size_t j=0; j<(size_t)permuteTarget.size(); j++) {
 	    if(tlid == permuteTarget[j]) {
-	      is_ok=true; 
+	      is_ok=true;
 	      break;
 	    }
 	  }
@@ -341,7 +341,7 @@ checkImportValidity (const Tpetra::Import<LocalOrdinal,GlobalOrdinal,Node>& Impo
 	  if(i == remoteGIDs[j]) {
 	    // No double hits please
 	    if(already_hit) {
-	      is_ok=false; 
+	      is_ok=false;
 	      break;
 	    }
 	    // GID's match:  Do procs?
@@ -369,8 +369,8 @@ checkImportValidity (const Tpetra::Import<LocalOrdinal,GlobalOrdinal,Node>& Impo
   for(GlobalOrdinal i=minTargetGID; i<maxTargetGID; i++) {
 
     // If I have the target guy, set the proc mask
-    LocalOrdinal tlid = target->getLocalElement(i);    
-    LocalOrdinal slid = source->getLocalElement(i);    
+    LocalOrdinal tlid = target->getLocalElement(i);
+    LocalOrdinal slid = source->getLocalElement(i);
 
     if(tlid==LO_INVALID) local_proc_mask[MyPID] = 0;
     else local_proc_mask[MyPID] = 1;
@@ -390,7 +390,7 @@ checkImportValidity (const Tpetra::Import<LocalOrdinal,GlobalOrdinal,Node>& Impo
 	    if (exportPIDs[k] == j && source->getGlobalElement(exportLIDs[k]) == i) {
 	    // No double hits please
 	    if(already_hit) {
-	      is_ok=false; 
+	      is_ok=false;
 	      break;
 	    }
 	    else {
@@ -408,7 +408,7 @@ checkImportValidity (const Tpetra::Import<LocalOrdinal,GlobalOrdinal,Node>& Impo
     }
   }
 
-  // cbl check that for each of my remote GIDs I receive a corresponding export id. 
+  // cbl check that for each of my remote GIDs I receive a corresponding export id.
 
   Teuchos::Array<int> proc_num_exports_recv(NumProcs,0);
 
@@ -428,7 +428,7 @@ checkImportValidity (const Tpetra::Import<LocalOrdinal,GlobalOrdinal,Node>& Impo
     Teuchos::reduceAll<int,int>(*comm,Teuchos::REDUCE_MAX,NumProcs, &myexppid[0],&yourexppid[0]);
     for(int p=0;p<NumProcs;++p) { // check one to one and onto
       GlobalOrdinal cgid = yourexpgid[p];
-      // ignore -2's. 
+      // ignore -2's.
       if(cgid == -2) continue;
       if(cgid < 0) {
         os<<MyPID<<" ERROR4: received exportGID is invalid "<<cgid<<std::endl;

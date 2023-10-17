@@ -339,7 +339,7 @@ void localResidual(const CrsMatrix<SC,LO,GO,NO> &  A,
        std::runtime_error, "X, Y and R may not alias one another.");
   }
 
-  SC one = Teuchos::ScalarTraits<SC>::one(), negone = -one, zero = Teuchos::ScalarTraits<SC>::zero();    
+  SC one = Teuchos::ScalarTraits<SC>::one(), negone = -one, zero = Teuchos::ScalarTraits<SC>::zero();
 #ifdef TPETRA_DETAILS_USE_REFERENCE_RESIDUAL
   // This is currently a "reference implementation" waiting until Kokkos Kernels provides
   // a residual kernel.
@@ -575,7 +575,7 @@ void localResidualWithCommCompOverlap(const CrsMatrix<SC,LO,GO,NO> &  A,
 }
 
 
-//! Computes R = B - A * X 
+//! Computes R = B - A * X
 template<class SC, class LO, class GO, class NO>
 void residual(const Operator<SC,LO,GO,NO> &   Aop,
               const MultiVector<SC,LO,GO,NO> & X_in,
@@ -603,7 +603,7 @@ void residual(const Operator<SC,LO,GO,NO> &   Aop,
   const CrsMatrix<SC,LO,GO,NO> * Apt  = dynamic_cast<const CrsMatrix<SC,LO,GO,NO>*>(&Aop);
   if(!Apt) {
     // If we're not a CrsMatrix, we can't do fusion, so just do apply+update
-     SC one = Teuchos::ScalarTraits<SC>::one(), negone = -one, zero = Teuchos::ScalarTraits<SC>::zero();    
+     SC one = Teuchos::ScalarTraits<SC>::one(), negone = -one, zero = Teuchos::ScalarTraits<SC>::zero();
      Aop.apply(X_in,R_in,Teuchos::NO_TRANS, one, zero);
      R_in.update(one,B_in,negone);
      return;
@@ -620,7 +620,7 @@ void residual(const Operator<SC,LO,GO,NO> &   Aop,
   const bool R_is_replicated =
     (! R_in.isDistributed () && A.getComm ()->getSize () != 1);
 
-  // It's possible that R is a view of X or B.  
+  // It's possible that R is a view of X or B.
   // We don't try to to detect the more subtle cases (e.g., one is a
   // subview of the other, but their initial pointers differ).  We
   // only need to do this if this matrix's Import is trivial;
@@ -676,7 +676,7 @@ void residual(const Operator<SC,LO,GO,NO> &   Aop,
   if (restrictedMode)
     A.getCrsGraph()->getLocalOffRankOffsets(offsets);
 
-  // Get a vector for the R_rowMap output residual, handling the 
+  // Get a vector for the R_rowMap output residual, handling the
   // non-constant stride and exporter cases.  Since R gets clobbered
   // we don't need to worry about the data in it
   RCP<MV> R_rowMap;
@@ -689,15 +689,15 @@ void residual(const Operator<SC,LO,GO,NO> &   Aop,
     }
   }
   else {
-    R_rowMap = A.getRowMapMultiVector (R_in);    
+    R_rowMap = A.getRowMapMultiVector (R_in);
   }
 
-  // Get a vector for the B_rowMap output residual, handling the 
+  // Get a vector for the B_rowMap output residual, handling the
   // non-constant stride and exporter cases
   RCP<const MV> B_rowMap;
   if(exporter.is_null()) {
     if (! B_in.isConstantStride ()) {
-      // Do an allocation here.  If we need to optimize this later, we can have the matrix 
+      // Do an allocation here.  If we need to optimize this later, we can have the matrix
       // cache this.
       RCP<MV> B_rowMapNonConst = rcp(new MV(A.getRowMap(),B_in.getNumVectors()));
       Tpetra::deep_copy (*B_rowMapNonConst, B_in);
@@ -708,7 +708,7 @@ void residual(const Operator<SC,LO,GO,NO> &   Aop,
     }
   }
   else {
-    // Do an allocation here.  If we need to optimize this later, we can have the matrix 
+    // Do an allocation here.  If we need to optimize this later, we can have the matrix
     // cache this.
     ProfilingRegion regionExport ("Tpetra::CrsMatrix::residual: B Import");
     RCP<MV> B_rowMapNonConst = rcp(new MV(A.getRowMap(),B_in.getNumVectors()));
@@ -764,7 +764,7 @@ void residual(const Operator<SC,LO,GO,NO> &   Aop,
   }
 
   // If the range Map is a locally replicated Map, sum up
-  // contributions from each process. 
+  // contributions from each process.
   if (R_is_replicated) {
     ProfilingRegion regionReduce ("Tpetra::CrsMatrix::residual: Reduce Y");
     R_in.reduce ();

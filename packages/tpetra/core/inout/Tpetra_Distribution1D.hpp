@@ -41,7 +41,7 @@
 
 //  1D Row-based Distribution class
 //  Assumes square matrix
-//  Karen Devine, SNL 
+//  Karen Devine, SNL
 //
 
 #ifndef __TPETRA_DISTRIBUTION1D_HPP
@@ -68,7 +68,7 @@ public:
   using Distribution<gno_t,scalar_t>::Mine;
 
   Distribution1D(size_t nrows_,
-                 const Teuchos::RCP<const Teuchos::Comm<int> > &comm_, 
+                 const Teuchos::RCP<const Teuchos::Comm<int> > &comm_,
                  const Teuchos::ParameterList &params) :
                  Distribution<gno_t,scalar_t>(nrows_, comm_, params)
   {
@@ -87,7 +87,7 @@ public:
   }
 
   // Return whether this rank owns vector entry i.
-  virtual bool VecMine(gno_t i) = 0; 
+  virtual bool VecMine(gno_t i) = 0;
 
   // Return whether this rank owns nonzero (i,j)
   // Vector map and row map are the same in 1D distribution.
@@ -105,7 +105,7 @@ public:
   using Distribution<gno_t,scalar_t>::nrows;
 
   Distribution1DLinear(size_t nrows_,
-                       const Teuchos::RCP<const Teuchos::Comm<int> > &comm_, 
+                       const Teuchos::RCP<const Teuchos::Comm<int> > &comm_,
                        const Teuchos::ParameterList &params) :
                        Distribution1D<gno_t,scalar_t>(nrows_, comm_, params)
   {
@@ -122,16 +122,16 @@ private:
   gno_t myFirstRow;
   gno_t myLastRow;
 
-  inline size_t getNumRow(int p) { 
-    return (nrows / np + (int(nrows % np) > p)); 
+  inline size_t getNumRow(int p) {
+    return (nrows / np + (int(nrows % np) > p));
   }
 
-  inline gno_t getFirstRow(int p) { 
+  inline gno_t getFirstRow(int p) {
     return (p * (nrows / np) + std::min<int>(int(nrows % np), p));
   }
 
 // DistributionLowerTriangularBlock class needs a 1DLinear distribution
-friend class DistributionLowerTriangularBlock<gno_t,scalar_t>;  
+friend class DistributionLowerTriangularBlock<gno_t,scalar_t>;
 
 };
 
@@ -144,9 +144,9 @@ public:
   using Distribution<gno_t,scalar_t>::me;
 
   Distribution1DRandom(size_t nrows_,
-                       const Teuchos::RCP<const Teuchos::Comm<int> > &comm_, 
+                       const Teuchos::RCP<const Teuchos::Comm<int> > &comm_,
                        const Teuchos::ParameterList &params) :
-                       Distribution1D<gno_t,scalar_t>(nrows_, comm_, params) 
+                       Distribution1D<gno_t,scalar_t>(nrows_, comm_, params)
   { if (me == 0) std::cout << "    randomize = true" << std::endl; }
 
   inline enum DistributionType DistType() { return OneDRandom; }
@@ -161,8 +161,8 @@ class Distribution1DVec : public Distribution1D<gno_t,scalar_t> {
 // vector entries, as read from a file.
 //
 // Assumptions include:
-// -  Distribution file containing the vector part assignments (N lines) 
-//    is provided.  This file is read during the constructor.  
+// -  Distribution file containing the vector part assignments (N lines)
+//    is provided.  This file is read during the constructor.
 //    Format for an NxN matrix:
 //        line 1 to N:  0-based part assignment of vector entry
 
@@ -174,7 +174,7 @@ public:
   using Distribution<gno_t,scalar_t>::Mine;
 
   Distribution1DVec(size_t nrows_,
-                    const Teuchos::RCP<const Teuchos::Comm<int> > &comm_, 
+                    const Teuchos::RCP<const Teuchos::Comm<int> > &comm_,
                     const Teuchos::ParameterList &params,
                     std::string &distributionfile) :
                     Distribution1D<gno_t,scalar_t>(nrows_, comm_, params)
@@ -183,7 +183,7 @@ public:
     if (me == 0) {
       fpin.open(distributionfile.c_str(), std::ios::in);
       if (!fpin.is_open()) {
-        std::cout << "Error:  distributionfile " << distributionfile 
+        std::cout << "Error:  distributionfile " << distributionfile
              << " not found" << std::endl;
         exit(-1);
       }
@@ -191,7 +191,7 @@ public:
 
     // Read the vector part assignment and broadcast it to all processes.
     // Broadcast in chunks of bcastsize values.
-    // TODO:  Make the vector part assignment more scalable instead of 
+    // TODO:  Make the vector part assignment more scalable instead of
     // TODO:  storing entire vector on every process.
 
     vecpart = new int[nrows];

@@ -43,7 +43,7 @@
 #include <Tpetra_CrsMatrix.hpp>
 #include <Tpetra_Core.hpp>
 #include <Tpetra_Util.hpp> // sort2
-#include <Tpetra_TestingUtilities.hpp> 
+#include <Tpetra_TestingUtilities.hpp>
 #include <Teuchos_UnitTestHarness.hpp>
 
 using Tpetra::global_size_t;

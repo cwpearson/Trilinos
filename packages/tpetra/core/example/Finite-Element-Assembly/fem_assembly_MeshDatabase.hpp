@@ -139,7 +139,7 @@ private:
 
   void initializeOwnedAndGhostElementGlobalIDs(void);
 
-  //wrapped dual views 
+  //wrapped dual views
   global_ordinal_view_type ownedElementGlobalIDs_;
   global_ordinal_view_type ghostElementGlobalIDs_;
 
@@ -287,7 +287,7 @@ MeshDatabase::MeshDatabase(Teuchos::RCP<const Teuchos::Comm<int> > comm,
 
   // Generate the list of "ghost" nodes (aka any node that exists on the ownedElement list that isn't owned
   std::set<global_ordinal_type> my_ghost_nodes;
-  auto ownedElementToNodeView = ownedElementToNode_.getHostView(Tpetra::Access::ReadOnly);  
+  auto ownedElementToNodeView = ownedElementToNode_.getHostView(Tpetra::Access::ReadOnly);
   for(size_t k=0; k<ownedElementToNodeView.extent(0); k++) {
     for(size_t l=0; l<ownedElementToNodeView.extent(1); l++) {
       global_ordinal_type nidx=ownedElementToNodeView(k,l);

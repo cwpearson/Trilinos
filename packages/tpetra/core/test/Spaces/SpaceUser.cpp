@@ -46,7 +46,7 @@
 #include <Tpetra_Core.hpp>
 #include <Tpetra_Details_ExecutionSpacesUser.hpp>
 
-/*! \file SpaceUser.cpp 
+/*! \file SpaceUser.cpp
     \brief Make sure SpaceUser compiles and doesn't crash
 */
 

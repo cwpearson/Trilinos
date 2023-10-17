@@ -137,7 +137,7 @@ private:
   /// This method computes numReceives_, lengthsFrom_, procsFrom_,
   /// totalReceiveLength_, indicesFrom_, and startsFrom_.
   ///
-  /// \note This method currently ignores the sendType_ 
+  /// \note This method currently ignores the sendType_
   ///   parameter, and always uses ireceive() /
   ///   send() for communication of the process IDs from which our
   ///   process is receiving and their corresponding receive packet

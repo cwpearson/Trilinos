@@ -611,7 +611,7 @@ public:
 
 
   /// Get KokkosSparce::Experimental::BsrMatrix representation
-  /// of this BlockCrsMatrix 
+  /// of this BlockCrsMatrix
   local_matrix_device_type getLocalMatrixDevice () const;
 
   /// \brief Whether this object had an error on the calling process.

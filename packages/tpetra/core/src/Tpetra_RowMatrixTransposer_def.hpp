@@ -294,8 +294,8 @@ createTransposeLocal (const Teuchos::RCP<Teuchos::ParameterList>& params)
   RCP<const bcrs_matrix_type> crsMatrix =
     rcp_dynamic_cast<const bcrs_matrix_type> (origMatrix_);
 
-  if(crsMatrix.is_null()) 
-    TEUCHOS_ASSERT( false ); // not implemented 
+  if(crsMatrix.is_null())
+    TEUCHOS_ASSERT( false ); // not implemented
 
   using local_matrix_device_type = typename bcrs_matrix_type::local_matrix_device_type;
 
@@ -304,7 +304,7 @@ createTransposeLocal (const Teuchos::RCP<Teuchos::ParameterList>& params)
   {
     local_matrix_device_type lclMatrix = crsMatrix->getLocalMatrixDevice ();
 
-    local_matrix_device_type lclTransposeMatrix = KokkosSparse::Impl::transpose_bsr_matrix(lclMatrix);    
+    local_matrix_device_type lclTransposeMatrix = KokkosSparse::Impl::transpose_bsr_matrix(lclMatrix);
 
     // BlockCrs requires that we sort stuff
     KokkosSparse::sort_crs_matrix(lclTransposeMatrix);
@@ -322,7 +322,7 @@ createTransposeLocal (const Teuchos::RCP<Teuchos::ParameterList>& params)
     RCP<Teuchos::ParameterList> graphParams = Teuchos::null;
 
     // Make the Transpose Graph
-    graph = rcp(new crs_graph_type(lclTransposeMatrix.graph,                                   
+    graph = rcp(new crs_graph_type(lclTransposeMatrix.graph,
                                    origMatrix_->getColMap (),
                                    origMatrix_->getRowMap (),
                                    origMatrix_->getGraph()->getRangeMap (),

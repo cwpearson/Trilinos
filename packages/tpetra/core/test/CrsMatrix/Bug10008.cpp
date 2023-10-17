@@ -135,7 +135,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(CrsMatrix, Bug10008, SC, LO, GO, NT)
 
 TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(CrsMatrix, Bug10008_1, SC, LO, GO, NT)
 {
-  // Demonstrate that importAndFillComplete fails for one-to-many 
+  // Demonstrate that importAndFillComplete fails for one-to-many
   // transfers (entire matrix initially on one rank, redistributed to all ranks)
 
   // matrix whose entries live on rank 0
@@ -148,7 +148,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(CrsMatrix, Bug10008_1, SC, LO, GO, NT)
   auto num_rows = proc_zero_map->getGlobalNumElements();
   Teuchos::RCP<const map_type> dist_map = Teuchos::rcp(new map_type(num_rows, 0, comm));
 
-  // Importer from one to many 
+  // Importer from one to many
   using import_type = Tpetra::Import<LO, GO, NT>;
   import_type importer(proc_zero_map, dist_map);
 

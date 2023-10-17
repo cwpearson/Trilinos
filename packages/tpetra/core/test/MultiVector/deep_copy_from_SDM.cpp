@@ -230,7 +230,7 @@ namespace { // (anonymous)
                 const LO subLclNumRows = lclNumRows-1;
                 const GO subGblNumRows = static_cast<GO> (comm->getSize ()) *
                   static_cast<GO> (lclNumRows-1);
-                RCP<const map_type> subMap = 
+                RCP<const map_type> subMap =
                   rcp (new map_type (subGblNumRows, subLclNumRows,
                                      indexBase, comm));
                  X = *(entireX.offsetView(subMap, 0));
@@ -245,12 +245,12 @@ namespace { // (anonymous)
 
               if (modify_MV_on_host) {
                 Kokkos::deep_copy (
-                        X.getLocalViewHost(Tpetra::Access::OverwriteAll), 
+                        X.getLocalViewHost(Tpetra::Access::OverwriteAll),
                         flagValue);
               }
               else {
                 Kokkos::deep_copy (
-                        X.getLocalViewDevice(Tpetra::Access::OverwriteAll), 
+                        X.getLocalViewDevice(Tpetra::Access::OverwriteAll),
                         flagValue);
               }
               Tpetra::deep_copy (X, Y);

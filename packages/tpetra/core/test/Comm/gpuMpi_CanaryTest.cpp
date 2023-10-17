@@ -41,7 +41,7 @@
 // @HEADER
 */
 
-// This test exercises MPI on CUDA platforms, without any interaction 
+// This test exercises MPI on CUDA platforms, without any interaction
 // with Trilinos.  If this test fails, there is likely something wrong
 // with the MPI installation on the CUDA platform.
 // See Trilinos github issue #3405 and related test cudaAwareMpi.cpp
@@ -52,7 +52,7 @@
 #include <mpi.h>
 
 // This is not a Tpetra-based test, so I regret the Tpetra header file.
-// But since Tpetra allows Tpetra_ASSUME_MPI_IS_GPU_AWARE to be set 
+// But since Tpetra allows Tpetra_ASSUME_MPI_IS_GPU_AWARE to be set
 // either as a Cmake option or as an environment variable, it is easiest
 // to use Tpetra's mechanism to extract the value.
 #include "Tpetra_Details_Behavior.hpp"
@@ -81,18 +81,18 @@ int main(int narg, char **arg)
   int myRank;    MPI_Comm_rank(MPI_COMM_WORLD, &myRank);
   int numProcs;  MPI_Comm_size(MPI_COMM_WORLD, &numProcs);
 
-  int lclSuccess = 1; 
-  int gblSuccess = 0; 
+  int lclSuccess = 1;
+  int gblSuccess = 0;
   int nfailures = 0;
 
   if (myRank == 0)
-    std::cout << "Testing GPU-awareness of the MPI implementation" 
+    std::cout << "Testing GPU-awareness of the MPI implementation"
               << std::endl;
 
   if (!Tpetra::Details::Behavior::assumeMpiIsGPUAware()) {
     // MPI is not CUDA aware, so there is nothing to test here.
     // Declare success and go home
-    if (myRank == 0) 
+    if (myRank == 0)
       std::cout << "PASS:  Not using GPU-aware MPI; no need to run tests."
                 << std::endl;
     MPI_Finalize();
@@ -100,7 +100,7 @@ int main(int narg, char **arg)
   }
 
   if (myRank == 0) {
-    std::cout << "GPU-aware MPI is detected; beginning to run tests." 
+    std::cout << "GPU-aware MPI is detected; beginning to run tests."
               << std::endl;
     if (numProcs < 2)
       std::cout << "This test is more meaningful if run with at least 2 MPI "
@@ -125,7 +125,7 @@ int main(int narg, char **arg)
     const int correctValue = 1;
     const int flagValue = -1;
 
-    //We exercise only the first two processes. 
+    //We exercise only the first two processes.
 
     if (myRank == 0) { // sending process
 
@@ -136,7 +136,7 @@ int main(int narg, char **arg)
 
       std::cout << "     " << myRank << " Send " << std::endl;
       MPI_Request sendReq;
-      MPI_Isend(sendBuf, length, MPI_INT, tgtRank, msgTag, 
+      MPI_Isend(sendBuf, length, MPI_INT, tgtRank, msgTag,
                 MPI_COMM_WORLD, &sendReq);
 
       std::cout << "     " << myRank << " Wait " << std::endl;
@@ -152,7 +152,7 @@ int main(int narg, char **arg)
 
       std::cout << "     " << myRank << " Recv " << std::endl;
       MPI_Request recvReq;
-      MPI_Irecv(recvBuf, length, MPI_INT, srcRank, msgTag, 
+      MPI_Irecv(recvBuf, length, MPI_INT, srcRank, msgTag,
                 MPI_COMM_WORLD, &recvReq);
 
       std::cout << "     " << myRank << " Wait " << std::endl;
@@ -170,14 +170,14 @@ int main(int narg, char **arg)
       }
     }
 
-    gblSuccess = 0; 
+    gblSuccess = 0;
     MPI_Allreduce(&lclSuccess, &gblSuccess, 1, MPI_INT, MPI_MIN,MPI_COMM_WORLD);
     if (gblSuccess != 1) {
       if (myRank == 0)
         std::cout << "Neighbor test failed on some process!" << std::endl;
       nfailures++;
     }
-    else 
+    else
       if (myRank == 0)
         std::cout << "Neighbor test succeeded on all processes!" << std::endl;
   }
@@ -204,9 +204,9 @@ int main(int narg, char **arg)
 
     std::cout << "     " << myRank << " Send/Recv " << std::endl;
     MPI_Request recvReq, sendReq;
-    MPI_Irecv(recvBuf, 1, MPI_INT, srcRank, msgTag, 
+    MPI_Irecv(recvBuf, 1, MPI_INT, srcRank, msgTag,
               MPI_COMM_WORLD, &recvReq);
-    MPI_Isend(sendBuf, 1, MPI_INT, tgtRank, msgTag, 
+    MPI_Isend(sendBuf, 1, MPI_INT, tgtRank, msgTag,
               MPI_COMM_WORLD, &sendReq);
 
     std::cout << "     " << myRank << " Wait " << std::endl;
@@ -225,7 +225,7 @@ int main(int narg, char **arg)
     }
 
     // Make sure that everybody finished and got the right answer.
-    gblSuccess = 0; 
+    gblSuccess = 0;
     MPI_Allreduce(&lclSuccess, &gblSuccess, 1, MPI_INT, MPI_MIN,MPI_COMM_WORLD);
 
     if (gblSuccess != 1) {
@@ -235,12 +235,12 @@ int main(int narg, char **arg)
     }
     else
       if (myRank == 0)
-        std::cout << "Self-message test succeeded on all processes!" 
+        std::cout << "Self-message test succeeded on all processes!"
                   << std::endl;
   }
 
   if (myRank == 0) {
-    if (nfailures > 0) 
+    if (nfailures > 0)
       std::cout << "FAIL:  nfailures = " << nfailures << std::endl;
     else
       std::cout << "PASS" << std::endl;

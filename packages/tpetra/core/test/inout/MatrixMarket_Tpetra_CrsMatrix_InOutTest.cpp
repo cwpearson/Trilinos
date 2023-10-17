@@ -620,8 +620,8 @@ testCrsMatrixPerFile (Teuchos::FancyOStream& out, const GlobalOrdinalType indexB
 
 
   // We'll add the number of total MPI ranks to the suffix
-  // so if ctest runs multiple jobs w/ different num procs at 
-  // the same time, they won't clash   
+  // so if ctest runs multiple jobs w/ different num procs at
+  // the same time, they won't clash
   std::string prefix = "outfile_";
   std::string suffix = std::string("_") + std::to_string(comm->getSize());
 
@@ -688,8 +688,8 @@ testCrsMatrixPerFileNonContiguous (Teuchos::FancyOStream& out, const GlobalOrdin
   A_orig->describe(out, Teuchos::VERB_EXTREME);
 
   // We'll add the number of total MPI ranks to the suffix
-  // so if ctest runs multiple jobs w/ different num procs at 
-  // the same time, they won't clash   
+  // so if ctest runs multiple jobs w/ different num procs at
+  // the same time, they won't clash
   std::string prefix = "outfile_";
   std::string suffix = std::string("_") + std::to_string(comm->getSize());
 
@@ -773,7 +773,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL( CrsMatrixPerFileNonContiguous, IndexBase1, ST
   TEUCHOS_UNIT_TEST_TEMPLATE_4_INSTANT( CrsMatrixPerFile, IndexBase0, double, LO, GO, NODE ) \
   TEUCHOS_UNIT_TEST_TEMPLATE_4_INSTANT( CrsMatrixPerFile, IndexBase1, double, LO, GO, NODE ) \
   TEUCHOS_UNIT_TEST_TEMPLATE_4_INSTANT( CrsMatrixPerFileNonContiguous, IndexBase0, double, LO, GO, NODE ) \
-  TEUCHOS_UNIT_TEST_TEMPLATE_4_INSTANT( CrsMatrixPerFileNonContiguous, IndexBase1, double, LO, GO, NODE ) 
+  TEUCHOS_UNIT_TEST_TEMPLATE_4_INSTANT( CrsMatrixPerFileNonContiguous, IndexBase1, double, LO, GO, NODE )
 
 #elif defined(HAVE_TPETRA_INST_FLOAT)
 #  define UNIT_TEST_GROUP( LO, GO, NODE ) \
@@ -782,7 +782,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL( CrsMatrixPerFileNonContiguous, IndexBase1, ST
   TEUCHOS_UNIT_TEST_TEMPLATE_4_INSTANT( CrsMatrixPerFile, IndexBase0, float, LO, GO, NODE ) \
   TEUCHOS_UNIT_TEST_TEMPLATE_4_INSTANT( CrsMatrixPerFile, IndexBase1, float, LO, GO, NODE ) \
   TEUCHOS_UNIT_TEST_TEMPLATE_4_INSTANT( CrsMatrixPerFileNonContiguous, IndexBase0, float, LO, GO, NODE ) \
-  TEUCHOS_UNIT_TEST_TEMPLATE_4_INSTANT( CrsMatrixPerFileNonContiguous, IndexBase1, float, LO, GO, NODE ) 
+  TEUCHOS_UNIT_TEST_TEMPLATE_4_INSTANT( CrsMatrixPerFileNonContiguous, IndexBase1, float, LO, GO, NODE )
 #else
 #  define UNIT_TEST_GROUP( LO, GO, NODE )
 #endif

@@ -274,7 +274,7 @@ namespace {
           // Whether (x,y) are (input,output) or vice versa depends on
           // whether we are exercising the transpose.
           if (isTrans) {
-            KokkosBlas::gemv(&trans, alpha, A, y, beta, x); 
+            KokkosBlas::gemv(&trans, alpha, A, y, beta, x);
             teuchosBlas.GEMV (teuchosTrans, numRows, numCols, alpha,
                               reinterpret_cast<const EntryType*> (A2.data ()),
                               A2_stride,
@@ -298,7 +298,7 @@ namespace {
             }
           }
           else {
-            KokkosBlas::gemv(&trans, alpha, A, x, beta, y); 
+            KokkosBlas::gemv(&trans, alpha, A, x, beta, y);
             teuchosBlas.GEMV (teuchosTrans, numRows, numCols, alpha,
                               reinterpret_cast<const EntryType*> (A2.data ()),
                               A2_stride,

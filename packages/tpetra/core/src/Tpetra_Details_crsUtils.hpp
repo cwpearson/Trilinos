@@ -285,7 +285,7 @@ pad_crs_arrays(
     Kokkos::deep_copy(execution_space(), newAllocPerRow, newAllocPerRow_h);
   }
 
-  using inds_value_type = 
+  using inds_value_type =
         typename Indices::t_dev::non_const_value_type;
   using vals_value_type = typename Values::t_dev::non_const_value_type;
 
@@ -341,7 +341,7 @@ pad_crs_arrays(
             memcpy(newColInds.data(), oldColInds.data(),
                   numEnt * sizeof(inds_value_type));
             if (action == PadCrsAction::INDICES_AND_VALUES) {
-              auto oldVals = 
+              auto oldVals =
                   Kokkos::subview(values_old, oldRange);
               auto newVals = Kokkos::subview(values_new, newRange);
               memcpy(newVals.data(), oldVals.data(),
@@ -357,7 +357,7 @@ pad_crs_arrays(
         newRowBeg += newRowAllocSize;
       });
 
-    if (verbose) 
+    if (verbose)
     {
       std::ostringstream os;
 
@@ -440,7 +440,7 @@ insert_crs_indices(
   size_t numIndicesLookup = num_assigned + num_new_indices;
 
   // Threshold determined from test/Utils/insertCrsIndicesThreshold.cpp
-  const size_t useLookUpTableThreshold = 400; 
+  const size_t useLookUpTableThreshold = 400;
 
   if (numIndicesLookup <= useLookUpTableThreshold || num_new_indices == 1) {
     // For rows with few nonzeros, can use a serial search to find duplicates
@@ -520,7 +520,7 @@ find_crs_indices(
   if (new_indices.size() == 0)
     return 0;
 
-  using ordinal = 
+  using ordinal =
         typename std::remove_const<typename Indices1::value_type>::type;
   auto invalid_ordinal = Teuchos::OrdinalTraits<ordinal>::invalid();
 
@@ -577,8 +577,8 @@ padCrsArrays(
 {
   using impl::pad_crs_arrays;
   // send empty values array
-  Indices values_null; 
-  pad_crs_arrays<RowPtr, Indices, Indices, Padding>( 
+  Indices values_null;
+  pad_crs_arrays<RowPtr, Indices, Indices, Padding>(
     impl::PadCrsAction::INDICES_ONLY, rowPtrBeg, rowPtrEnd,
     indices_wdv, values_null, padding, my_rank, verbose);
 }

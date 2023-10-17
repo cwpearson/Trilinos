@@ -145,7 +145,7 @@ createLaplace1D (const Teuchos::RCP<const Tpetra::Map<LocalOrdinalType, GlobalOr
   // Make_the column map
   int size = numRows;
   if(rank !=0) size++;
-  if(rank !=numProcs-1) size++; 
+  if(rank !=numProcs-1) size++;
   Teuchos::Array<GO> col_ids(size);
   for(LO i=0; i<(LO)numRows; i++)
     col_ids[i] = rowMap->getGlobalElement(i);
@@ -170,7 +170,7 @@ createLaplace1D (const Teuchos::RCP<const Tpetra::Map<LocalOrdinalType, GlobalOr
   }
   else {
     final_row_length = 2;
-    nnz--;    
+    nnz--;
   }
 
   RCP<const map_type> colMap = rcp(new map_type(GO_INVALID,col_ids(),rowMap->getIndexBase(),comm));
@@ -182,7 +182,7 @@ createLaplace1D (const Teuchos::RCP<const Tpetra::Map<LocalOrdinalType, GlobalOr
   typename LMT::index_type::non_const_type   colind("colind",nnz);
   typename LMT::row_map_type::non_const_type rowptr("rowptr",numRows+1);
 
-  Kokkos::parallel_for("matrix fill", numRows,KOKKOS_LAMBDA(const LO& row) {     
+  Kokkos::parallel_for("matrix fill", numRows,KOKKOS_LAMBDA(const LO& row) {
       if(row == 0) {
         // First row on proc
         LO row_start = 0;
@@ -201,7 +201,7 @@ createLaplace1D (const Teuchos::RCP<const Tpetra::Map<LocalOrdinalType, GlobalOr
           colind[row_start+2] = row+1;
           values[row_start  ] = -ONE;
           values[row_start+1] =  TWO;
-          values[row_start+2] = -ONE;        
+          values[row_start+2] = -ONE;
         }
       }
       else if (row == (LO)numRows -1) {
@@ -222,7 +222,7 @@ createLaplace1D (const Teuchos::RCP<const Tpetra::Map<LocalOrdinalType, GlobalOr
           colind[row_start+2] = numRows;
           values[row_start  ] = -ONE;
           values[row_start+1] =  TWO;
-          values[row_start+2] = -ONE;        
+          values[row_start+2] = -ONE;
         }
       }
       else {
@@ -235,8 +235,8 @@ createLaplace1D (const Teuchos::RCP<const Tpetra::Map<LocalOrdinalType, GlobalOr
         colind[row_start+2] = row+1;
         values[row_start  ] = -ONE;
         values[row_start+1] =  TWO;
-        values[row_start+2] = -ONE;        
-      }    
+        values[row_start+2] = -ONE;
+      }
     });
 
   // Put matrix together
@@ -353,7 +353,7 @@ compareCrsMatrix (const CrsMatrixType& A_orig, const CrsMatrixType& A)
 // return current memory usage in kilobytes
 size_t get_memory_usage_now()
 {
-  size_t memory = 0; 
+  size_t memory = 0;
 
 
 #ifdef PROC_STAT
@@ -375,7 +375,7 @@ size_t get_memory_usage_now()
   }
   memory = rss_pages * sysconf( _SC_PAGESIZE);
 
-#else  
+#else
   // darwin reports rusage.ru_maxrss in bytes
 #if defined(__APPLE__) || defined(__MACH__)
 #define RU_MAXRSS_UNITS 1024
@@ -386,7 +386,7 @@ size_t get_memory_usage_now()
   struct rusage sys_resources;
   getrusage(RUSAGE_SELF, &sys_resources);
   memory = (unsigned long)sys_resources.ru_maxrss / RU_MAXRSS_UNITS;
-#endif  
+#endif
 
 
   /* Success */
@@ -436,7 +436,7 @@ RCP<crs_matrix_type> Filter(const RCP<crs_matrix_type> & A,const RCP<const map_t
       if(col != LO_INVALID) {
         B->insertLocalValues(frow,1,&values[j],&col);
       }
-    }   
+    }
   }
   B->fillComplete(rowMap,rowMap);
 
@@ -495,7 +495,7 @@ RCP<crs_matrix_type> Filter(const RCP<crs_matrix_type> & A,const RCP<const map_t
     // 3) Import-and-FillComplete code
     // NOTE: This will *NOT* generate the same matrix because we're not specifying the column map
     // This is here only for memory use comparisons
-    if(run_case == -1 || run_case == 3 || run_case == 5) 
+    if(run_case == -1 || run_case == 3 || run_case == 5)
       outputMatrix3 = Tpetra::importAndFillCompleteCrsMatrix<crs_matrix_type>(A,Importer,rowMap1to1,rowMap1to1);
 
     size_t mem4 = get_memory_usage_now();
@@ -507,18 +507,18 @@ RCP<crs_matrix_type> Filter(const RCP<crs_matrix_type> & A,const RCP<const map_t
 
 
     // 5) Locally filtered matrix
-    if(run_case == -1 || run_case == 5)     
-      outputMatrix5 = Filter(outputMatrix3,regionMap);   
+    if(run_case == -1 || run_case == 5)
+      outputMatrix5 = Filter(outputMatrix3,regionMap);
     size_t mem6 = get_memory_usage_now();
 
 
     // 6) Import-based GDSW style, V2
-    if(run_case == -1 || run_case == 6) 
+    if(run_case == -1 || run_case == 6)
       tFunctions.importSquareMatrixFromImporter2(A, Teuchos::rcpFromRef(Importer), outputMatrix6);
     size_t mem7 = get_memory_usage_now();
 
     // 7) Import-based GDSW style, V3
-    if(run_case == -1 || run_case == 7) 
+    if(run_case == -1 || run_case == 7)
       tFunctions.importSquareMatrixFromImporter3(A, Teuchos::rcpFromRef(Importer), outputMatrix7);
     size_t mem8 = get_memory_usage_now();
 
@@ -595,7 +595,7 @@ RCP<crs_matrix_type> Filter(const RCP<crs_matrix_type> & A,const RCP<const map_t
 
 
     // Compare the output matrices
-    if(run_case == -1) { 
+    if(run_case == -1) {
       result = compareCrsMatrix(*outputMatrix1,*outputMatrix4);
       if(!result) {
         out<<"*** Tpetra-based matrix ***"<<std::endl;
@@ -604,7 +604,7 @@ RCP<crs_matrix_type> Filter(const RCP<crs_matrix_type> & A,const RCP<const map_t
         outputMatrix4->describe(out,Teuchos::VERB_EXTREME);
       }
       TEST_EQUALITY( result, true );
-    }      
+    }
 
     // Compare the output matrices
     if(run_case == -1) {
@@ -660,12 +660,12 @@ RCP<crs_matrix_type> Filter(const RCP<crs_matrix_type> & A,const RCP<const map_t
   //
 
 
-int main(int narg, char *arg[]) 
+int main(int narg, char *arg[])
 {
   Tpetra::ScopeGuard scope(&narg, &arg);
   const Teuchos::RCP<const Teuchos::Comm<int> > comm = Tpetra::getDefaultComm();
 
-  using SC = Tpetra::Details::DefaultTypes::scalar_type; 
+  using SC = Tpetra::Details::DefaultTypes::scalar_type;
   using LO = Tpetra::Map<>::local_ordinal_type;
   using GO = Tpetra::Map<>::global_ordinal_type;
   using NT = Tpetra::Map<>::node_type;

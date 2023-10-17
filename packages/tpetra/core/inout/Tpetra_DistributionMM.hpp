@@ -41,27 +41,27 @@
 
 //  Build maps for 1D or 2D matrix distribution
 //  Assumes square matrix
-//  Karen Devine, SNL 
+//  Karen Devine, SNL
 //
 
 #ifndef __TPETRA_DISTRIBUTIONMM_HPP
 #define __TPETRA_DISTRIBUTIONMM_HPP
 
-namespace Tpetra 
+namespace Tpetra
 {
 
 template <typename gno_t, typename scalar_t>
 class DistributionMMFile : public Distribution<gno_t,scalar_t> {
-// Distribution of nonzeros is determined by nonzero's value 
+// Distribution of nonzeros is determined by nonzero's value
 // as read from Matrix-Market file.
 // Vector entry v_i is assigned to the same processor as matrix diagonal a_{ii}.
 // For now, we derive the vector entry assignment by accruing information
 // about the diagonal entries' assigments during calls to Mine(I,J,V).
 // A better scheme might read vector entries' assignments from a file as well,
-// or have a separate discovery of vector entries' assignments in the 
+// or have a separate discovery of vector entries' assignments in the
 // constructor.
 // Assumptions include:
-// -  If diagonal entries are needed (e.g., for a Laplacian), they are 
+// -  If diagonal entries are needed (e.g., for a Laplacian), they are
 //    included in the MMFile
 // -  Part assignments are one-based; that is (I,J,V) = (1,1,4) assigns
 //    (I,J) to process 3.
@@ -77,14 +77,14 @@ public:
                      const Teuchos::ParameterList &params) :
                      Distribution<gno_t,scalar_t>(nrows_, comm_, params)
   {
-    if (me == 0) std::cout << "\n MMFile Distribution: " 
+    if (me == 0) std::cout << "\n MMFile Distribution: "
                            << "\n     np     = " << np << std::endl;
   }
 
   inline enum DistributionType DistType() { return MMFile; }
 
   bool Mine(gno_t i, gno_t j) {
-    std::cout << "Invalid call to Mine(i,j); " 
+    std::cout << "Invalid call to Mine(i,j); "
          << "MMFile-distribution requires use of Mine(i,j,p) providing "
          << "process assignment p." << std::endl;
     exit(-1);
@@ -94,7 +94,7 @@ public:
     // Nonzero (i,j) is Mine if oneBasedRank-1 == me.
 
     if (oneBasedRank < 1 || oneBasedRank > np) {
-      std::cout << "Invalid rank " << oneBasedRank 
+      std::cout << "Invalid rank " << oneBasedRank
            << " provided in user distribution;  "
            << "rank must be in range 1 to " << np << std::endl;
       exit(-1);

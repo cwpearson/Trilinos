@@ -47,7 +47,7 @@
 #include "MatrixMarket_Tpetra.hpp"
 
 
-int main(int narg, char *arg[]) 
+int main(int narg, char *arg[])
 {
   // Create Tpetra scope (calls Kokkos::Initialize and Tpetra::Initialize
   Tpetra::ScopeGuard scope(&narg, &arg);
@@ -80,7 +80,7 @@ int main(int narg, char *arg[])
   cmdp.setOption("diagonal", &diagonal,
                  "How to manipulate the matrix diagonal entries, if necessary");
 
-  bool binary = false;  
+  bool binary = false;
   cmdp.setOption("binary", "mtx", &binary,
                  "Reading a binary file instead of a matrix market file");
 

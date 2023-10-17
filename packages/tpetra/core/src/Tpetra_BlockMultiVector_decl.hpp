@@ -85,7 +85,7 @@ namespace Tpetra {
 /// constants or pointers (e.g., they do not reallocate memory).
 ///
 /// BlockMultiVector stores entries in a column corresponding to
-/// degrees of freedom for the same mesh point contiguously. 
+/// degrees of freedom for the same mesh point contiguously.
 ///
 /// Here is how you are supposed to use this class:
 ///
@@ -522,21 +522,21 @@ public:
 
 
   const_little_host_vec_type getLocalBlockHost(
-    const LO localRowIndex, 
-    const LO colIndex, 
+    const LO localRowIndex,
+    const LO colIndex,
     const Access::ReadOnlyStruct) const;
 
   little_host_vec_type getLocalBlockHost(
-    const LO localRowIndex, 
-    const LO colIndex, 
+    const LO localRowIndex,
+    const LO colIndex,
     const Access::ReadWriteStruct);
 
   /// \brief Get a local block on host, with the intent to overwrite all blocks in the BlockMultiVector
-  ///   before accessing the data on device. If you intend to modify only some blocks on host, use 
+  ///   before accessing the data on device. If you intend to modify only some blocks on host, use
   ///   Access::ReadWrite instead (otherwise, previous changes on device may be lost)
   little_host_vec_type getLocalBlockHost(
-    const LO localRowIndex, 
-    const LO colIndex, 
+    const LO localRowIndex,
+    const LO colIndex,
     const Access::OverwriteAllStruct);
   //@}
 

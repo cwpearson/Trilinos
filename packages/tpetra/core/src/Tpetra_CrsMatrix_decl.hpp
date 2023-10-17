@@ -503,7 +503,7 @@ private:
                               device_type,
                               void,
                               typename local_graph_device_type::size_type>;
-    using local_matrix_host_type = 
+    using local_matrix_host_type =
           typename local_matrix_device_type::HostMirror;
 
 
@@ -513,31 +513,31 @@ private:
                              scalar_type,
                              device_type>;
 
-    using row_ptrs_device_view_type = 
+    using row_ptrs_device_view_type =
           typename row_matrix_type::row_ptrs_device_view_type;
-    using row_ptrs_host_view_type = 
+    using row_ptrs_host_view_type =
           typename row_matrix_type::row_ptrs_host_view_type;
 
 
-    using local_inds_device_view_type = 
+    using local_inds_device_view_type =
           typename row_matrix_type::local_inds_device_view_type;
-    using local_inds_host_view_type = 
+    using local_inds_host_view_type =
           typename row_matrix_type::local_inds_host_view_type;
-    using nonconst_local_inds_host_view_type = 
+    using nonconst_local_inds_host_view_type =
           typename row_matrix_type::nonconst_local_inds_host_view_type;
 
-    using global_inds_device_view_type = 
+    using global_inds_device_view_type =
           typename row_matrix_type::global_inds_device_view_type;
-    using global_inds_host_view_type = 
+    using global_inds_host_view_type =
           typename row_matrix_type::global_inds_host_view_type;
-    using nonconst_global_inds_host_view_type = 
+    using nonconst_global_inds_host_view_type =
           typename row_matrix_type::nonconst_global_inds_host_view_type;
 
-    using values_device_view_type = 
+    using values_device_view_type =
           typename row_matrix_type::values_device_view_type;
-    using values_host_view_type = 
+    using values_host_view_type =
           typename row_matrix_type::values_host_view_type;
-    using nonconst_values_host_view_type = 
+    using nonconst_values_host_view_type =
           typename row_matrix_type::nonconst_values_host_view_type;
 
     //@}
@@ -2210,7 +2210,7 @@ private:
     ///
     /// \pre The matrix must be fill complete:
     ///   <tt>isFillComplete() == true</tt>.
-    /// 
+    ///
     void
     replaceDomainMap (const Teuchos::RCP<const map_type>& newDomainMap);
 
@@ -2239,7 +2239,7 @@ private:
     ///
     /// \pre The matrix must be fill complete:
     ///   <tt>isFillComplete() == true</tt>.
-    /// 
+    ///
     void
     replaceRangeMap (const Teuchos::RCP<const map_type>& newRangeMap);
 
@@ -2323,7 +2323,7 @@ private:
     local_matrix_device_type getLocalMatrixDevice () const;
     local_matrix_host_type getLocalMatrixHost () const;
 
-    /// \brief The local sparse matrix operator 
+    /// \brief The local sparse matrix operator
     ///   (a wrapper of \c getLocalMatrixDevice()
     ///   that supports local matrix-vector multiply)
     ///
@@ -2541,7 +2541,7 @@ private:
 protected:
     using values_dualv_type =
           Kokkos::DualView<impl_scalar_type*, device_type>;
-    using values_wdv_type = 
+    using values_wdv_type =
           Details::WrappedDualView<values_dualv_type>;
     values_wdv_type valuesUnpacked_wdv;
     mutable values_wdv_type valuesPacked_wdv;
@@ -4036,7 +4036,7 @@ protected:
       DestOffsetViewType dst_offset_;
       typedef typename DestOffsetViewType::non_const_value_type scalar_index_type;
 
-      pack_functor (DestViewType dst, 
+      pack_functor (DestViewType dst,
                     const SrcViewType src,
                     DestOffsetViewType dst_offset,
                     const SrcOffsetViewType src_offset) :

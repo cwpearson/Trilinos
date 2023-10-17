@@ -164,13 +164,13 @@ namespace { // (anonymous)
           TEST_EQUALITY( static_cast<LO> (gblInds.size ()), expectedNumEnt );
           if (static_cast<LO> (gblInds.size ()) == expectedNumEnt) {
             if (insertLocalEntry) {
-              auto lclEntIter = std::find (gblInds.data(), 
+              auto lclEntIter = std::find (gblInds.data(),
                                            gblInds.data() + gblInds.extent(0),
                                            gblRow0);
               TEST_ASSERT( lclEntIter != gblInds.data() + gblInds.extent(0));
             }
             const GO gblCol0 = gblRow0 + static_cast<GO> (numProcs);
-            auto nonlclEntIter = std::find (gblInds.data(), 
+            auto nonlclEntIter = std::find (gblInds.data(),
                                             gblInds.data() + gblInds.extent(0),
                                             gblCol0);
             TEST_ASSERT( nonlclEntIter != gblInds.data() + gblInds.extent(0));
@@ -186,13 +186,13 @@ namespace { // (anonymous)
           TEST_EQUALITY( static_cast<LO> (gblInds.size ()), expectedNumEnt );
           if (static_cast<LO> (gblInds.size ()) == expectedNumEnt) {
             if (insertLocalEntry) {
-              auto lclEntIter = std::find (gblInds.data(), 
+              auto lclEntIter = std::find (gblInds.data(),
                                            gblInds.data() + gblInds.extent(0),
                                            gblRow1);
               TEST_ASSERT( lclEntIter != gblInds.data() + gblInds.extent(0) );
             }
             const GO gblCol1 = gblRow1 + static_cast<GO> (numProcs);
-            auto nonlclEntIter = std::find (gblInds.data(), 
+            auto nonlclEntIter = std::find (gblInds.data(),
                                             gblInds.data() + gblInds.extent(0),
                                             gblCol1);
             TEST_ASSERT( nonlclEntIter != gblInds.data() + gblInds.extent(0) );
@@ -209,7 +209,7 @@ namespace { // (anonymous)
           return;
         }
       } // insertLocalEntry
-    } 
+    }
   }
 
   //

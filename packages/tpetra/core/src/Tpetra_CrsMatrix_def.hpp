@@ -1255,7 +1255,7 @@ namespace Tpetra {
 
     typedef decltype (myGraph_->k_numRowEntries_) row_entries_type;
 
-    typename Graph::local_graph_device_type::row_map_type curRowOffsets = 
+    typename Graph::local_graph_device_type::row_map_type curRowOffsets =
                                                    myGraph_->rowPtrsUnpacked_dev_;
 
     if (debug) {
@@ -1414,8 +1414,8 @@ namespace Tpetra {
       // k_vals.  We will replace valuesPacked_wdv below.
       using vals_packer_type = pack_functor<
         typename values_type::non_const_type,
-        typename values_type::const_type, 
-        typename row_map_type::non_const_type, 
+        typename values_type::const_type,
+        typename row_map_type::non_const_type,
         typename row_map_type::const_type>;
       vals_packer_type valsPacker (
                        k_vals,
@@ -1449,7 +1449,7 @@ namespace Tpetra {
       }
       // Build the local graph.
       myGraph_->setRowPtrsPacked(k_ptrs_const);
-      myGraph_->lclIndsPacked_wdv = 
+      myGraph_->lclIndsPacked_wdv =
                 typename crs_graph_type::local_inds_wdv_type(k_inds);
       valuesPacked_wdv = values_wdv_type(k_vals);
     }
@@ -1486,13 +1486,13 @@ namespace Tpetra {
             (size_t (valToCheck) != valuesPacked_wdv.extent (0),
              std::logic_error, myPrefix <<
              "k_ptrs_const(" << (numOffsets-1) << ") = " << valToCheck
-             << " != valuesPacked_wdv.extent(0) = " 
+             << " != valuesPacked_wdv.extent(0) = "
              << valuesPacked_wdv.extent (0) << ".");
           TEUCHOS_TEST_FOR_EXCEPTION_CLASS_FUNC
             (size_t (valToCheck) != myGraph_->lclIndsPacked_wdv.extent (0),
              std::logic_error, myPrefix <<
              "k_ptrs_const(" << (numOffsets-1) << ") = " << valToCheck
-             << " != myGraph_->lclIndsPacked.extent(0) = " 
+             << " != myGraph_->lclIndsPacked.extent(0) = "
              << myGraph_->lclIndsPacked_wdv.extent (0) << ".");
         }
       }
@@ -1513,13 +1513,13 @@ namespace Tpetra {
           (valToCheck != size_t (valuesPacked_wdv.extent (0)),
            std::logic_error, myPrefix << "k_ptrs_const(" <<
            (numOffsets-1) << ") = " << valToCheck
-           << " != valuesPacked_wdv.extent(0) = " 
+           << " != valuesPacked_wdv.extent(0) = "
            << valuesPacked_wdv.extent (0) << ".");
         TEUCHOS_TEST_FOR_EXCEPTION_CLASS_FUNC
           (valToCheck != size_t (myGraph_->lclIndsPacked_wdv.extent (0)),
            std::logic_error, myPrefix << "k_ptrs_const(" <<
            (numOffsets-1) << ") = " << valToCheck
-           << " != myGraph_->lclIndsPacked_wdvk_inds.extent(0) = " 
+           << " != myGraph_->lclIndsPacked_wdvk_inds.extent(0) = "
            << myGraph_->lclIndsPacked_wdv.extent (0) << ".");
       }
     }
@@ -1537,7 +1537,7 @@ namespace Tpetra {
 
     // The graph has optimized storage when indices are allocated,
     // myGraph_->k_numRowEntries_ is empty, and there are more than
-    // zero rows on this process.  
+    // zero rows on this process.
     if (requestOptimizedStorage) {
       // Free the old, unpacked, unoptimized allocations.
       // Free graph data structures that are only needed for
@@ -1611,7 +1611,7 @@ namespace Tpetra {
     // get data from staticGraph_
     size_t nodeNumEntries   = staticGraph_->getLocalNumEntries ();
     size_t nodeNumAllocated = staticGraph_->getLocalAllocationSize ();
-    row_map_type k_rowPtrs = staticGraph_->rowPtrsPacked_dev_; 
+    row_map_type k_rowPtrs = staticGraph_->rowPtrsPacked_dev_;
 
     row_map_type k_ptrs; // "packed" row offsets array
     values_type k_vals; // "packed" values array
@@ -1649,7 +1649,7 @@ namespace Tpetra {
     // stored in a 1-D format.  However, this format is "unpacked";
     // it doesn't necessarily have the same row offsets as indicated
     // by the ptrs array returned by allocRowPtrs.  This could
-    // happen, for example, if the user 
+    // happen, for example, if the user
     // fixed the number of matrix entries in
     // each row, but didn't fill all those entries.
     //
@@ -1706,8 +1706,8 @@ namespace Tpetra {
       // Pack values_wdv into k_vals.  We will replace values_wdv below.
       pack_functor<
         typename values_type::non_const_type,
-        typename values_type::const_type, 
-        typename row_map_type::non_const_type, 
+        typename values_type::const_type,
+        typename row_map_type::non_const_type,
         typename row_map_type::const_type> valsPacker
         (k_vals, valuesUnpacked_wdv.getDeviceView(Access::ReadOnly),
          tmpk_ptrs, k_rowPtrs);
@@ -1947,9 +1947,9 @@ namespace Tpetra {
           global_inds_host_view_type gblColInds2;
           const GlobalOrdinal gblRow =
             graph.rowMap_->getGlobalElement (rowInfo.localRow);
-          if (gblRow == 
+          if (gblRow ==
               Tpetra::Details::OrdinalTraits<GlobalOrdinal>::invalid ()) {
-            os << "Local row index " << rowInfo.localRow << " is invalid!" 
+            os << "Local row index " << rowInfo.localRow << " is invalid!"
                << std::endl;
           }
           else {
@@ -1967,7 +1967,7 @@ namespace Tpetra {
               for (size_t jjj = 0; jjj < gblColInds2.extent(0); jjj++)
                  os << gblColInds2[jjj] << " ";
               os << std::endl;
-              os << "\tNew values: "; 
+              os << "\tNew values: ";
               for (size_t jjj = 0; jjj < vals2.extent(0); jjj++)
                  os << vals2[jjj] << " ";
               os << std::endl;
@@ -1981,7 +1981,7 @@ namespace Tpetra {
           for (size_t jjj = 0; jjj < lclColInds2.extent(0); jjj++)
              os << lclColInds2[jjj] << " ";
           os << std::endl;
-          os << "\tNew values: "; 
+          os << "\tNew values: ";
           for (size_t jjj = 0; jjj < vals2.extent(0); jjj++)
              os << vals2[jjj] << " ";
           os << std::endl;
@@ -2307,7 +2307,7 @@ namespace Tpetra {
                           const RowInfo& rowInfo,
                           const LocalOrdinal inds[],
                           const impl_scalar_type newVals[],
-                          const LocalOrdinal numElts) 
+                          const LocalOrdinal numElts)
   {
     typedef LocalOrdinal LO;
     typedef GlobalOrdinal GO;
@@ -3183,7 +3183,7 @@ namespace Tpetra {
     getLocalRowCopy (local_ordinal_type localRow,
                      nonconst_local_inds_host_view_type &indices,
                      nonconst_values_host_view_type &values,
-                     size_t& numEntries) const 
+                     size_t& numEntries) const
  {
     using Teuchos::ArrayView;
     using Teuchos::av_reinterpret_cast;
@@ -3283,7 +3283,7 @@ CrsMatrix<Scalar, LocalOrdinal, GlobalOrdinal, Node>::
   CrsMatrix<Scalar, LocalOrdinal, GlobalOrdinal, Node>::
   getLocalRowView(LocalOrdinal localRow,
                   local_inds_host_view_type &indices,
-                  values_host_view_type &values) const 
+                  values_host_view_type &values) const
   {
     const char tfecfFuncName[] = "getLocalRowView: ";
 
@@ -3353,7 +3353,7 @@ CrsMatrix<Scalar, LocalOrdinal, GlobalOrdinal, Node>::
 
     // This does the right thing (reports an empty row) if the input
     // row is invalid.
-    const RowInfo rowInfo = 
+    const RowInfo rowInfo =
           staticGraph_->getRowInfoFromGlobalRowIndex (globalRow);
     if (rowInfo.localRow != Teuchos::OrdinalTraits<size_t>::invalid () &&
         rowInfo.numEntries > 0) {
@@ -3733,7 +3733,7 @@ CrsMatrix<Scalar, LocalOrdinal, GlobalOrdinal, Node>::
         lclVecHost1d(lclRow) = STS::zero (); // default value if no diag entry
         if (h_offsets[lclRow] != INV) {
           auto curRowOffset = rowPtrsPackedHost (lclRow);
-          lclVecHost1d(lclRow) = 
+          lclVecHost1d(lclRow) =
             static_cast<IST> (valuesPackedHost(curRowOffset+h_offsets[lclRow]));
         }
       });
@@ -5060,7 +5060,7 @@ CrsMatrix<Scalar, LocalOrdinal, GlobalOrdinal, Node>::
          std::runtime_error, "X and Y must be constant stride.");
       // If the two pointers are null, then they don't alias one
       // another, even though they are equal.
-      // Kokkos does not guarantee that zero row-extent vectors 
+      // Kokkos does not guarantee that zero row-extent vectors
       // point to different places, so we have to check that too.
       TEUCHOS_TEST_FOR_EXCEPTION_CLASS_FUNC
         (X_lcl.data () == Y_lcl.data () && X_lcl.data () != nullptr
@@ -6653,7 +6653,7 @@ CrsMatrix<Scalar, LocalOrdinal, GlobalOrdinal, Node>::
     // Temporary buffer for global column indices.
     typename global_inds_host_view_type::non_const_type gidsIn_k;
     if (this->isLocallyIndexed()) { // Need storage for Global IDs
-      gidsIn_k = 
+      gidsIn_k =
         typename global_inds_host_view_type::non_const_type("packGids",
                                                             maxRowNumEnt);
     }
@@ -6675,7 +6675,7 @@ CrsMatrix<Scalar, LocalOrdinal, GlobalOrdinal, Node>::
       }
 
       if (this->isLocallyIndexed ()) {
-        typename global_inds_host_view_type::non_const_type gidsIn; 
+        typename global_inds_host_view_type::non_const_type gidsIn;
         values_host_view_type valsIn;
         // If the matrix is locally indexed on the calling process, we
         // have to use its column Map (which it _must_ have in this
@@ -6691,11 +6691,11 @@ CrsMatrix<Scalar, LocalOrdinal, GlobalOrdinal, Node>::
         const size_t numBytesPerValue =
           PackTraits<ST>::packValueCount (valsIn[0]);
         numBytes = this->packRow (exports_h.data (), offset, numEnt,
-                                  gidsIn.data (), valsIn.data (), 
+                                  gidsIn.data (), valsIn.data (),
                                   numBytesPerValue);
       }
       else if (this->isGloballyIndexed ()) {
-        global_inds_host_view_type gidsIn; 
+        global_inds_host_view_type gidsIn;
         values_host_view_type valsIn;
         // If the matrix is globally indexed on the calling process,
         // then we can use the column indices directly.  However, we
@@ -6708,7 +6708,7 @@ CrsMatrix<Scalar, LocalOrdinal, GlobalOrdinal, Node>::
 
         const size_t numBytesPerValue =
           PackTraits<ST>::packValueCount (valsIn[0]);
-        numBytes = this->packRow (exports_h.data (), offset, numEnt, 
+        numBytes = this->packRow (exports_h.data (), offset, numEnt,
                                   gidsIn.data (), valsIn.data (),
                                   numBytesPerValue);
       }
@@ -7536,7 +7536,7 @@ CrsMatrix<Scalar, LocalOrdinal, GlobalOrdinal, Node>::
     // If A and B's row Maps are the same, we can compute an upper
     // bound on the number of entries in each row of C, before
     // actually computing the sum.  A reasonable upper bound is the
-    // sum of the two entry counts in each row.  
+    // sum of the two entry counts in each row.
     if (A_rowMap->isSameAs (*B_rowMap)) {
       const LO localNumRows = static_cast<LO> (A_rowMap->getLocalNumElements ());
       Array<size_t> C_maxNumEntriesPerRow (localNumRows, 0);
@@ -8478,7 +8478,7 @@ CrsMatrix<Scalar, LocalOrdinal, GlobalOrdinal, Node>::
     auto PermuteFromLIDs_d = PermuteFromLIDs.view_device();
 
     Details::unpackAndCombineIntoCrsArrays(
-                                   *this, 
+                                   *this,
                                    RemoteLIDs_d,
                                    destMat->imports_.view_device(),                //hostImports
                                    destMat->numImportPacketsPerLID_.view_device(), //numImportPacketsPerLID

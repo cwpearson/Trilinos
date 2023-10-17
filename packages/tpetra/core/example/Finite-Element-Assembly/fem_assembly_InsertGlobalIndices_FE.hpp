@@ -176,7 +176,7 @@ int executeInsertGlobalIndicesFESP_(const Teuchos::RCP<const Teuchos::Comm<int> 
     //   each row associated with this element's contribution.
     for(size_t element_node_idx=0; element_node_idx<owned_element_to_node_ids.extent(1); element_node_idx++)
     {
-      global_ids_in_row[element_node_idx] = 
+      global_ids_in_row[element_node_idx] =
 	owned_element_to_node_ids(element_gidx, element_node_idx);
     }
 

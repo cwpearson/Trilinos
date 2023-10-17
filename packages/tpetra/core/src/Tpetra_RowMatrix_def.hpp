@@ -253,7 +253,7 @@ namespace Tpetra {
             valView[k] *= alpha;
           }
         }
-        C->insertGlobalValues (globalRow, A_numEntries, 
+        C->insertGlobalValues (globalRow, A_numEntries,
                                reinterpret_cast<const Scalar*>(valView.data()),
                                indView.data());
       }
@@ -277,7 +277,7 @@ namespace Tpetra {
             valView[k] *= beta;
           }
         }
-        C->insertGlobalValues (globalRow, B_numEntries, 
+        C->insertGlobalValues (globalRow, B_numEntries,
                                reinterpret_cast<const Scalar*>(valView.data()),
                                indView.data());
       }

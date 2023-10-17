@@ -52,26 +52,26 @@ namespace Tpetra {
   /// Computes Y[i] = beta*Y[i] + alpha * Matrices[i] * X, for i=1,...,N
   ///
   /// This routine only communicates the interprocessor portions of X once,
-  /// if such a thing is possible (aka the ColMap's of the matrices match). 
+  /// if such a thing is possible (aka the ColMap's of the matrices match).
   ///
   /// If the Y's are replicated this will not use the reduced communication path.
   ///
   /// If X is aliased to any Y but the last one, this routine will throw
   ///
   /// \param Matrices [in] - [std::vector|Teuchos::Array|Teuchos::ArrayRCP] of Tpetra::CrsMatrix objects.
-  ///                        These matrices can different numbers of rows. 
+  ///                        These matrices can different numbers of rows.
   /// \param X [in]        - Tpetra::MultiVector or Tpetra::Vector object.
   /// \param Y [out]       - [std::vector|Teuchos::Array|Teuchos::ArrayRCP] of Tpetra::MultiVector or Tpetra::Vector objects.
   ///                        These must have the same number of vectors as X.
   /// \param alpha [in]    - alpha parameter.  Defaults to one.
   /// \param beta [in]    -  beta parameter.  Defaults to zero.
   /// \param params [in/out] - The "can batch" parameter can either be unset, be true or be false on input.  If it is unset,
-  ///                        maps will be checked with isSameAs() for compatibility.  If true, the map check will be skipped and batching 
+  ///                        maps will be checked with isSameAs() for compatibility.  If true, the map check will be skipped and batching
   ///                        will be used if none of the cheap checks fail.  If false, batching will not be used.  This parameter will
   ///                        be set on output to either true or false depending on if batching was used during this call. Defaults to NULL.
 
-  template <class MatrixArray, class MultiVectorArray> 
-  void batchedApply(const MatrixArray &Matrices, 
+  template <class MatrixArray, class MultiVectorArray>
+  void batchedApply(const MatrixArray &Matrices,
                     const typename std::remove_pointer<typename MultiVectorArray::value_type>::type &X,
                     MultiVectorArray &Y,
                     typename std::remove_pointer<typename MatrixArray::value_type>::type::scalar_type alpha = Teuchos::ScalarTraits< typename std::remove_pointer<typename MatrixArray::value_type>::type::scalar_type>::one(),
@@ -166,7 +166,7 @@ namespace Tpetra {
         if (!exporter.is_null()) {
           Matrices[i]->localApply(*X_colMap, *Y_rowMap, Teuchos::NO_TRANS, alpha, ZERO);
           {
-            Tpetra::Details::ProfilingRegion regionExport ("Tpetra::batchedApply: Export");             
+            Tpetra::Details::ProfilingRegion regionExport ("Tpetra::batchedApply: Export");
             if (Y_is_overwritten) {
               Y[i]->putScalar(ZERO);
             }
@@ -190,10 +190,10 @@ namespace Tpetra {
           else {
             Matrices[i]->localApply(*X_colMap, *Y[i], Teuchos::NO_TRANS, alpha, beta);
           }
-        }        
+        }
       }
       if(!params.is_null()) params->set("can batch",true);
-    } 
+    }
     else {
       /* Non-batching path */
       for(size_type i=0; i<N; i++) {

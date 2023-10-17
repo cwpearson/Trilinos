@@ -473,14 +473,14 @@ namespace Tpetra {
         const GO firstGuess = firstProcWithGIDs + GID / std::max(nOverP, one);
         curRank = as<int>(std::min(firstGuess, as<GO>(numProcs - 1)));
 
-        // This while loop will stop because 
+        // This while loop will stop because
         // allMinGIDs_[np] == global num elements
         while (allMinGIDs_[curRank] == noGIDsOnProc) curRank++;
 
         bool badGID = false;
         while (curRank >= firstProcWithGIDs && GID < allMinGIDs_[curRank]) {
           curRank--;
-          while (curRank >= firstProcWithGIDs && 
+          while (curRank >= firstProcWithGIDs &&
                  allMinGIDs_[curRank] == noGIDsOnProc) curRank--;
         }
         if (curRank < firstProcWithGIDs) {

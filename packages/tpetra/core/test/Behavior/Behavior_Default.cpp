@@ -65,11 +65,11 @@ TEUCHOS_UNIT_TEST(Behavior, Default)
   bool verb = Tpetra::Details::Behavior::verbose();
   TEUCHOS_TEST_ASSERT(verb==verbose_default, out, success);
 
-  // Print current values of other behaviors. 
-  // Can't test against default since these behaviors may be 
+  // Print current values of other behaviors.
+  // Can't test against default since these behaviors may be
   // changed by environment variables (in which case, test against
   // default fails)
-  std::cout << "\n        GPU-aware MPI?  " 
+  std::cout << "\n        GPU-aware MPI?  "
             << Tpetra::Details::Behavior::assumeMpiIsGPUAware()
             << "\n";
 

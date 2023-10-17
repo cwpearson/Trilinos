@@ -100,7 +100,7 @@ namespace { // (anonymous)
       for (int i = 0; i < size; ++i) {
         const output_value_type expected_val =
           static_cast<output_value_type> (i+1);
-        const output_value_type actual_val = y_h(i);        
+        const output_value_type actual_val = y_h(i);
         TEST_EQUALITY( actual_val, expected_val );
       }
     }

@@ -74,11 +74,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, DefaultToDefault, Scalar,LO,GO,Node)
   const size_t nGlobalEntries = 8 * np;
   const Scalar tgtScalar = 100. * (me+1);
   const Scalar srcScalar = 2.;
-  Teuchos::Array<GO> myEntries(nGlobalEntries); 
+  Teuchos::Array<GO> myEntries(nGlobalEntries);
 
   // Default one-to-one linear block map in Trilinos
 
-  Teuchos::RCP<const map_t> defaultMap = 
+  Teuchos::RCP<const map_t> defaultMap =
            rcp(new map_t(nGlobalEntries, 0, comm));
 
   // Create vectors; see what the result is with CombineMode=ADD
@@ -99,8 +99,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, DefaultToDefault, Scalar,LO,GO,Node)
 
   for (size_t i = 0; i < defaultVecTgt.getLocalLength(); i++)
     if (data(i,0) != tgtScalar + srcScalar) ierr++;
-  if (ierr > 0) 
-    std::cout << "TEST FAILED:  DEFAULT-TO-DEFAULT TEST HAD " << ierr 
+  if (ierr > 0)
+    std::cout << "TEST FAILED:  DEFAULT-TO-DEFAULT TEST HAD " << ierr
               << " FAILURES ON RANK " << me << std::endl;
 
   int gerr;
@@ -115,7 +115,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, CyclicToDefault, Scalar,LO,GO,Node)
   // This case demonstrates that owned entries shared between the source and
   // target map are copied from the source vector into the target (during
   // copyAndPermute).  Owned entries that are not in the source map
-  // are NOT reset; their initial values persist.  Then received shared 
+  // are NOT reset; their initial values persist.  Then received shared
   // entries are added to the owned entries.
   Teuchos::RCP<const Teuchos::Comm<int> > comm = Tpetra::getDefaultComm();
   int me = comm->getRank();
@@ -130,11 +130,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, CyclicToDefault, Scalar,LO,GO,Node)
   const size_t nGlobalEntries = 8 * np;
   const Scalar tgtScalar = 100. * (me+1);
   const Scalar srcScalar = 2.;
-  Teuchos::Array<GO> myEntries(nGlobalEntries); 
+  Teuchos::Array<GO> myEntries(nGlobalEntries);
 
   // Default one-to-one linear block map in Trilinos
 
-  Teuchos::RCP<const map_t> defaultMap = 
+  Teuchos::RCP<const map_t> defaultMap =
            rcp(new map_t(nGlobalEntries, 0, comm));
 
   // One-to-one cyclic map:  deal out entries like cards
@@ -148,7 +148,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, CyclicToDefault, Scalar,LO,GO,Node)
 
   Tpetra::global_size_t dummy =
           Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid();
-  Teuchos::RCP<const map_t> cyclicMap = 
+  Teuchos::RCP<const map_t> cyclicMap =
            rcp(new map_t(dummy, myEntries(0,nMyEntries), 0, comm));
 
   // Create vectors; see what the result is with CombineMode=ADD
@@ -170,8 +170,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, CyclicToDefault, Scalar,LO,GO,Node)
 
   for (size_t i = 0; i < defaultVecTgt.getLocalLength(); i++)
     if (data(i,0) != tgtScalar + srcScalar) ierr++;
-  if (ierr > 0) 
-    std::cout << "TEST FAILED:  CYCLIC-TO-DEFAULT TEST HAD " << ierr 
+  if (ierr > 0)
+    std::cout << "TEST FAILED:  CYCLIC-TO-DEFAULT TEST HAD " << ierr
               << " FAILURES ON RANK " << me << std::endl;
 
   int gerr;
@@ -186,7 +186,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, OverlapToDefault, Scalar,LO,GO,Node)
   // This case demonstrates that owned entries shared between the source and
   // target map are copied from the source vector into the target (during
   // copyAndPermute).  Owned entries that are not in the source map
-  // are NOT reset; their initial values persist.  Then received shared 
+  // are NOT reset; their initial values persist.  Then received shared
   // entries are added to the owned entries.
   Teuchos::RCP<const Teuchos::Comm<int> > comm = Tpetra::getDefaultComm();
   int me = comm->getRank();
@@ -202,11 +202,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, OverlapToDefault, Scalar,LO,GO,Node)
     const size_t nGlobalEntries = 8 * np;
     const Scalar tgtScalar = 100. * (me+1);
     const Scalar srcScalar = 2.;
-    Teuchos::Array<GO> myEntries(nGlobalEntries); 
+    Teuchos::Array<GO> myEntries(nGlobalEntries);
 
     // Default one-to-one linear block map in Trilinos
 
-    Teuchos::RCP<const map_t> defaultMap = 
+    Teuchos::RCP<const map_t> defaultMap =
              rcp(new map_t(nGlobalEntries, 0, comm));
 
     // Overlap map; some entries are stored on two procs
@@ -219,9 +219,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, OverlapToDefault, Scalar,LO,GO,Node)
         (defaultMap->getMaxGlobalIndex() + 1 + i) % nGlobalEntries;
     }
 
-    Tpetra::global_size_t dummy = 
+    Tpetra::global_size_t dummy =
             Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid();
-    Teuchos::RCP<const map_t> overlapMap = 
+    Teuchos::RCP<const map_t> overlapMap =
              rcp(new map_t(dummy, myEntries(0,nMyEntries), 0, comm));
 
     // Create vectors; see what the result is with CombineMode=ADD
@@ -240,15 +240,15 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, OverlapToDefault, Scalar,LO,GO,Node)
     auto data = defaultVecTgt.getLocalViewHost(Tpetra::Access::ReadOnly);
     for (size_t i = 0; i < defaultVecTgt.getLocalLength()/2; i++) {
       // overlapped; initial target values were overwritten
-      if (data(i,0) != tgtScalar + srcScalar + srcScalar) ierr++;  
+      if (data(i,0) != tgtScalar + srcScalar + srcScalar) ierr++;
     }
     for (size_t i = defaultVecTgt.getLocalLength()/2;
              i < defaultVecTgt.getLocalLength(); i++) {
       // not overlapped; initial target values were not overwritten
-      if (data(i,0) != tgtScalar + srcScalar) ierr++;  
+      if (data(i,0) != tgtScalar + srcScalar) ierr++;
     }
-    if (ierr > 0) 
-      std::cout << "TEST FAILED:  OVERLAP-TO-DEFAULT TEST HAD " << ierr 
+    if (ierr > 0)
+      std::cout << "TEST FAILED:  OVERLAP-TO-DEFAULT TEST HAD " << ierr
                 << " FAILURES ON RANK " << me << std::endl;
   }
 
@@ -267,7 +267,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, OddEvenToSerial, Scalar,LO,GO,Node)
   // In copyAndPermute, even numbered entries are copied from processor zero's
   // source vector to the target vector, and odd numbered entries are unchanged.
   // Then received values are added to the target vector.  The result is that
-  // odd entries include the initial target values in their sum, while the 
+  // odd entries include the initial target values in their sum, while the
   // even entries are not included.
   Teuchos::RCP<const Teuchos::Comm<int> > comm = Tpetra::getDefaultComm();
   int me = comm->getRank();
@@ -282,7 +282,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, OddEvenToSerial, Scalar,LO,GO,Node)
   const size_t nGlobalEntries = 8 * np;
   const Scalar tgtScalar = 100. * (me+1);
   const Scalar srcScalar = 2.;
-  Teuchos::Array<GO> myEntries(nGlobalEntries); 
+  Teuchos::Array<GO> myEntries(nGlobalEntries);
 
   // Odd entries given to odd procs; even entries given to even procs
   int nMyEntries = 0;
@@ -294,14 +294,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, OddEvenToSerial, Scalar,LO,GO,Node)
 
   Tpetra::global_size_t dummy =
           Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid();
-  Teuchos::RCP<const map_t> oddEvenMap = 
+  Teuchos::RCP<const map_t> oddEvenMap =
            rcp(new map_t(dummy, myEntries(0,nMyEntries), 0, comm));
 
   // Map with all entries on one processor
 
   dummy = Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid();
   size_t nSerialEntries = (me == 0 ? nGlobalEntries : 0);
-  Teuchos::RCP<const map_t> serialMap = 
+  Teuchos::RCP<const map_t> serialMap =
            rcp(new map_t(dummy, nSerialEntries, 0, comm));
 
   // Create vectors; see what the result is with CombineMode=ADD
@@ -326,8 +326,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, OddEvenToSerial, Scalar,LO,GO,Node)
     if (data(i,0) != tgtScalar + srcScalar * nCopies)
       ierr++;
   }
-  if (ierr > 0) 
-    std::cout << "TEST FAILED:  ODDEVEN-TO-SERIAL TEST HAD " << ierr 
+  if (ierr > 0)
+    std::cout << "TEST FAILED:  ODDEVEN-TO-SERIAL TEST HAD " << ierr
               << " FAILURES ON RANK " << me << std::endl;
 
   int gerr;
@@ -339,11 +339,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, OddEvenToSerial, Scalar,LO,GO,Node)
 //////////////////////////////////////////////////////////////////////////////
 TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, SupersetToDefault, Scalar,LO,GO,Node)
 {
-  // This use case is similar to matrix assembly case in which user 
+  // This use case is similar to matrix assembly case in which user
   // has a map of owned entries and a map of owned+shared entries, with the
-  // owned+shared map being a superset of the owned map.  In this case, 
+  // owned+shared map being a superset of the owned map.  In this case,
   // the owned values in the owned+shared vector are copied into the owned
-  // vector in copyAndPermute; then received shared entries are 
+  // vector in copyAndPermute; then received shared entries are
   // added to the owned entries' values.
   Teuchos::RCP<const Teuchos::Comm<int> > comm = Tpetra::getDefaultComm();
   int me = comm->getRank();
@@ -359,11 +359,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, SupersetToDefault, Scalar,LO,GO,Node)
     const size_t nGlobalEntries = 8 * np;
     const Scalar tgtScalar = 100. * (me+1);
     const Scalar srcScalar = 2.;
-    Teuchos::Array<GO> myEntries(nGlobalEntries); 
+    Teuchos::Array<GO> myEntries(nGlobalEntries);
 
     // Default one-to-one linear block map in Trilinos
 
-    Teuchos::RCP<const map_t> defaultMap = 
+    Teuchos::RCP<const map_t> defaultMap =
              rcp(new map_t(nGlobalEntries, 0, comm));
 
     // Superset map; some entries are stored on two procs
@@ -376,7 +376,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, SupersetToDefault, Scalar,LO,GO,Node)
         (defaultMap->getMaxGlobalIndex() + 1 + i) % nGlobalEntries;
     }
 
-    Tpetra::global_size_t dummy = 
+    Tpetra::global_size_t dummy =
             Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid();
     Teuchos::RCP<const map_t> supersetMap =
              rcp(new map_t(dummy, myEntries(0,nMyEntries), 0, comm));
@@ -401,8 +401,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, SupersetToDefault, Scalar,LO,GO,Node)
     for (size_t i = defaultVecTgt.getLocalLength()/2;
              i < defaultVecTgt.getLocalLength(); i++)
       if (data(i,0) != tgtScalar + srcScalar) ierr++;  // not overlapped
-    if (ierr > 0) 
-      std::cout << "TEST FAILED:  SUPERSET-TO-DEFAULT TEST HAD " << ierr 
+    if (ierr > 0)
+      std::cout << "TEST FAILED:  SUPERSET-TO-DEFAULT TEST HAD " << ierr
                 << " FAILURES ON RANK " << me << std::endl;
   }
 
@@ -415,9 +415,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, SupersetToDefault, Scalar,LO,GO,Node)
 //////////////////////////////////////////////////////////////////////////////
 TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, NoSamesToDefault, Scalar,LO,GO,Node)
 {
-  // This use case is similar to matrix assembly case in which user 
+  // This use case is similar to matrix assembly case in which user
   // has a map of owned entries and a map of shared entries, with no
-  // overlap between the maps.  In this case, received shared entries are 
+  // overlap between the maps.  In this case, received shared entries are
   // added to the owned entries' values, as copyAndPermute is never called.
   Teuchos::RCP<const Teuchos::Comm<int> > comm = Tpetra::getDefaultComm();
   int me = comm->getRank();
@@ -433,11 +433,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, NoSamesToDefault, Scalar,LO,GO,Node)
     const size_t nGlobalEntries = 8 * np;
     const Scalar tgtScalar = 100. * (me+1);
     const Scalar srcScalar = 2.;
-    Teuchos::Array<GO> myEntries(nGlobalEntries); 
+    Teuchos::Array<GO> myEntries(nGlobalEntries);
 
     // Default one-to-one linear block map in Trilinos
 
-    Teuchos::RCP<const map_t> defaultMap = 
+    Teuchos::RCP<const map_t> defaultMap =
              rcp(new map_t(nGlobalEntries, 0, comm));
 
     // Map with no sames or permutes
@@ -447,9 +447,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, NoSamesToDefault, Scalar,LO,GO,Node)
         (defaultMap->getMaxGlobalIndex() + 1 + i) % nGlobalEntries;
     }
 
-    Tpetra::global_size_t dummy = 
+    Tpetra::global_size_t dummy =
             Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid();
-    Teuchos::RCP<const map_t> noSamesMap = 
+    Teuchos::RCP<const map_t> noSamesMap =
              rcp(new map_t(dummy, myEntries(0,nMyEntries), 0, comm));
 
     // Create vectors; see what the result is with CombineMode=ADD
@@ -467,10 +467,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, NoSamesToDefault, Scalar,LO,GO,Node)
 
     auto data = defaultVecTgt.getLocalViewHost(Tpetra::Access::ReadOnly);
     for (size_t i = 0; i < defaultVecTgt.getLocalLength(); i++) {
-      if (data(i,0) != tgtScalar + srcScalar) ierr++;  
+      if (data(i,0) != tgtScalar + srcScalar) ierr++;
     }
-    if (ierr > 0) 
-      std::cout << "TEST FAILED:  NOSAMES-TO-DEFAULT TEST HAD " << ierr 
+    if (ierr > 0)
+      std::cout << "TEST FAILED:  NOSAMES-TO-DEFAULT TEST HAD " << ierr
                 << " FAILURES ON RANK " << me << std::endl;
   }
 

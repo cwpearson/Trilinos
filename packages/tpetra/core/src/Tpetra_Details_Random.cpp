@@ -52,7 +52,7 @@ unsigned int getSeedFromRank(int mpi_rank) {
   // process' rank.  This helps decorrelate different process'
   // pseudorandom streams.  It's not perfect but it's effective and
   // doesn't require MPI communication.  The seed also includes bits
-  // from the standard library's rand().  
+  // from the standard library's rand().
   uint64_t myRank =static_cast<uint64_t>(mpi_rank);
   uint64_t seed64 = static_cast<uint64_t> (std::rand ()) + myRank + 17311uLL;
   unsigned int seed = static_cast<unsigned int> (seed64&0xffffffff);
@@ -66,7 +66,7 @@ void finalize_cuda_pool() {
   if(cuda_pool_ != nullptr) {
     delete cuda_pool_;
     cuda_pool_ = nullptr;
-  }    
+  }
 }
 #endif // KOKKOS_ENABLE_CUDA
 
@@ -78,7 +78,7 @@ void finalize_hip_pool() {
   if(hip_pool_ != nullptr) {
     delete hip_pool_;
     hip_pool_ = nullptr;
-  }    
+  }
 }
 #endif // KOKKOS_ENABLE_HIP
 
@@ -89,7 +89,7 @@ void finalize_sycl_pool() {
   if(sycl_pool_ != nullptr) {
     delete sycl_pool_;
     sycl_pool_ = nullptr;
-  }    
+  }
 }
 #endif // KOKKOS_ENABLE_SYCL
 
@@ -101,7 +101,7 @@ void finalize_openmp_pool() {
   if(openmp_pool_ != nullptr) {
     delete openmp_pool_;
     openmp_pool_ = nullptr;
-  }   
+  }
 }
 #endif // KOKKOS_ENABLE_OPENMP
 
@@ -113,7 +113,7 @@ void finalize_serial_pool() {
   if(serial_pool_ != nullptr) {
     delete serial_pool_;
     serial_pool_ = nullptr;
-  }   
+  }
 }
 #endif // KOKKOS_ENABLE_SERIAL
 
@@ -122,7 +122,7 @@ void finalize_serial_pool() {
 
 /********************************************************************************/
 #ifdef KOKKOS_ENABLE_CUDA
-void 
+void
 Static_Random_XorShift64_Pool<typename Kokkos::CudaSpace::execution_space>::
 resetPool(int mpi_rank) {
   using pool_type = Kokkos::Random_XorShift64_Pool<typename Kokkos::CudaSpace::execution_space>;
@@ -133,9 +133,9 @@ resetPool(int mpi_rank) {
     Kokkos::push_finalize_hook(finalize_cuda_pool);
 
   cuda_pool_ = new pool_type(getSeedFromRank(mpi_rank));
-} 
+}
 
-bool 
+bool
 Static_Random_XorShift64_Pool<typename Kokkos::CudaSpace::execution_space>::
 isSet() {
   return cuda_pool_!=nullptr;
@@ -152,7 +152,7 @@ getPool() {
 
 /********************************************************************************/
 #ifdef KOKKOS_ENABLE_HIP
-void 
+void
 Static_Random_XorShift64_Pool<typename Kokkos::HIPSpace::execution_space>::
 resetPool(int mpi_rank) {
   using pool_type = Kokkos::Random_XorShift64_Pool<typename Kokkos::HIPSpace::execution_space>;
@@ -163,9 +163,9 @@ resetPool(int mpi_rank) {
     Kokkos::push_finalize_hook(finalize_hip_pool);
 
   hip_pool_ = new pool_type(getSeedFromRank(mpi_rank));
-} 
+}
 
-bool 
+bool
 Static_Random_XorShift64_Pool<typename Kokkos::HIPSpace::execution_space>::
 isSet() {
   return hip_pool_!=nullptr;
@@ -182,7 +182,7 @@ getPool() {
 
 /********************************************************************************/
 #ifdef KOKKOS_ENABLE_SYCL
-void 
+void
 Static_Random_XorShift64_Pool<typename Kokkos::Experimental::SYCLDeviceUSMSpace::execution_space>::
 resetPool(int mpi_rank) {
   using pool_type = Kokkos::Random_XorShift64_Pool<typename Kokkos::Experimental::SYCLDeviceUSMSpace::execution_space>;
@@ -193,9 +193,9 @@ resetPool(int mpi_rank) {
     Kokkos::push_finalize_hook(finalize_sycl_pool);
 
   sycl_pool_ = new pool_type(getSeedFromRank(mpi_rank));
-} 
+}
 
-bool 
+bool
 Static_Random_XorShift64_Pool<typename Kokkos::Experimental::SYCLDeviceUSMSpace::execution_space>::
 isSet() {
   return sycl_pool_!=nullptr;
@@ -212,7 +212,7 @@ getPool() {
 
 /********************************************************************************/
 #ifdef KOKKOS_ENABLE_OPENMP
-void 
+void
 Static_Random_XorShift64_Pool<Kokkos::OpenMP>::
 resetPool(int mpi_rank) {
   using pool_type = Kokkos::Random_XorShift64_Pool<Kokkos::OpenMP>;
@@ -223,9 +223,9 @@ resetPool(int mpi_rank) {
     Kokkos::push_finalize_hook(finalize_openmp_pool);
 
   openmp_pool_ = new pool_type(getSeedFromRank(mpi_rank));
-} 
+}
 
-bool 
+bool
 Static_Random_XorShift64_Pool<Kokkos::OpenMP>::
 isSet() {
   return openmp_pool_!=nullptr;
@@ -242,7 +242,7 @@ getPool() {
 
 /********************************************************************************/
 #ifdef KOKKOS_ENABLE_SERIAL
-void 
+void
 Static_Random_XorShift64_Pool<Kokkos::Serial>::
 resetPool(int mpi_rank) {
   using pool_type = Kokkos::Random_XorShift64_Pool<Kokkos::Serial>;
@@ -253,9 +253,9 @@ resetPool(int mpi_rank) {
     Kokkos::push_finalize_hook(finalize_serial_pool);
 
   serial_pool_ = new pool_type(getSeedFromRank(mpi_rank));
-} 
+}
 
-bool 
+bool
 Static_Random_XorShift64_Pool<Kokkos::Serial>::
 isSet() {
   return serial_pool_!=nullptr;

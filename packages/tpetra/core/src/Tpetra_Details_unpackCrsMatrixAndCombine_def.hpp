@@ -421,7 +421,7 @@ struct UnpackCrsMatrixAndCombineFunctor {
     return error_code_h();
   }
 
-}; //UnpackCrsMatrixAndCombineFunctor 
+}; //UnpackCrsMatrixAndCombineFunctor
 
 struct MaxNumEntTag {};
 struct TotNumEntTag {};
@@ -491,7 +491,7 @@ public:
       tot_num_ent += static_cast<size_t> (num_ent_LO);
     }
   }
-}; //NumEntriesFunctor 
+}; //NumEntriesFunctor
 
 /// \brief Maximum number of entries in any row of the packed matrix.
 ///
@@ -1433,24 +1433,24 @@ template<typename Scalar, typename LocalOrdinal, typename GlobalOrdinal, typenam
 void
 unpackAndCombineIntoCrsArrays (
     const CrsMatrix<Scalar, LocalOrdinal, GlobalOrdinal, Node> & sourceMatrix,
-    const Kokkos::View<LocalOrdinal const *, 
+    const Kokkos::View<LocalOrdinal const *,
           Kokkos::Device<typename Node::device_type::execution_space,
                         Tpetra::Details::DefaultTypes::comm_buffer_memory_space<typename Node::device_type>>,
           void, void > import_lids_d,
-    const Kokkos::View<const char*, 
+    const Kokkos::View<const char*,
           Kokkos::Device<typename Node::device_type::execution_space,
                          Tpetra::Details::DefaultTypes::comm_buffer_memory_space<typename Node::device_type>>,
           void, void > imports_d,
-    const Kokkos::View<const size_t*, 
+    const Kokkos::View<const size_t*,
           Kokkos::Device<typename Node::device_type::execution_space,
                          Tpetra::Details::DefaultTypes::comm_buffer_memory_space<typename Node::device_type>>,
           void, void > num_packets_per_lid_d,
     const size_t numSameIDs,
-    const Kokkos::View<LocalOrdinal const *, 
+    const Kokkos::View<LocalOrdinal const *,
           Kokkos::Device<typename Node::device_type::execution_space,
                          Tpetra::Details::DefaultTypes::comm_buffer_memory_space<typename Node::device_type>>,
           void, void > permute_to_lids_d,
-    const Kokkos::View<LocalOrdinal const *, 
+    const Kokkos::View<LocalOrdinal const *,
           Kokkos::Device<typename Node::device_type::execution_space,
                          Tpetra::Details::DefaultTypes::comm_buffer_memory_space<typename Node::device_type>>,
           void, void > permute_from_lids_d,

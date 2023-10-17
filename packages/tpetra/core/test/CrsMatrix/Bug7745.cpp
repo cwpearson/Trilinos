@@ -59,16 +59,16 @@ namespace {
 template<typename map_t, typename vector_t, typename matrix_t>
 class MatrixBuilder {
 
-public:  
+public:
 
   using gno_t = typename map_t::global_ordinal_type;
   using scalar_t = typename matrix_t::scalar_type;
 
-  MatrixBuilder(const Teuchos::RCP<const Teuchos::Comm<int> > &comm_, 
+  MatrixBuilder(const Teuchos::RCP<const Teuchos::Comm<int> > &comm_,
                 bool square_) :
     comm(comm_),
-    nEntriesPerRow(3), 
-    nMyRow(4), 
+    nEntriesPerRow(3),
+    nMyRow(4),
     nGlobalRow(nMyRow * comm_->getSize()),
     yInit(100*(comm_->getRank()+1)),
     squareMatrix(square_)
@@ -78,7 +78,7 @@ public:
   size_t nGlobalRows() const { return nGlobalRow; }
 
   // Return number of columns in generated matrix
-  size_t nGlobalCols() const { 
+  size_t nGlobalCols() const {
    return (squareMatrix ? nGlobalRow : nGlobalRow + nEntriesPerRow - 1);
   }
 
@@ -160,12 +160,12 @@ public:
   }
 private:
 
-  // Build non-symmetric matrix with nEntriesPerRow nonzeros (value = 1.) 
-  // in each row, nMyRow rows per processor.  
+  // Build non-symmetric matrix with nEntriesPerRow nonzeros (value = 1.)
+  // in each row, nMyRow rows per processor.
   // Matrix may be square or rectangular.
   Teuchos::RCP<matrix_t>
   buildMatrix(
-    const Teuchos::RCP<const map_t> &domainMap, 
+    const Teuchos::RCP<const map_t> &domainMap,
     const Teuchos::RCP<const map_t> &rangeMap
   )
   {
@@ -178,7 +178,7 @@ private:
 
     for (size_t i = 0; i < nMyRow; i++) {
       gno_t gid = rowMap->getGlobalElement(i);
-      for (size_t j = 0; j < nEntriesPerRow; j++) 
+      for (size_t j = 0; j < nEntriesPerRow; j++)
         nz[j] = (squareMatrix ? (gid + j) % nGlobalRow : (gid + j));
       Amat->insertGlobalValues(gid, nz(), val());
     }
@@ -189,7 +189,7 @@ private:
   }
 
   // Initialize input vector x_gid = gid
-  Teuchos::RCP<vector_t> 
+  Teuchos::RCP<vector_t>
   getInputVector(const Teuchos::RCP<const map_t> &map)  const
   {
     Teuchos::RCP<vector_t> vec = rcp(new vector_t(map));
@@ -203,7 +203,7 @@ private:
   }
 
   // Initialize output vector y_gid = yInit
-  Teuchos::RCP<vector_t> 
+  Teuchos::RCP<vector_t>
   getOutputVector(const Teuchos::RCP<const map_t> &map)  const
   {
     Teuchos::RCP<vector_t> vec = rcp(new vector_t(map));
@@ -226,7 +226,7 @@ private:
       gno_t gid = vec->getMap()->getGlobalElement(i);
 
       scalar_t expected(0);
-      for (size_t j = 0; j < nEntriesPerRow; j++) 
+      for (size_t j = 0; j < nEntriesPerRow; j++)
         expected += (squareMatrix ? (gid + j) % nGlobalRow : (gid + j));
       expected *= alpha;
       expected += beta * yInit;
@@ -234,7 +234,7 @@ private:
       if (data(i,0) != expected) ierr++;
     }
 
-    if (ierr > 0) 
+    if (ierr > 0)
       std::cout << comm->getRank() << " HAD " << ierr << " ERRORS" << std::endl;
     return ierr;
   }
@@ -261,7 +261,7 @@ private:
       else {
         for (ssize_t j = 0; j < ssize_t(nEntriesPerRow); j++) {
           ssize_t idx = gid - j;
-          if (idx >= 0 && idx < ssize_t(nGlobalRow)) 
+          if (idx >= 0 && idx < ssize_t(nGlobalRow))
             expected += scalar_t(idx);
         }
       }
@@ -271,15 +271,15 @@ private:
       if (data(i,0) != expected) ierr++;
     }
 
-    if (ierr > 0) 
+    if (ierr > 0)
       std::cout << comm->getRank() << " HAD " << ierr << " ERRORS" << std::endl;
     return ierr;
   }
 
   // Compare the result of matrix batchedApply to analytical result
   int checkResultBatched(
-    std::vector<vector_t*> &vec, 
-    scalar_t alpha, 
+    std::vector<vector_t*> &vec,
+    scalar_t alpha,
     scalar_t beta) const
   {
     int ierr = 0;
@@ -292,7 +292,7 @@ private:
         gno_t gid = vec[v]->getMap()->getGlobalElement(i);
 
         scalar_t expected(0);
-        for (size_t j = 0; j < nEntriesPerRow; j++) 
+        for (size_t j = 0; j < nEntriesPerRow; j++)
           expected += (squareMatrix ? (gid + j) % nGlobalRow : (gid + j));
         expected *= alpha;
         expected += beta * yInit;
@@ -301,7 +301,7 @@ private:
       }
     }
 
-    if (ierr > 0) 
+    if (ierr > 0)
       std::cout << comm->getRank() << " HAD " << ierr << " ERRORS" << std::endl;
     return ierr;
   }
@@ -381,10 +381,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, RectangularDefault,
 
   // Build Trilinos-default range and domain maps
 
-  Teuchos::RCP<const map_t> domainMap = 
+  Teuchos::RCP<const map_t> domainMap =
     rcp(new map_t(mb.nGlobalCols(), 0, comm));
 
-  Teuchos::RCP<const map_t> rangeMap = 
+  Teuchos::RCP<const map_t> rangeMap =
     rcp(new map_t(mb.nGlobalRows(), 0, comm));
 
   int ierr = mb.runTests(domainMap, rangeMap,
@@ -411,10 +411,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, RectangularDefaultTranspose,
 
   // Build Trilinos-default range and domain maps
 
-  Teuchos::RCP<const map_t> domainMap = 
+  Teuchos::RCP<const map_t> domainMap =
     rcp(new map_t(mb.nGlobalCols(), 0, comm));
 
-  Teuchos::RCP<const map_t> rangeMap = 
+  Teuchos::RCP<const map_t> rangeMap =
     rcp(new map_t(mb.nGlobalRows(), 0, comm));
 
   int ierr = mb.runTestsTranspose(domainMap, rangeMap,
@@ -441,10 +441,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, SquareDefault,
 
   // Build Trilinos-default range and domain maps
 
-  Teuchos::RCP<const map_t> domainMap = 
+  Teuchos::RCP<const map_t> domainMap =
     rcp(new map_t(mb.nGlobalCols(), 0, comm));
 
-  Teuchos::RCP<const map_t> rangeMap = 
+  Teuchos::RCP<const map_t> rangeMap =
     rcp(new map_t(mb.nGlobalRows(), 0, comm));
 
   int ierr = mb.runTests(domainMap, rangeMap, "SquareDefault");
@@ -470,10 +470,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, SquareDefaultTranspose,
 
   // Build Trilinos-default range and domain maps
 
-  Teuchos::RCP<const map_t> domainMap = 
+  Teuchos::RCP<const map_t> domainMap =
     rcp(new map_t(mb.nGlobalCols(), 0, comm));
 
-  Teuchos::RCP<const map_t> rangeMap = 
+  Teuchos::RCP<const map_t> rangeMap =
     rcp(new map_t(mb.nGlobalRows(), 0, comm));
 
   int ierr = mb.runTestsTranspose(domainMap, rangeMap,
@@ -513,7 +513,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, RectangularCyclic,
 
   Tpetra::global_size_t dummy =
           Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid();
-  Teuchos::RCP<const map_t> domainMap = 
+  Teuchos::RCP<const map_t> domainMap =
            rcp(new map_t(dummy, myEntries(0,nMyEntries), 0, comm));
 
   // A different one-to-one cyclic map for the rangeMap
@@ -526,7 +526,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, RectangularCyclic,
   }
 
   dummy = Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid();
-  Teuchos::RCP<const map_t> rangeMap = 
+  Teuchos::RCP<const map_t> rangeMap =
            rcp(new map_t(dummy, myEntries(0,nMyEntries), 0, comm));
 
   // Run the test
@@ -567,7 +567,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, RectangularCyclicTranspose,
 
   Tpetra::global_size_t dummy =
           Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid();
-  Teuchos::RCP<const map_t> domainMap = 
+  Teuchos::RCP<const map_t> domainMap =
            rcp(new map_t(dummy, myEntries(0,nMyEntries), 0, comm));
 
   // A different one-to-one cyclic map for the rangeMap
@@ -580,7 +580,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, RectangularCyclicTranspose,
   }
 
   dummy = Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid();
-  Teuchos::RCP<const map_t> rangeMap = 
+  Teuchos::RCP<const map_t> rangeMap =
            rcp(new map_t(dummy, myEntries(0,nMyEntries), 0, comm));
 
   // Run the test
@@ -622,7 +622,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, SquareCyclic,
 
   Tpetra::global_size_t dummy =
           Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid();
-  Teuchos::RCP<const map_t> domainMap = 
+  Teuchos::RCP<const map_t> domainMap =
            rcp(new map_t(dummy, myEntries(0,nMyEntries), 0, comm));
 
   // A different one-to-one cyclic map for the rangeMap
@@ -635,7 +635,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, SquareCyclic,
   }
 
   dummy = Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid();
-  Teuchos::RCP<const map_t> rangeMap = 
+  Teuchos::RCP<const map_t> rangeMap =
            rcp(new map_t(dummy, myEntries(0,nMyEntries), 0, comm));
 
   // Run the test
@@ -676,7 +676,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, SquareCyclicTranspose,
 
   Tpetra::global_size_t dummy =
           Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid();
-  Teuchos::RCP<const map_t> domainMap = 
+  Teuchos::RCP<const map_t> domainMap =
            rcp(new map_t(dummy, myEntries(0,nMyEntries), 0, comm));
 
   // A different one-to-one cyclic map for the rangeMap
@@ -689,7 +689,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, SquareCyclicTranspose,
   }
 
   dummy = Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid();
-  Teuchos::RCP<const map_t> rangeMap = 
+  Teuchos::RCP<const map_t> rangeMap =
            rcp(new map_t(dummy, myEntries(0,nMyEntries), 0, comm));
 
   // Run the test
@@ -730,7 +730,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, SquareCyclicBatched,
 
   Tpetra::global_size_t dummy =
           Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid();
-  Teuchos::RCP<const map_t> domainMap = 
+  Teuchos::RCP<const map_t> domainMap =
            rcp(new map_t(dummy, myEntries(0,nMyEntries), 0, comm));
 
   // A different one-to-one cyclic map for the rangeMap
@@ -743,7 +743,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, SquareCyclicBatched,
   }
 
   dummy = Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid();
-  Teuchos::RCP<const map_t> rangeMap = 
+  Teuchos::RCP<const map_t> rangeMap =
            rcp(new map_t(dummy, myEntries(0,nMyEntries), 0, comm));
 
   // Run the test
@@ -765,7 +765,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(Bug7745, SquareCyclicBatched,
   TEUCHOS_UNIT_TEST_TEMPLATE_4_INSTANT(Bug7745, RectangularCyclicTranspose, SCALAR, LO, GO, NODE) \
   TEUCHOS_UNIT_TEST_TEMPLATE_4_INSTANT(Bug7745, SquareCyclic, SCALAR, LO, GO, NODE) \
   TEUCHOS_UNIT_TEST_TEMPLATE_4_INSTANT(Bug7745, SquareCyclicTranspose, SCALAR, LO, GO, NODE) \
-  TEUCHOS_UNIT_TEST_TEMPLATE_4_INSTANT(Bug7745, SquareCyclicBatched, SCALAR, LO, GO, NODE) 
+  TEUCHOS_UNIT_TEST_TEMPLATE_4_INSTANT(Bug7745, SquareCyclicBatched, SCALAR, LO, GO, NODE)
 
   TPETRA_ETI_MANGLING_TYPEDEFS()
 

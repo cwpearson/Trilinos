@@ -200,7 +200,7 @@ struct SCAL<ViewType, CoefficientType, IndexType, false, 1> {
 #if defined(KOKKOS_ENABLE_PRAGMA_UNROLL)
 #pragma unroll
 #endif
-    for (IndexType i = 0; i < numRows; ++i) 
+    for (IndexType i = 0; i < numRows; ++i)
       x(i) = alpha * x(i);
   }
 };
@@ -217,8 +217,8 @@ struct SCAL<ViewType, CoefficientType, IndexType, false, 2> {
     const IndexType numRows = static_cast<IndexType> (A.extent (0));
     const IndexType numCols = static_cast<IndexType> (A.extent (1));
 
-    for (IndexType j = 0; j < numCols; ++j) 
-      for (IndexType i = 0; i < numRows; ++i) 
+    for (IndexType j = 0; j < numCols; ++j)
+      for (IndexType i = 0; i < numRows; ++i)
         A(i,j) = alpha * A(i,j);
   }
 };
@@ -233,11 +233,11 @@ struct SCAL<ViewType, CoefficientType, IndexType, true, rank> {
   {
     using x_value_type = typename std::decay<decltype (*x.data()) >::type;
     const IndexType span = static_cast<IndexType> (x.span());
-    x_value_type *__restrict x_ptr(x.data()); 
+    x_value_type *__restrict x_ptr(x.data());
 #if defined(KOKKOS_ENABLE_PRAGMA_UNROLL)
 #pragma unroll
 #endif
-    for (IndexType i = 0; i < span; ++i) 
+    for (IndexType i = 0; i < span; ++i)
       x_ptr[i] = alpha * x_ptr[i];
   }
 };
@@ -266,7 +266,7 @@ struct FILL<ViewType, InputType, IndexType, false, 1> {
   run (const ViewType& x, const InputType& val)
   {
     const IndexType numRows = static_cast<IndexType> (x.extent (0));
-    for (IndexType i = 0; i < numRows; ++i) 
+    for (IndexType i = 0; i < numRows; ++i)
       x(i) = val;
   }
 };
@@ -281,8 +281,8 @@ struct FILL<ViewType, InputType, IndexType, false, 2> {
   {
     const IndexType numRows = static_cast<IndexType> (X.extent (0));
     const IndexType numCols = static_cast<IndexType> (X.extent (1));
-    for (IndexType j = 0; j < numCols; ++j) 
-      for (IndexType i = 0; i < numRows; ++i) 
+    for (IndexType j = 0; j < numCols; ++j)
+      for (IndexType i = 0; i < numRows; ++i)
         X(i,j) = val;
   }
 };
@@ -299,7 +299,7 @@ struct FILL<ViewType, InputType, IndexType, true, rank> {
 #if defined(KOKKOS_ENABLE_PRAGMA_UNROLL)
 #pragma unroll
 #endif
-    for (IndexType i = 0; i < span; ++i) 
+    for (IndexType i = 0; i < span; ++i)
       x_ptr[i] = val;
   }
 };
@@ -342,7 +342,7 @@ struct AXPY<CoefficientType, ViewType1, ViewType2, IndexType, false, 1> {
     const IndexType numRows = static_cast<IndexType> (y.extent (0));
     if (alpha != ArithTraits<CoefficientType>::zero ()) {
       /// general case
-      for (IndexType i = 0; i < numRows; ++i) 
+      for (IndexType i = 0; i < numRows; ++i)
         y(i) += alpha * x(i);
     }
   }
@@ -368,8 +368,8 @@ struct AXPY<CoefficientType, ViewType1, ViewType2, IndexType, false, 2> {
     const IndexType numCols = static_cast<IndexType> (Y.extent (1));
 
     if (alpha != ArithTraits<CoefficientType>::zero ()) {
-      for (IndexType j = 0; j < numCols; ++j) 
-        for (IndexType i = 0; i < numRows; ++i) 
+      for (IndexType j = 0; j < numCols; ++j)
+        for (IndexType i = 0; i < numRows; ++i)
           Y(i,j) += alpha * X(i,j);
     }
   }
@@ -395,12 +395,12 @@ struct AXPY<CoefficientType, ViewType1, ViewType2, IndexType, true, rank> {
       using x_value_type = typename std::decay<decltype (*x.data()) >::type;
       using y_value_type = typename std::decay<decltype (*y.data()) >::type;
       const IndexType span = static_cast<IndexType> (y.span());
-      const x_value_type *__restrict x_ptr(x.data()); 
-      y_value_type *__restrict y_ptr(y.data()); 
+      const x_value_type *__restrict x_ptr(x.data());
+      y_value_type *__restrict y_ptr(y.data());
 #if defined(KOKKOS_ENABLE_PRAGMA_UNROLL)
 #pragma unroll
 #endif
-      for (IndexType i = 0; i < span; ++i) 
+      for (IndexType i = 0; i < span; ++i)
         y_ptr[i] += alpha * x_ptr[i];
     }
   }
@@ -432,7 +432,7 @@ struct COPY<ViewType1, ViewType2, IndexType, false, 1> {
   {
     const IndexType numRows = static_cast<IndexType> (x.extent (0));
     /// general case
-    for (IndexType i = 0; i < numRows; ++i) 
+    for (IndexType i = 0; i < numRows; ++i)
       y(i) = x(i);
   }
 };
@@ -450,8 +450,8 @@ struct COPY<ViewType1, ViewType2, IndexType, false, 2> {
     const IndexType numRows = static_cast<IndexType> (Y.extent (0));
     const IndexType numCols = static_cast<IndexType> (Y.extent (1));
       /// general case
-    for (IndexType j = 0; j < numCols; ++j) 
-      for (IndexType i = 0; i < numRows; ++i) 
+    for (IndexType j = 0; j < numCols; ++j)
+      for (IndexType i = 0; i < numRows; ++i)
         Y(i,j) = X(i,j);
   }
 };
@@ -468,13 +468,13 @@ struct COPY<ViewType1, ViewType2, IndexType, true, rank> {
     const IndexType span = static_cast<IndexType> (x.span());
     using x_value_type = typename std::decay<decltype (*x.data()) >::type;
     using y_value_type = typename std::decay<decltype (*y.data()) >::type;
-    const x_value_type *__restrict  x_ptr(x.data()); 
-    y_value_type *__restrict        y_ptr(y.data()); 
+    const x_value_type *__restrict  x_ptr(x.data());
+    y_value_type *__restrict        y_ptr(y.data());
 
 #if defined(KOKKOS_ENABLE_PRAGMA_UNROLL)
 #pragma unroll
 #endif
-      for (IndexType i = 0; i < span; ++i) 
+      for (IndexType i = 0; i < span; ++i)
         y_ptr[i] = x_ptr[i];
   }
 };
@@ -501,8 +501,8 @@ struct GEMV {
     const IndexType numCols = static_cast<IndexType> (A.extent (1));
 
     /// general case
-    for (IndexType i = 0; i < numRows; ++i) 
-      for (IndexType j = 0; j < numCols; ++j) 
+    for (IndexType i = 0; i < numRows; ++i)
+      for (IndexType j = 0; j < numCols; ++j)
         y(i) += alpha * A(i,j) * x(j);
   }
 };
@@ -530,9 +530,9 @@ struct GEMV<VecType1,BlkType,VecType2,CoeffType,IndexType,true,Kokkos::LayoutLef
     const IndexType numRows = static_cast<IndexType> (A.extent (0));
     const IndexType numCols = static_cast<IndexType> (A.extent (1));
 
-    const A_value_type *__restrict A_ptr(A.data()); const IndexType as1(A.stride(1)); 
-    const x_value_type *__restrict x_ptr(x.data()); 
-    y_value_type *__restrict y_ptr(y.data()); 
+    const A_value_type *__restrict A_ptr(A.data()); const IndexType as1(A.stride(1));
+    const x_value_type *__restrict x_ptr(x.data());
+    y_value_type *__restrict y_ptr(y.data());
 
 #if defined(KOKKOS_ENABLE_PRAGMA_UNROLL)
 #pragma unroll
@@ -543,7 +543,7 @@ struct GEMV<VecType1,BlkType,VecType2,CoeffType,IndexType,true,Kokkos::LayoutLef
 #if defined(KOKKOS_ENABLE_PRAGMA_UNROLL)
 #pragma unroll
 #endif
-      for (IndexType i=0;i<numRows;++i) 
+      for (IndexType i=0;i<numRows;++i)
         y_ptr[i] += A_at_j[i] * x_at_j;
     }
   }
@@ -573,8 +573,8 @@ struct GEMV<VecType1,BlkType,VecType2,CoeffType,IndexType,true,Kokkos::LayoutRig
     const IndexType numCols = static_cast<IndexType> (A.extent (1));
 
     const A_value_type *__restrict A_ptr(A.data()); const IndexType as0(A.stride(0));
-    const x_value_type *__restrict x_ptr(x.data()); 
-    y_value_type *__restrict y_ptr(y.data()); 
+    const x_value_type *__restrict x_ptr(x.data());
+    y_value_type *__restrict y_ptr(y.data());
 
 #if defined(KOKKOS_ENABLE_PRAGMA_UNROLL)
 #pragma unroll
@@ -585,10 +585,10 @@ struct GEMV<VecType1,BlkType,VecType2,CoeffType,IndexType,true,Kokkos::LayoutRig
 #if defined(KOKKOS_ENABLE_PRAGMA_UNROLL)
 #pragma unroll
 #endif
-      for (IndexType j=0;j<numCols;++j) 
+      for (IndexType j=0;j<numCols;++j)
         y_at_i += A_at_i[j] * x_ptr[j];
       y_ptr[i] += alpha*y_at_i;
-    }          
+    }
   }
 };
 
@@ -673,7 +673,7 @@ COPY (const ViewType1& x, const ViewType2& y)
   constexpr bool is_layout_same = std::is_same<LayoutType1,LayoutType2>::value;
   constexpr bool is_x_contiguous = (std::is_same<LayoutType1,Kokkos::LayoutLeft>::value ||
                                     std::is_same<LayoutType1,Kokkos::LayoutRight>::value);
-  constexpr bool is_contiguous = is_layout_same && is_x_contiguous;  
+  constexpr bool is_contiguous = is_layout_same && is_x_contiguous;
   Impl::COPY<ViewType1, ViewType2, IndexType, is_contiguous, rank>::run (x, y);
 }
 

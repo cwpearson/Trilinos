@@ -288,7 +288,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_3_DECL( Import_Util, SortCrsEntries, Scalar, LO, GO)
     // merge/shrink
     vals2.resize(new_num_entries);
     vals_rand.resize(new_num_entries);
-    for (size_type i=0; i<new_num_entries; i++) 
+    for (size_type i=0; i<new_num_entries; i++)
       vals2[i] = scalar_type(2.)*vals[i];
     TEST_COMPARE_FLOATING_ARRAYS(vals2, vals_rand, 1.e-12);
 
@@ -326,7 +326,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL( Import_Util, SortCrsEntriesKokkos, Scalar, LO
   typedef typename local_matrix_device_type::StaticCrsGraphType graph_type;
   typedef typename graph_type::row_map_type::non_const_type rowptr_view_type;
   typedef typename graph_type::entries_type::non_const_type colind_view_type;
-  typedef typename local_matrix_device_type::values_type::non_const_type 
+  typedef typename local_matrix_device_type::values_type::non_const_type
                    vals_view_type;
 
   typedef typename rowptr_view_type::value_type index_type;
@@ -352,7 +352,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL( Import_Util, SortCrsEntriesKokkos, Scalar, LO
   vals_type vals, vals2;
 
   generate_crs_entries<scalar_type,ordinal_type,index_type>(
-      rowptr, rowptr2, colind, colind2, vals, vals2, 
+      rowptr, rowptr2, colind, colind2, vals, vals2,
       max_num_entries_per_row, num_cols);
 
   {
@@ -369,13 +369,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL( Import_Util, SortCrsEntriesKokkos, Scalar, LO
         colind_rand, vals_rand, rowptr, colind, vals);
 
     // Create mirror views of the CRS entries
-    auto rowptr_views = 
+    auto rowptr_views =
          create_device_views<rowptr_view_type>(rowptr);
-    auto colind_rand_views = 
+    auto colind_rand_views =
          create_device_views<colind_view_type>(colind_rand);
-    auto colind_rand_copy_views = 
+    auto colind_rand_copy_views =
          create_device_views<colind_view_type>(colind_rand);
-    auto vals_rand_views = 
+    auto vals_rand_views =
          create_device_views<vals_view_type>(vals_rand);
 
     //
