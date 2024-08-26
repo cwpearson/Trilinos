@@ -13,6 +13,7 @@
 #include "Tpetra_Util.hpp"
 #include "Tpetra_Details_Behavior.hpp"
 #include <numeric>
+#include <sstream>
 
 namespace Tpetra {
 namespace Details {
@@ -28,6 +29,8 @@ DistributorSendTypeEnumToString (EDistributorSendType sendType)
   }
   else if (sendType == DISTRIBUTOR_ALLTOALL) {
     return "Alltoall";
+  } else if (sendType == Details::DISTRIBUTOR_IGATHERV) {
+    return "Igatherv";
   }
 #if defined(HAVE_TPETRACORE_MPI_ADVANCE)
   else if (sendType == DISTRIBUTOR_MPIADVANCE_ALLTOALL) {
@@ -381,6 +384,11 @@ size_t DistributorPlan::createFromSends(const Teuchos::ArrayView<const int>& exp
 #if defined(HAVE_TPETRACORE_MPI_ADVANCE)
   initializeMpiAdvance();
 #endif
+  initializeIgathervRoots();
+
+
+
+
 
   // createFromRecvs() calls createFromSends(), but will set
   // howInitialized_ again after calling createFromSends().
@@ -582,6 +590,7 @@ void DistributorPlan::createFromSendsAndRecvs(const Teuchos::ArrayView<const int
 #if defined(HAVE_TPETRACORE_MPI_ADVANCE)
   initializeMpiAdvance();
 #endif
+  initializeIgathervRoots();
 }
 
 Teuchos::RCP<DistributorPlan> DistributorPlan::getReversePlan() const {
@@ -633,6 +642,7 @@ void DistributorPlan::createReversePlan() const
   // is there a smarter way to do this
   reversePlan_->initializeMpiAdvance();
 #endif
+  reversePlan_->initializeIgathervRoots();
 }
 
 void DistributorPlan::computeReceives()
@@ -893,6 +903,7 @@ Teuchos::Array<std::string> distributorSendTypes()
   sendTypes.push_back ("Isend");
   sendTypes.push_back ("Send");
   sendTypes.push_back ("Alltoall");
+  sendTypes.push_back ("Igatherv");
 #if defined(HAVE_TPETRACORE_MPI_ADVANCE)
   sendTypes.push_back ("MpiAdvanceAlltoall");
   sendTypes.push_back ("MpiAdvanceNbralltoallv");
@@ -915,6 +926,7 @@ DistributorPlan::getValidParameters() const
   sendTypeEnums.push_back (Details::DISTRIBUTOR_ISEND);
   sendTypeEnums.push_back (Details::DISTRIBUTOR_SEND);
   sendTypeEnums.push_back (Details::DISTRIBUTOR_ALLTOALL);
+  sendTypeEnums.push_back (Details::DISTRIBUTOR_IGATHERV);
 #if defined(HAVE_TPETRACORE_MPI_ADVANCE)
   sendTypeEnums.push_back (Details::DISTRIBUTOR_MPIADVANCE_ALLTOALL);
   sendTypeEnums.push_back (Details::DISTRIBUTOR_MPIADVANCE_NBRALLTOALLV);
@@ -980,5 +992,42 @@ void DistributorPlan::initializeMpiAdvance() {
 }
 #endif
 
+void DistributorPlan::initializeIgathervRoots() {
+  // FIXME: let's get a timer or profiling region in here
+
+  // FIXME: re-enable this
+#if 0
+  // this is only used for igatherv
+  if (DISTRIBUTOR_IGATHERV != sendType_) {
+    return;
+  }
+#endif
+
+  igathervRoots_.clear();
+
+  // send my number of recvs to everyone
+  const int numRecvs = (int)(numReceives_ + (sendMessageToSelf_ ? 1 : 0));
+  std::vector<int> sendbuf(comm_->getSize(), numRecvs);
+  std::vector<int> recvbuf(comm_->getSize());
+
+  // FIXME: is there a more natural way to do this?
+  Teuchos::RCP<const Teuchos::MpiComm<int> > mpiComm = Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int> >(comm_);
+  Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > rawComm = mpiComm->getRawMpiComm();
+  MPI_Comm comm = (*rawComm)();
+  MPI_Alltoall(sendbuf.data(), 1, MPI_INT, recvbuf.data(), 1, MPI_INT, comm);
+
+  igathervRoots_.clear();
+  for (size_t root = 0; root < recvbuf.size(); ++root) {
+    if (recvbuf[root] > 0) {
+      igathervRoots_.push_back(root);
+    }
+  }
+
+  std::stringstream ss;
+  for (int root : igathervRoots_) {
+    ss << root << " ";
+  }
+  std::cerr << __FILE__ << ":" <<__LINE__ << " " << ss.str() << "\n";
+}
 }
 }

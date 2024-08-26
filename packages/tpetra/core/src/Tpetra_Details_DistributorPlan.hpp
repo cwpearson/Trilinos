@@ -42,7 +42,8 @@ namespace Details {
 enum EDistributorSendType {
   DISTRIBUTOR_ISEND, // Use MPI_Isend (Teuchos::isend)
   DISTRIBUTOR_SEND,  // Use MPI_Send (Teuchos::send)
-  DISTRIBUTOR_ALLTOALL // Use MPI_Alltoall
+  DISTRIBUTOR_ALLTOALL, // Use MPI_Alltoall
+  DISTRIBUTOR_IGATHERV // Use MPI_Igatherv
 #if defined(HAVE_TPETRACORE_MPI_ADVANCE)
   ,
   DISTRIBUTOR_MPIADVANCE_ALLTOALL,
@@ -120,6 +121,7 @@ public:
   Teuchos::ArrayView<const size_t> getStartsTo() const { return startsTo_; }
   Teuchos::ArrayView<const size_t> getIndicesTo() const { return indicesTo_; }
   Details::EDistributorHowInitialized howInitialized() const { return howInitialized_; }
+  const std::vector<int> &getIgathervRoots() const { return igathervRoots_; }
 
 private:
 
@@ -127,6 +129,8 @@ private:
 #if defined(HAVE_TPETRACORE_MPI_ADVANCE)
   void initializeMpiAdvance();
 #endif
+
+  void initializeIgathervRoots();
 
   Teuchos::RCP<const Teuchos::ParameterList> getValidParameters() const;
 
@@ -246,6 +250,12 @@ private:
   /// reverse Distributor, this is assigned to the reverse
   /// Distributor's indicesTo_.
   Teuchos::Array<size_t> indicesFrom_;
+
+  /// \brief list of roots that receive at least one message
+  ///
+  /// This is only used for the IGATHERV communication mode.
+  /// Igatherv is only issued for roots that recv any messages
+  std::vector<int> igathervRoots_;
 };
 
 }

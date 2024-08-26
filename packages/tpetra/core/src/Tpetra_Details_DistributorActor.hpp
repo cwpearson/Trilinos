@@ -84,6 +84,17 @@ private:
       const ImpView &imports,
       const Teuchos::ArrayView<const size_t> &numImportPacketsPerLID);
 
+  template <class ExpView, class ImpView>
+  void doPostsIgatherv(const DistributorPlan &plan, const ExpView &exports,
+                       size_t numPackets, const ImpView &imports);
+
+  template <class ExpView, class ImpView>
+  void doPostsIgatherv(
+      const DistributorPlan &plan, const ExpView &exports,
+      const Teuchos::ArrayView<const size_t> &numExportPacketsPerLID,
+      const ImpView &imports,
+      const Teuchos::ArrayView<const size_t> &numImportPacketsPerLID);
+
 #if defined(HAVE_TPETRACORE_MPI_ADVANCE)
   template <class ExpView, class ImpView>
   void doPostsNbrAllToAllV(const DistributorPlan &plan, const ExpView &exports,
@@ -282,6 +293,119 @@ void DistributorActor::doPostsAllToAll(const DistributorPlan &plan,
   return;
 }
 
+#if defined(HAVE_TPETRA_MPI)
+template <class ExpView, class ImpView>
+void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
+                                       const ExpView &exports,
+                                       size_t numPackets,
+                                       const ImpView &imports) {
+  using size_type = Teuchos::Array<size_t>::size_type;
+  using ExportValue = typename ExpView::non_const_value_type;
+
+  TEUCHOS_TEST_FOR_EXCEPTION(
+      !plan.getIndicesTo().is_null(), std::runtime_error,
+      "Send Type=\"Igatherv\" only works for fast-path communication.");
+
+  auto comm = plan.getComm();
+  const int myRank = comm->getRank();
+  const size_t numBlocks = plan.getNumSends() + plan.hasSelfMessage();
+  std::vector<int> sendcounts(comm->getSize(), 0);
+  std::vector<int> sdispls(comm->getSize(), 0);
+
+
+
+  MPI_Datatype rawType = ::Tpetra::Details::MpiTypeTraits<ExportValue>::getType(ExportValue{});
+
+  // FIXME: is there a better way to do this?
+  Teuchos::RCP<const Teuchos::MpiComm<int>> tMpiComm =
+      Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int>>(comm);
+  Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm>> oMpiComm =
+      tMpiComm->getRawMpiComm();
+  MPI_Comm mpiComm = (*oMpiComm)();
+
+  for (const int root : plan.getIgathervRoots()) {
+
+    const int sdispl = plan.getStartsTo()[root] * numPackets; // FIXME: safe cast
+    auto sendbuf = &exports.data()[sdispl];
+    const size_t sendcount = plan.getLengthsTo()[root] * numPackets;
+
+    TEUCHOS_TEST_FOR_EXCEPTION(sendcount > size_t(INT_MAX), std::logic_error,
+                               "Tpetra::Distributor::doPosts(3 args, Kokkos): "
+                               "Send count for root "
+                                   << root << " (" << sendcount
+                                   << ") is too large "
+                                      "to be represented as int.");
+
+
+    std::vector<int> recvcounts, rdispls;
+
+    if (comm->getRank() == root) {
+
+      recvcounts.resize(comm->getSize());
+      rdispls.resize(comm->getSize());
+
+      const size_type actualNumReceives =
+          Teuchos::as<size_type>(plan.getNumReceives()) +
+          Teuchos::as<size_type>(plan.hasSelfMessage() ? 1 : 0);
+      size_t curBufferOffset = 0;
+      for (size_type i = 0; i < actualNumReceives; ++i) {
+        const size_t curBufLen = plan.getLengthsFrom()[i] * numPackets;
+        TEUCHOS_TEST_FOR_EXCEPTION(
+            curBufferOffset + curBufLen > static_cast<size_t>(imports.size()),
+            std::logic_error,
+            "Tpetra::Distributor::doPosts(3 args, Kokkos): "
+            "Exceeded size of 'imports' array in packing loop on Process "
+                << myRank << ".  imports.size() = " << imports.size()
+                << " < "
+                  "curBufferOffset("
+                << curBufferOffset << ") + curBufLen(" << curBufLen << ").");
+        rdispls[plan.getProcsFrom()[i]] = curBufferOffset;
+        // curBufLen is converted down to int, so make sure it can be represented
+        TEUCHOS_TEST_FOR_EXCEPTION(curBufLen > size_t(INT_MAX), std::logic_error,
+                                  "Tpetra::Distributor::doPosts(3 args, Kokkos): "
+                                  "Recv count for receive "
+                                      << i << " (" << curBufLen
+                                      << ") is too large "
+                                          "to be represented as int.");
+        recvcounts[plan.getProcsFrom()[i]] = static_cast<int>(curBufLen);
+        curBufferOffset += curBufLen;
+      }
+    }
+
+    
+    MPI_Request req;
+    const int err = MPI_Igatherv(sendbuf, sendcount, rawType,
+                 imports.data(), recvcounts.data(), rdispls.data(), rawType,
+                 root, mpiComm, &req);
+
+
+    TEUCHOS_TEST_FOR_EXCEPTION(err != MPI_SUCCESS, std::runtime_error,
+                               "MPI_Alltoallv failed with error \""
+                               << Teuchos::mpiErrorCodeToString(err)
+                               << "\".");
+
+    using CommOrdinal = int; // FIXME
+    Teuchos::RCP<Teuchos::CommRequest<CommOrdinal>> treq(
+      new Teuchos::MpiCommRequest<CommOrdinal>(req, 0)
+    );
+
+    requests_.push_back(treq);
+  }
+
+  return;
+}
+
+  template <class ExpView, class ImpView>
+  void DistributorActor::doPostsIgatherv(
+      const DistributorPlan &plan, const ExpView &exports,
+      const Teuchos::ArrayView<const size_t> &numExportPacketsPerLID,
+      const ImpView &imports,
+      const Teuchos::ArrayView<const size_t> &numImportPacketsPerLID) {
+        throw std::runtime_error("unimplemented"); // FIXME
+      }
+
+#endif // defined(HAVE_TPETRA_MPI)
+
 #if defined(HAVE_TPETRACORE_MPI_ADVANCE)
 template <class ExpView, class ImpView>
 void DistributorActor::doPostsNbrAllToAllV(const DistributorPlan &plan,
@@ -413,6 +537,9 @@ void DistributorActor::doPosts(const DistributorPlan& plan,
 
   if (sendType == Details::DISTRIBUTOR_ALLTOALL) {
     doPostsAllToAll(plan, exports,numPackets, imports);
+    return;
+  } else if (sendType == Details::DISTRIBUTOR_IGATHERV) {
+    doPostsIgatherv(plan, exports, numPackets, imports);
     return;
   }
 #ifdef HAVE_TPETRACORE_MPI_ADVANCE
@@ -895,6 +1022,9 @@ void DistributorActor::doPosts(const DistributorPlan& plan,
   //  point-to-point, so we handle it separately.
   if (sendType == Details::DISTRIBUTOR_ALLTOALL) {
     doPostsAllToAll(plan, exports, numExportPacketsPerLID, imports, numImportPacketsPerLID);
+    return;
+  } else if (sendType == Details::DISTRIBUTOR_IGATHERV) {
+    doPostsIgatherv(plan, exports, numExportPacketsPerLID, imports, numImportPacketsPerLID);
     return;
   }
 #ifdef HAVE_TPETRACORE_MPI_ADVANCE
