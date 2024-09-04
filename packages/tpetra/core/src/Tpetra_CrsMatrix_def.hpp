@@ -7277,6 +7277,13 @@ CrsMatrix<Scalar, LocalOrdinal, GlobalOrdinal, Node>::
       const size_t numBytesOut =
         unpackRow (gidsOut.data (), valsOut.data (), imports_h.data (),
                    offset, numBytes, numEnt, numBytesPerValue);
+
+      if (numBytes != numBytesOut) {
+        std::cout << __FILE__ << ":" << __LINE__ << " : At i=" << i
+         << ", numBytes=" << numBytes << " != numBytesOut="
+         << numBytesOut << ".\n";
+      }
+
       TEUCHOS_TEST_FOR_EXCEPTION_CLASS_FUNC
         (numBytes != numBytesOut, std::logic_error, ": At i=" << i
          << ", numBytes=" << numBytes << " != numBytesOut="

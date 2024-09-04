@@ -198,14 +198,23 @@ void DistributorActor::doPostsAllToAll(const DistributorPlan &plan,
                                        const ExpView &exports,
                                        size_t numPackets,
                                        const ImpView &imports) {
+  auto comm = plan.getComm();
+  const int myRank = comm->getRank();
+
+  // FIXME: debug
+  {
+    std::stringstream ss;
+    ss << __FILE__ << ":" << __LINE__ << " " << myRank << "\n";
+    std::cerr << ss.str();
+  }
+
+
   using size_type = Teuchos::Array<size_t>::size_type;
 
   TEUCHOS_TEST_FOR_EXCEPTION(
       !plan.getIndicesTo().is_null(), std::runtime_error,
       "Send Type=\"Alltoall\" only works for fast-path communication.");
 
-  auto comm = plan.getComm();
-  const int myRank = comm->getRank();
   std::vector<int> sendcounts(comm->getSize(), 0);
   std::vector<int> sdispls(comm->getSize(), 0);
   std::vector<int> recvcounts(comm->getSize(), 0);
@@ -299,6 +308,17 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
                                        const ExpView &exports,
                                        size_t numPackets,
                                        const ImpView &imports) {
+  auto comm = plan.getComm();
+  const int myRank = comm->getRank();
+
+  // FIXME: debug
+  {
+    std::stringstream ss;
+    ss << __FILE__ << ":" << __LINE__ << " " << myRank << "\n";
+    std::cerr << ss.str();
+  }
+
+
   using size_type = Teuchos::Array<size_t>::size_type;
   using ExportValue = typename ExpView::non_const_value_type;
 
@@ -306,8 +326,8 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
       !plan.getIndicesTo().is_null(), std::runtime_error,
       "Send Type=\"Igatherv\" only works for fast-path communication.");
 
-  auto comm = plan.getComm();
-  const int myRank = comm->getRank();
+
+
   // const size_t numBlocks = plan.getNumSends() + plan.hasSelfMessage();
 
   MPI_Datatype rawType = ::Tpetra::Details::MpiTypeTraits<ExportValue>::getType(ExportValue{});
@@ -336,11 +356,11 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
     }
 
     // FIXME: debug
-    {
-      std::stringstream ss;
-      ss << __FILE__ << ":" << __LINE__ << " " << myRank << " " << root << "\n";
-      std::cerr << ss.str();
-    }
+    // {
+    //   std::stringstream ss;
+    //   ss << __FILE__ << ":" << __LINE__ << " " << myRank << " " << root << "\n";
+    //   std::cerr << ss.str();
+    // }
 
     // MPI_Igatherv send-side arguments
     const void * sendbuf = nullptr;
@@ -366,14 +386,12 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
 
     }
 
-
-
     // FIXME: debug
-    {
-      std::stringstream ss;
-      ss << __FILE__ << ":" << __LINE__ << " " << myRank << " " << root << "\n";
-      std::cerr << ss.str();
-    }
+    // {
+    //   std::stringstream ss;
+    //   ss << __FILE__ << ":" << __LINE__ << " " << myRank << " " << root << "\n";
+    //   std::cerr << ss.str();
+    // }
 
     // MPI_Igatherv recv-side arguments
     std::vector<int> recvcounts, rdispls;
@@ -442,11 +460,11 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
     // }
 
     // FIXME: debug
-    {
-      std::stringstream ss;
-      ss << __FILE__ << ":" << __LINE__ << " " << myRank << " " << root << "\n";
-      std::cerr << ss.str();
-    }
+    // {
+    //   std::stringstream ss;
+    //   ss << __FILE__ << ":" << __LINE__ << " " << myRank << " " << root << "\n";
+    //   std::cerr << ss.str();
+    // }
 
     // TEUCHOS_TEST_FOR_EXCEPTION(sendcount > size_t(INT_MAX), std::logic_error,
     //                            "Tpetra::Distributor::doPosts(3 args, Kokkos): "
@@ -481,13 +499,333 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
     MPI_Request req;
     const int err = MPI_Igatherv(sendbuf, sendcount, rawType,
                  imports.data(), recvcounts.data(), rdispls.data(), rawType,
-                 root, mpiComm, &req);
+                 root, mpiComm, &req);         
+    // FIXME: debug
+    // {
+    //   std::stringstream ss;
+    //   ss << __FILE__ << ":" << __LINE__ << " " << myRank << " " << root << "\n";
+    //   std::cerr << ss.str();
+    // }
+
+    TEUCHOS_TEST_FOR_EXCEPTION(err != MPI_SUCCESS, std::runtime_error,
+                               "MPI_Igatherv failed with error \""
+                               << Teuchos::mpiErrorCodeToString(err)
+                               << "\".");
+
+#if 0
+    using CommOrdinal = int; // FIXME
+    Teuchos::RCP<Teuchos::CommRequest<CommOrdinal>> treq(
+      new Teuchos::MpiCommRequest<CommOrdinal>(req, 0)
+    );
+
+    requests_.push_back(treq);
+#else
+    reqs.push_back(req);
+#endif
+
+    // FIXME: debug
+    // {
+    //   std::stringstream ss;
+    //   ss << __FILE__ << ":" << __LINE__ << " " << myRank << " " << root << "\n";
+    //   std::cerr << ss.str();
+    // }
+
+  }
+
+  // FIXME: debug
+  {
+    std::stringstream ss;
+    ss << __FILE__ << ":" << __LINE__ << " " << myRank;
+    ss << " wait on " <<  reqs.size() << "\n";
+    std::cerr << ss.str();
+  }
+
+  MPI_Waitall(reqs.size(), reqs.data(), MPI_STATUSES_IGNORE); // FIXME: move to doWaits?
+  reqs.clear();
+
+  // FIXME: debug
+  {
+    std::stringstream ss;
+    ss << __FILE__ << ":" << __LINE__ << " " << myRank << "\n";
+    std::cerr << ss.str();
+  }
+
+  return;
+}
+
+  template <class ExpView, class ImpView>
+  void DistributorActor::doPostsIgatherv(
+      const DistributorPlan &plan, const ExpView &exports,
+      const Teuchos::ArrayView<const size_t> &numExportPacketsPerLID,
+      const ImpView &imports,
+      const Teuchos::ArrayView<const size_t> &numImportPacketsPerLID) {
+
+  auto comm = plan.getComm();
+  const int myRank = comm->getRank();
+
+  // FIXME: debug
+  {
+    std::stringstream ss;
+    ss << __FILE__ << ":" << __LINE__ << " " << myRank << "\n";
+    std::cerr << ss.str();
+  }
+
+  using size_type = Teuchos::Array<size_t>::size_type;
+  using ExportValue = typename ExpView::non_const_value_type;
+
+  TEUCHOS_TEST_FOR_EXCEPTION(
+      !plan.getIndicesTo().is_null(), std::runtime_error,
+      "Send Type=\"Igatherv\" only works for fast-path communication.");
+
+
+
+  MPI_Datatype rawType = ::Tpetra::Details::MpiTypeTraits<ExportValue>::getType(ExportValue{});
+
+  // FIXME: is there a better way to do this?
+  Teuchos::RCP<const Teuchos::MpiComm<int>> tMpiComm =
+      Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int>>(comm);
+  Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm>> oMpiComm =
+      tMpiComm->getRawMpiComm();
+  MPI_Comm mpiComm = (*oMpiComm)();
+
+  std::vector<MPI_Request> reqs;
+  for (const int root : plan.getIgathervRoots()) {
+
+    // This proc is participating in an Igatherv, but it may not actually be sending anything
+    // i.e. plan.getStartsTo() and friends may be cleared or less than root
+
+
+    // index in the send plan that corresponds to this root
+    size_type rootProcIndex = plan.getProcsTo().size(); // sentinel value -> not found
+    for (size_type pi = 0; pi < plan.getProcsTo().size(); ++pi) {
+      if (plan.getProcsTo()[pi] == root) {
+        rootProcIndex = pi;
+        break;
+      }
+    }
+
+    // FIXME: debug
+    // {
+    //   std::stringstream ss;
+    //   ss << __FILE__ << ":" << __LINE__ << " " << myRank << " " << root << "\n";
+    //   std::cerr << ss.str();
+    // }
+
+#if 0
+  size_t curPKToffset = 0;
+  for (size_t pp = 0; pp < plan.getNumSends(); ++pp) {
+    sdispls[plan.getProcsTo()[pp]] = curPKToffset;
+    size_t numPackets = 0;
+    for (size_t j = plan.getStartsTo()[pp];
+         j < plan.getStartsTo()[pp] + plan.getLengthsTo()[pp]; ++j) {
+      numPackets += numExportPacketsPerLID[j];
+    }
+    // numPackets is converted down to int, so make sure it can be represented
+    TEUCHOS_TEST_FOR_EXCEPTION(numPackets > size_t(INT_MAX), std::logic_error,
+                               "Tpetra::Distributor::doPosts(4 args, Kokkos): "
+                               "Send count for send "
+                                   << pp << " (" << numPackets
+                                   << ") is too large "
+                                      "to be represented as int.");
+    sendcounts[plan.getProcsTo()[pp]] = static_cast<int>(numPackets);
+    curPKToffset += numPackets;
+  }
+#endif
+
+    // MPI_Igatherv send-side arguments
+    const void * sendbuf = nullptr;
+    int sendcount = 0;
+    if (rootProcIndex < plan.getProcsTo().size()) {
+      // this guy actually wants to send some data. figure out what
+
+      // figure out how much data this proc wants to send to root
+      for (size_t j = plan.getStartsTo()[rootProcIndex];
+          j < plan.getStartsTo()[rootProcIndex] + plan.getLengthsTo()[rootProcIndex]; ++j) {
+        sendcount += numExportPacketsPerLID[j];
+      }
+
+      // where out where in exports that data lives by accumulating the total number of
+      // packets this proc wants to send to previous roots.
+      size_t sdispl = 0;
+      for (size_type pp = 0; pp + 1 /* not rootProcIndex */ < rootProcIndex; ++pp) {
+        size_t numPackets = 0;
+        for (size_t j = plan.getStartsTo()[pp];
+            j < plan.getStartsTo()[pp] + plan.getLengthsTo()[pp]; ++j) {
+          numPackets += numExportPacketsPerLID[j];
+        }
+        sdispl += numPackets;
+      }
+
+      sendbuf = exports.data() + sdispl; // FIXME: safe cast please
+
+      // FIXME: debug
+      if (sendcount != 0 && exports.size() < size_t(sdispl) + size_t(sendcount)) {
+        std::stringstream ss;
+        ss << __FILE__ << ":" << __LINE__ << " " << myRank << " " << root;
+        ss << " sendcount=" << sendcount;
+        ss << " exports.size()=" << exports.size();
+        ss << " sdispl=" << sdispl;
+        ss << "\n";
+        std::cerr << ss.str();
+        throw std::runtime_error(ss.str());
+      }
+
+
+    }
+
     // FIXME: debug
     {
       std::stringstream ss;
       ss << __FILE__ << ":" << __LINE__ << " " << myRank << " " << root << "\n";
       std::cerr << ss.str();
     }
+
+#if 0
+  size_t curBufferOffset = 0;
+  size_t curLIDoffset = 0;
+  for (size_type i = 0; i < actualNumReceives; ++i) {
+    size_t totalPacketsFrom_i = 0;
+    for (size_t j = 0; j < plan.getLengthsFrom()[i]; ++j) {
+      totalPacketsFrom_i += numImportPacketsPerLID[curLIDoffset + j];
+    }
+    curLIDoffset += plan.getLengthsFrom()[i];
+
+    rdispls[plan.getProcsFrom()[i]] = curBufferOffset;
+    // totalPacketsFrom_i is converted down to int, so make sure it can be
+    // represented
+    TEUCHOS_TEST_FOR_EXCEPTION(totalPacketsFrom_i > size_t(INT_MAX),
+                               std::logic_error,
+                               "Tpetra::Distributor::doPosts(3 args, Kokkos): "
+                               "Recv count for receive "
+                                   << i << " (" << totalPacketsFrom_i
+                                   << ") is too large "
+                                      "to be represented as int.");
+    recvcounts[plan.getProcsFrom()[i]] = static_cast<int>(totalPacketsFrom_i);
+    curBufferOffset += totalPacketsFrom_i;
+  }
+
+#endif
+
+    // MPI_Igatherv recv-side arguments
+    std::vector<int> recvcounts, rdispls;
+    if (comm->getRank() == root) {
+      // this proc wants to recv some data. figure out what
+
+      recvcounts.resize(comm->getSize());
+      rdispls.resize(comm->getSize());
+
+      const size_type actualNumReceives =
+          Teuchos::as<size_type>(plan.getNumReceives()) +
+          Teuchos::as<size_type>(plan.hasSelfMessage() ? 1 : 0);
+      size_t curBufferOffset = 0;
+      size_t curLIDoffset = 0;
+      for (size_type i = 0; i < actualNumReceives; ++i) {
+        // if (i >= plan.getLengthsFrom().size()) {
+        //   std::stringstream ss;
+        //   ss << __FILE__ << ":" << __LINE__ << " AHHH\n";
+        //   throw std::runtime_error(ss.str());
+        // }
+
+        size_t numPackets = 0;
+        for (size_t j = 0; j < plan.getLengthsFrom()[i]; ++j) {
+          numPackets += numImportPacketsPerLID[curLIDoffset + j];
+        }
+        curLIDoffset += plan.getLengthsFrom()[i];
+
+        TEUCHOS_TEST_FOR_EXCEPTION(
+            curBufferOffset + numPackets > static_cast<size_t>(imports.size()),
+            std::logic_error,
+            "Tpetra::Distributor::doPosts(3 args, Kokkos): "
+            "Exceeded size of 'imports' array in packing loop on Process "
+                << myRank << ".  imports.size() = " << imports.size()
+                << " < "
+                  "curBufferOffset("
+                << curBufferOffset << ") + numPackets(" << numPackets << ").");
+        // if (i >= plan.getProcsFrom().size()) {
+        //   std::stringstream ss;
+        //   ss << __FILE__ << ":" << __LINE__ << " AHHH\n";
+        //   throw std::runtime_error(ss.str());
+        // }
+        rdispls[plan.getProcsFrom()[i]] = curBufferOffset;
+        // numPackets is converted down to int, so make sure it can be represented
+        TEUCHOS_TEST_FOR_EXCEPTION(numPackets > size_t(INT_MAX), std::logic_error,
+                                  "Tpetra::Distributor::doPosts(3 args, Kokkos): "
+                                  "Recv count for receive "
+                                      << i << " (" << numPackets
+                                      << ") is too large "
+                                          "to be represented as int.");
+        recvcounts[plan.getProcsFrom()[i]] = static_cast<int>(numPackets);
+        curBufferOffset += numPackets;
+      }
+
+    }
+
+
+
+
+    // if (plan.getStartsTo().size() <= root) {
+    //   std::stringstream ss;
+    //   ss << __FILE__ << ":" << __LINE__ << " " << myRank << " " << root << " ";
+    //   ss << "plan.getStartsTo().size()=" << plan.getStartsTo().size() << "\n";
+    //   std::cerr << ss.str();
+    // }
+
+
+
+    // if (plan.getLengthsTo().size() <= root) {
+    //   std::stringstream ss;
+    //   ss << __FILE__ << ":" << __LINE__ << " " << myRank << " " << root << " ";
+    //   ss << "plan.getLengthsTo().size()=" << plan.getLengthsTo().size() << "\n";
+    //   std::cerr << ss.str();
+    // }
+
+    // FIXME: debug
+    // {
+    //   std::stringstream ss;
+    //   ss << __FILE__ << ":" << __LINE__ << " " << myRank << " " << root << "\n";
+    //   std::cerr << ss.str();
+    // }
+
+    // TEUCHOS_TEST_FOR_EXCEPTION(sendcount > size_t(INT_MAX), std::logic_error,
+    //                            "Tpetra::Distributor::doPosts(3 args, Kokkos): "
+    //                            "Send count for root "
+    //                                << root << " (" << sendcount
+    //                                << ") is too large "
+    //                                   "to be represented as int.");
+   
+   // FIXME: debug
+    {
+      std::stringstream ss;
+      ss << __FILE__ << ":" << __LINE__ 
+         << " " << myRank
+         << " " << root 
+         << " " << sendcount;
+      ss << " [";
+      for (const int e : recvcounts) {
+        ss << " " << e;
+      }
+      ss << " ]";
+      ss << " [";
+      for (const int e : rdispls) {
+        ss << " " << e;
+      }
+      ss << " ]";
+      ss << "\n"; 
+      std::cerr << ss.str();
+    }
+
+    
+
+    MPI_Request req;
+    const int err = MPI_Igatherv(sendbuf, sendcount, rawType,
+                 imports.data(), recvcounts.data(), rdispls.data(), rawType,
+                 root, mpiComm, &req);         
+    // FIXME: debug
+    // {
+    //   std::stringstream ss;
+    //   ss << __FILE__ << ":" << __LINE__ << " " << myRank << " " << root << "\n";
+    //   std::cerr << ss.str();
+    // }
 
     TEUCHOS_TEST_FOR_EXCEPTION(err != MPI_SUCCESS, std::runtime_error,
                                "MPI_Igatherv failed with error \""
@@ -517,11 +855,13 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
   // FIXME: debug
   {
     std::stringstream ss;
-    ss << __FILE__ << ":" << __LINE__ << " " << myRank << "\n";
+    ss << __FILE__ << ":" << __LINE__ << " " << myRank;
+    ss << " wait on " <<  reqs.size() << "\n";
     std::cerr << ss.str();
   }
 
-  MPI_Waitall(reqs.size(), reqs.data(), MPI_STATUSES_IGNORE);
+  MPI_Waitall(reqs.size(), reqs.data(), MPI_STATUSES_IGNORE); // FIXME: move to doWaits?
+  reqs.clear();
 
   // FIXME: debug
   {
@@ -531,15 +871,6 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
   }
 
   return;
-}
-
-  template <class ExpView, class ImpView>
-  void DistributorActor::doPostsIgatherv(
-      const DistributorPlan &plan, const ExpView &exports,
-      const Teuchos::ArrayView<const size_t> &numExportPacketsPerLID,
-      const ImpView &imports,
-      const Teuchos::ArrayView<const size_t> &numImportPacketsPerLID) {
-        throw std::runtime_error("unimplemented"); // FIXME
       }
 
 #endif // defined(HAVE_TPETRA_MPI)
@@ -1163,8 +1494,8 @@ void DistributorActor::doPosts(const DistributorPlan& plan,
 #ifdef HAVE_TPETRA_MPI
 
   // FIXME: allways use Igatherv for testing
-  doPostsIgatherv(plan, exports, numExportPacketsPerLID, imports, numImportPacketsPerLID);
-  return;
+  // doPostsIgatherv(plan, exports, numExportPacketsPerLID, imports, numImportPacketsPerLID);
+  // return;
 
   //  All-to-all communication layout is quite different from
   //  point-to-point, so we handle it separately.

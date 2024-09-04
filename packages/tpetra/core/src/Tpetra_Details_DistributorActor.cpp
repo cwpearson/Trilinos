@@ -36,7 +36,6 @@ namespace Details {
 #endif // HAVE_TPETRA_DISTRIBUTOR_TIMINGS
 
     if (requests_.size() > 0) {
-      std::cerr << __FILE__ << ":" << __LINE__ << " waitAll...\n";
       Teuchos::waitAll(*plan.getComm(), requests_());
 
       // Restore the invariant that requests_.size() is the number of
