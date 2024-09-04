@@ -309,10 +309,6 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
   auto comm = plan.getComm();
   const int myRank = comm->getRank();
   const size_t numBlocks = plan.getNumSends() + plan.hasSelfMessage();
-  std::vector<int> sendcounts(comm->getSize(), 0);
-  std::vector<int> sdispls(comm->getSize(), 0);
-
-
 
   MPI_Datatype rawType = ::Tpetra::Details::MpiTypeTraits<ExportValue>::getType(ExportValue{});
 
@@ -323,10 +319,13 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
       tMpiComm->getRawMpiComm();
   MPI_Comm mpiComm = (*oMpiComm)();
 
+  std::vector<MPI_Request> reqs;
   for (const int root : plan.getIgathervRoots()) {
 
+    std::cerr << __FILE__ << ":" << __LINE__ << " " << root << "\n";
+
     const int sdispl = plan.getStartsTo()[root] * numPackets; // FIXME: safe cast
-    auto sendbuf = &exports.data()[sdispl];
+    auto sendbuf = exports.data() + sdispl;
     const size_t sendcount = plan.getLengthsTo()[root] * numPackets;
 
     TEUCHOS_TEST_FOR_EXCEPTION(sendcount > size_t(INT_MAX), std::logic_error,
@@ -339,6 +338,7 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
 
     std::vector<int> recvcounts, rdispls;
 
+    std::cerr << __FILE__ << ":" << __LINE__ << " " << root << "\n";
     if (comm->getRank() == root) {
 
       recvcounts.resize(comm->getSize());
@@ -349,6 +349,11 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
           Teuchos::as<size_type>(plan.hasSelfMessage() ? 1 : 0);
       size_t curBufferOffset = 0;
       for (size_type i = 0; i < actualNumReceives; ++i) {
+        if (i >= plan.getLengthsFrom().size()) {
+          std::stringstream ss;
+          ss << __FILE__ << ":" << __LINE__ << " AHHH\n";
+          throw std::runtime_error(ss.str());
+        }
         const size_t curBufLen = plan.getLengthsFrom()[i] * numPackets;
         TEUCHOS_TEST_FOR_EXCEPTION(
             curBufferOffset + curBufLen > static_cast<size_t>(imports.size()),
@@ -359,6 +364,11 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
                 << " < "
                   "curBufferOffset("
                 << curBufferOffset << ") + curBufLen(" << curBufLen << ").");
+        if (i >= plan.getProcsFrom().size()) {
+          std::stringstream ss;
+          ss << __FILE__ << ":" << __LINE__ << " AHHH\n";
+          throw std::runtime_error(ss.str());
+        }
         rdispls[plan.getProcsFrom()[i]] = curBufferOffset;
         // curBufLen is converted down to int, so make sure it can be represented
         TEUCHOS_TEST_FOR_EXCEPTION(curBufLen > size_t(INT_MAX), std::logic_error,
@@ -371,26 +381,53 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
         curBufferOffset += curBufLen;
       }
     }
+    std::cerr << __FILE__ << ":" << __LINE__ << " " << root << "\n";
 
     
+    
+    {
+      std::stringstream ss;
+      ss << __FILE__ << ":" << __LINE__ 
+         << " " << comm->getRank() 
+         << " " << sendcount;
+      ss << "[";
+      for (const auto &e : recvcounts) {
+        ss << " " << e;
+      }
+      ss << " ]";
+      ss << "[";
+      for (const auto &e : rdispls) {
+        ss << " " << e;
+      }
+      ss << " ]";
+      ss << "\n"; 
+      std::cerr << ss.str();
+    }
     MPI_Request req;
     const int err = MPI_Igatherv(sendbuf, sendcount, rawType,
                  imports.data(), recvcounts.data(), rdispls.data(), rawType,
                  root, mpiComm, &req);
-
+    std::cerr << __FILE__ << ":" << __LINE__ << " " << root << "\n";
 
     TEUCHOS_TEST_FOR_EXCEPTION(err != MPI_SUCCESS, std::runtime_error,
-                               "MPI_Alltoallv failed with error \""
+                               "MPI_Igatherv failed with error \""
                                << Teuchos::mpiErrorCodeToString(err)
                                << "\".");
 
+#if 0
     using CommOrdinal = int; // FIXME
     Teuchos::RCP<Teuchos::CommRequest<CommOrdinal>> treq(
       new Teuchos::MpiCommRequest<CommOrdinal>(req, 0)
     );
 
     requests_.push_back(treq);
+#else
+    reqs.push_back(req);
+#endif
+    std::cerr << __FILE__ << ":" << __LINE__ << " " << root << "\n";
   }
+
+  MPI_Waitall(reqs.size(), reqs.data(), MPI_STATUSES_IGNORE);
 
   return;
 }
@@ -532,6 +569,11 @@ void DistributorActor::doPosts(const DistributorPlan& plan,
 
 //clang-format on
 #if defined(HAVE_TPETRA_MPI)
+
+  // FIXME: always do Igatherv for testing
+  doPostsIgatherv(plan, exports, numPackets, imports);
+  return;
+
   //  All-to-all communication layout is quite different from
   //  point-to-point, so we handle it separately.
 
@@ -1018,6 +1060,11 @@ void DistributorActor::doPosts(const DistributorPlan& plan,
   const Details::EDistributorSendType sendType = plan.getSendType();
 
 #ifdef HAVE_TPETRA_MPI
+
+  // FIXME: allways use Igatherv for testing
+  doPostsIgatherv(plan, exports, numExportPacketsPerLID, imports, numImportPacketsPerLID);
+  return;
+
   //  All-to-all communication layout is quite different from
   //  point-to-point, so we handle it separately.
   if (sendType == Details::DISTRIBUTOR_ALLTOALL) {
