@@ -1023,11 +1023,15 @@ void DistributorPlan::initializeIgathervRoots() {
     }
   }
 
+  {
   std::stringstream ss;
+  ss << __FILE__ << ":" << __LINE__ << " ";
   for (int root : igathervRoots_) {
     ss << root << " ";
   }
-  std::cerr << __FILE__ << ":" <<__LINE__ << " " << ss.str() << "\n";
+  ss << "\n";
+  std::cerr << ss.str();
+  }
 }
 }
 }

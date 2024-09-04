@@ -308,7 +308,7 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
 
   auto comm = plan.getComm();
   const int myRank = comm->getRank();
-  const size_t numBlocks = plan.getNumSends() + plan.hasSelfMessage();
+  // const size_t numBlocks = plan.getNumSends() + plan.hasSelfMessage();
 
   MPI_Datatype rawType = ::Tpetra::Details::MpiTypeTraits<ExportValue>::getType(ExportValue{});
 
@@ -322,24 +322,63 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
   std::vector<MPI_Request> reqs;
   for (const int root : plan.getIgathervRoots()) {
 
-    std::cerr << __FILE__ << ":" << __LINE__ << " " << root << "\n";
-
-    const int sdispl = plan.getStartsTo()[root] * numPackets; // FIXME: safe cast
-    auto sendbuf = exports.data() + sdispl;
-    const size_t sendcount = plan.getLengthsTo()[root] * numPackets;
-
-    TEUCHOS_TEST_FOR_EXCEPTION(sendcount > size_t(INT_MAX), std::logic_error,
-                               "Tpetra::Distributor::doPosts(3 args, Kokkos): "
-                               "Send count for root "
-                                   << root << " (" << sendcount
-                                   << ") is too large "
-                                      "to be represented as int.");
+    // This proc is participating in an Igatherv, but it may not actually be sending anything
+    // i.e. plan.getStartsTo() and friends may be cleared or less than root
 
 
+    // index in the send plan that corresponds to this root
+    size_type rootProcIndex = plan.getProcsTo().size(); // sentinel value -> not found
+    for (size_type pi = 0; pi < plan.getProcsTo().size(); ++pi) {
+      if (plan.getProcsTo()[pi] == root) {
+        rootProcIndex = pi;
+        break;
+      }
+    }
+
+    // FIXME: debug
+    {
+      std::stringstream ss;
+      ss << __FILE__ << ":" << __LINE__ << " " << myRank << " " << root << "\n";
+      std::cerr << ss.str();
+    }
+
+    // MPI_Igatherv send-side arguments
+    const void * sendbuf = nullptr;
+    int sendcount = 0;
+    if (rootProcIndex < plan.getProcsTo().size()) {
+      // this guy actually wants to send some data. figure out what
+      const int sdispl = plan.getStartsTo()[rootProcIndex] * numPackets; // FIXME: safe cast please
+      sendbuf = exports.data() + sdispl;
+      sendcount = plan.getLengthsTo()[rootProcIndex] * numPackets; // FIXME: safe cast please
+
+      // FIXME: debug
+      if (sendcount != 0 && exports.size() < size_t(sdispl) + size_t(sendcount)) {
+        std::stringstream ss;
+        ss << __FILE__ << ":" << __LINE__ << " " << myRank << " " << root;
+        ss << " sendcount=" << sendcount;
+        ss << " exports.size()=" << exports.size();
+        ss << " sdispl=" << sdispl;
+        ss << "\n";
+        std::cerr << ss.str();
+        throw std::runtime_error(ss.str());
+      }
+
+
+    }
+
+
+
+    // FIXME: debug
+    {
+      std::stringstream ss;
+      ss << __FILE__ << ":" << __LINE__ << " " << myRank << " " << root << "\n";
+      std::cerr << ss.str();
+    }
+
+    // MPI_Igatherv recv-side arguments
     std::vector<int> recvcounts, rdispls;
-
-    std::cerr << __FILE__ << ":" << __LINE__ << " " << root << "\n";
     if (comm->getRank() == root) {
+      // this proc wants to recv some data. figure out what
 
       recvcounts.resize(comm->getSize());
       rdispls.resize(comm->getSize());
@@ -380,34 +419,75 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
         recvcounts[plan.getProcsFrom()[i]] = static_cast<int>(curBufLen);
         curBufferOffset += curBufLen;
       }
-    }
-    std::cerr << __FILE__ << ":" << __LINE__ << " " << root << "\n";
 
-    
-    
+    }
+
+
+
+
+    // if (plan.getStartsTo().size() <= root) {
+    //   std::stringstream ss;
+    //   ss << __FILE__ << ":" << __LINE__ << " " << myRank << " " << root << " ";
+    //   ss << "plan.getStartsTo().size()=" << plan.getStartsTo().size() << "\n";
+    //   std::cerr << ss.str();
+    // }
+
+
+
+    // if (plan.getLengthsTo().size() <= root) {
+    //   std::stringstream ss;
+    //   ss << __FILE__ << ":" << __LINE__ << " " << myRank << " " << root << " ";
+    //   ss << "plan.getLengthsTo().size()=" << plan.getLengthsTo().size() << "\n";
+    //   std::cerr << ss.str();
+    // }
+
+    // FIXME: debug
+    {
+      std::stringstream ss;
+      ss << __FILE__ << ":" << __LINE__ << " " << myRank << " " << root << "\n";
+      std::cerr << ss.str();
+    }
+
+    // TEUCHOS_TEST_FOR_EXCEPTION(sendcount > size_t(INT_MAX), std::logic_error,
+    //                            "Tpetra::Distributor::doPosts(3 args, Kokkos): "
+    //                            "Send count for root "
+    //                                << root << " (" << sendcount
+    //                                << ") is too large "
+    //                                   "to be represented as int.");
+   
+   // FIXME: debug
     {
       std::stringstream ss;
       ss << __FILE__ << ":" << __LINE__ 
-         << " " << comm->getRank() 
+         << " " << myRank
+         << " " << root 
          << " " << sendcount;
-      ss << "[";
-      for (const auto &e : recvcounts) {
+      ss << " [";
+      for (const int e : recvcounts) {
         ss << " " << e;
       }
       ss << " ]";
-      ss << "[";
-      for (const auto &e : rdispls) {
+      ss << " [";
+      for (const int e : rdispls) {
         ss << " " << e;
       }
       ss << " ]";
       ss << "\n"; 
       std::cerr << ss.str();
     }
+
+    
+
     MPI_Request req;
     const int err = MPI_Igatherv(sendbuf, sendcount, rawType,
                  imports.data(), recvcounts.data(), rdispls.data(), rawType,
                  root, mpiComm, &req);
-    std::cerr << __FILE__ << ":" << __LINE__ << " " << root << "\n";
+    // FIXME: debug
+    {
+      std::stringstream ss;
+      ss << __FILE__ << ":" << __LINE__ << " " << myRank << " " << root << "\n";
+      std::cerr << ss.str();
+    }
 
     TEUCHOS_TEST_FOR_EXCEPTION(err != MPI_SUCCESS, std::runtime_error,
                                "MPI_Igatherv failed with error \""
@@ -424,10 +504,31 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
 #else
     reqs.push_back(req);
 #endif
-    std::cerr << __FILE__ << ":" << __LINE__ << " " << root << "\n";
+
+    // FIXME: debug
+    {
+      std::stringstream ss;
+      ss << __FILE__ << ":" << __LINE__ << " " << myRank << " " << root << "\n";
+      std::cerr << ss.str();
+    }
+
+  }
+
+  // FIXME: debug
+  {
+    std::stringstream ss;
+    ss << __FILE__ << ":" << __LINE__ << " " << myRank << "\n";
+    std::cerr << ss.str();
   }
 
   MPI_Waitall(reqs.size(), reqs.data(), MPI_STATUSES_IGNORE);
+
+  // FIXME: debug
+  {
+    std::stringstream ss;
+    ss << __FILE__ << ":" << __LINE__ << " " << myRank << "\n";
+    std::cerr << ss.str();
+  }
 
   return;
 }
