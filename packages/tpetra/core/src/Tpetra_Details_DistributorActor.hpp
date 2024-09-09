@@ -312,11 +312,11 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
   const int myRank = comm->getRank();
 
   // FIXME: debug
-  {
-    std::stringstream ss;
-    ss << __FILE__ << ":" << __LINE__ << " " << myRank << "\n";
-    std::cerr << ss.str();
-  }
+  // {
+  //   std::stringstream ss;
+  //   ss << __FILE__ << ":" << __LINE__ << " " << myRank << "\n";
+  //   std::cerr << ss.str();
+  // }
 
 
   using size_type = Teuchos::Array<size_t>::size_type;
@@ -473,27 +473,27 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
     //                                << root << " (" << sendcount
     //                                << ") is too large "
     //                                   "to be represented as int.");
-   
-   // FIXME: debug
-    {
-      std::stringstream ss;
-      ss << __FILE__ << ":" << __LINE__ 
-         << " " << myRank
-         << " " << root 
-         << " " << sendcount;
-      ss << " [";
-      for (const int e : recvcounts) {
-        ss << " " << e;
-      }
-      ss << " ]";
-      ss << " [";
-      for (const int e : rdispls) {
-        ss << " " << e;
-      }
-      ss << " ]";
-      ss << "\n"; 
-      std::cerr << ss.str();
-    }
+
+    // FIXME: debug
+    // {
+    //   std::stringstream ss;
+    //   ss << __FILE__ << ":" << __LINE__ 
+    //      << " " << myRank
+    //      << " " << root 
+    //      << " " << sendcount;
+    //   ss << " [";
+    //   for (const int e : recvcounts) {
+    //     ss << " " << e;
+    //   }
+    //   ss << " ]";
+    //   ss << " [";
+    //   for (const int e : rdispls) {
+    //     ss << " " << e;
+    //   }
+    //   ss << " ]";
+    //   ss << "\n"; 
+    //   std::cerr << ss.str();
+    // }
 
     
 
@@ -533,26 +533,23 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
 
   }
 
-  if (!reqs.empty()) {
-    // FIXME: debug
-    {
-      std::stringstream ss;
-      ss << __FILE__ << ":" << __LINE__ << " " << myRank;
-      ss << " wait on " <<  reqs.size() << "\n";
-      std::cerr << ss.str();
-    }
+  // FIXME: debug
+  // {
+  //   std::stringstream ss;
+  //   ss << __FILE__ << ":" << __LINE__ << " " << myRank;
+  //   ss << " wait on " <<  reqs.size() << "\n";
+  //   std::cerr << ss.str();
+  // }
 
-    MPI_Waitall(reqs.size(), reqs.data(), MPI_STATUSES_IGNORE); // FIXME: move to doWaits?
-    reqs.clear();
-  }
-
+  MPI_Waitall(reqs.size(), reqs.data(), MPI_STATUSES_IGNORE); // FIXME: move to doWaits?
+  reqs.clear();
 
   // FIXME: debug
-  {
-    std::stringstream ss;
-    ss << __FILE__ << ":" << __LINE__ << " " << myRank << "\n";
-    std::cerr << ss.str();
-  }
+  // {
+  //   std::stringstream ss;
+  //   ss << __FILE__ << ":" << __LINE__ << " " << myRank << "\n";
+  //   std::cerr << ss.str();
+  // }
 
   return;
 }
@@ -568,11 +565,11 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
   const int myRank = comm->getRank();
 
   // FIXME: debug
-  {
-    std::stringstream ss;
-    ss << __FILE__ << ":" << __LINE__ << " " << myRank << "\n";
-    std::cerr << ss.str();
-  }
+  // {
+  //   std::stringstream ss;
+  //   ss << __FILE__ << ":" << __LINE__ << " " << myRank << "\n";
+  //   std::cerr << ss.str();
+  // }
 
   using size_type = Teuchos::Array<size_t>::size_type;
   using ExportValue = typename ExpView::non_const_value_type;
@@ -660,11 +657,11 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
     }
 
     // FIXME: debug
-    {
-      std::stringstream ss;
-      ss << __FILE__ << ":" << __LINE__ << " " << myRank << " " << root << "\n";
-      std::cerr << ss.str();
-    }
+    // {
+    //   std::stringstream ss;
+    //   ss << __FILE__ << ":" << __LINE__ << " " << myRank << " " << root << "\n";
+    //   std::cerr << ss.str();
+    // }
 
     // MPI_Igatherv recv-side arguments
     std::vector<int> recvcounts, rdispls;
@@ -756,26 +753,26 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
     //                                << ") is too large "
     //                                   "to be represented as int.");
    
-   // FIXME: debug
-    {
-      std::stringstream ss;
-      ss << __FILE__ << ":" << __LINE__ 
-         << " " << myRank
-         << " " << root 
-         << " " << sendcount;
-      ss << " [";
-      for (const int e : recvcounts) {
-        ss << " " << e;
-      }
-      ss << " ]";
-      ss << " [";
-      for (const int e : rdispls) {
-        ss << " " << e;
-      }
-      ss << " ]";
-      ss << "\n"; 
-      std::cerr << ss.str();
-    }
+    // FIXME: debug
+    // {
+    //   std::stringstream ss;
+    //   ss << __FILE__ << ":" << __LINE__ 
+    //      << " " << myRank
+    //      << " " << root 
+    //      << " " << sendcount;
+    //   ss << " [";
+    //   for (const int e : recvcounts) {
+    //     ss << " " << e;
+    //   }
+    //   ss << " ]";
+    //   ss << " [";
+    //   for (const int e : rdispls) {
+    //     ss << " " << e;
+    //   }
+    //   ss << " ]";
+    //   ss << "\n"; 
+    //   std::cerr << ss.str();
+    // }
 
     
 
@@ -807,31 +804,31 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
 #endif
 
     // FIXME: debug
-    {
-      std::stringstream ss;
-      ss << __FILE__ << ":" << __LINE__ << " " << myRank << " " << root << "\n";
-      std::cerr << ss.str();
-    }
+    // {
+    //   std::stringstream ss;
+    //   ss << __FILE__ << ":" << __LINE__ << " " << myRank << " " << root << "\n";
+    //   std::cerr << ss.str();
+    // }
 
   }
 
   // FIXME: debug
-  {
-    std::stringstream ss;
-    ss << __FILE__ << ":" << __LINE__ << " " << myRank;
-    ss << " wait on " <<  reqs.size() << "\n";
-    std::cerr << ss.str();
-  }
+  // {
+  //   std::stringstream ss;
+  //   ss << __FILE__ << ":" << __LINE__ << " " << myRank;
+  //   ss << " wait on " <<  reqs.size() << "\n";
+  //   std::cerr << ss.str();
+  // }
 
   MPI_Waitall(reqs.size(), reqs.data(), MPI_STATUSES_IGNORE); // FIXME: move to doWaits?
   reqs.clear();
 
   // FIXME: debug
-  {
-    std::stringstream ss;
-    ss << __FILE__ << ":" << __LINE__ << " " << myRank << "\n";
-    std::cerr << ss.str();
-  }
+  // {
+  //   std::stringstream ss;
+  //   ss << __FILE__ << ":" << __LINE__ << " " << myRank << "\n";
+  //   std::cerr << ss.str();
+  // }
 
   return;
       }
@@ -966,8 +963,8 @@ void DistributorActor::doPosts(const DistributorPlan& plan,
 #if defined(HAVE_TPETRA_MPI)
 
   // FIXME: always do Igatherv for testing
-  // doPostsIgatherv(plan, exports, numPackets, imports);
-  // return;
+  doPostsIgatherv(plan, exports, numPackets, imports);
+  return;
 
   //  All-to-all communication layout is quite different from
   //  point-to-point, so we handle it separately.

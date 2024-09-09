@@ -1004,11 +1004,12 @@ void DistributorPlan::initializeIgathervRoots() {
   }
 #endif
 
-  {
-    std::stringstream ss;
-    ss << __FILE__ << ":" << __LINE__ << "\n";
-    std::cerr << ss.str();
-  }
+  // FIXME: debug
+  // {
+  //   std::stringstream ss;
+  //   ss << __FILE__ << ":" << __LINE__ << "\n";
+  //   std::cerr << ss.str();
+  // }
 
   // send my number of recvs to everyone
   const int numRecvs = (int)(numReceives_ + (sendMessageToSelf_ ? 1 : 0));
@@ -1029,15 +1030,15 @@ void DistributorPlan::initializeIgathervRoots() {
   }
 
   // FIXME: debug
-  {
-    std::stringstream ss;
-    ss << __FILE__ << ":" << __LINE__ << " ";
-    for (int root : igathervRoots_) {
-      ss << root << " ";
-    }
-    ss << "\n";
-    std::cerr << ss.str();
-  }
+  // {
+  //   std::stringstream ss;
+  //   ss << __FILE__ << ":" << __LINE__ << " ";
+  //   for (int root : igathervRoots_) {
+  //     ss << root << " ";
+  //   }
+  //   ss << "\n";
+  //   std::cerr << ss.str();
+  // }
 }
 }
 }
