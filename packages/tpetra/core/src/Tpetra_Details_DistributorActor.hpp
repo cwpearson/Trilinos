@@ -581,7 +581,12 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
       !plan.getIndicesTo().is_null(), std::runtime_error,
       "Send Type=\"Igatherv\" only works for fast-path communication.");
 
-
+  if (plan.getProcsTo().size() &&  plan.getIgathervRoots().empty()) {
+    std::cerr << __FILE__ << ":" << __LINE__ << " AHHH want to send but no roots " << plan.howInitialized() << "\n";
+  }
+  if (plan.getProcsFrom().size() &&  plan.getIgathervRoots().empty()) {
+    std::cerr << __FILE__ << ":" << __LINE__ << " AHHH want recv but no roots " << plan.howInitialized() << "\n";
+  }
 
   MPI_Datatype rawType = ::Tpetra::Details::MpiTypeTraits<ExportValue>::getType(ExportValue{});
 
@@ -615,27 +620,6 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
     //   std::cerr << ss.str();
     // }
 
-#if 0
-  size_t curPKToffset = 0;
-  for (size_t pp = 0; pp < plan.getNumSends(); ++pp) {
-    sdispls[plan.getProcsTo()[pp]] = curPKToffset;
-    size_t numPackets = 0;
-    for (size_t j = plan.getStartsTo()[pp];
-         j < plan.getStartsTo()[pp] + plan.getLengthsTo()[pp]; ++j) {
-      numPackets += numExportPacketsPerLID[j];
-    }
-    // numPackets is converted down to int, so make sure it can be represented
-    TEUCHOS_TEST_FOR_EXCEPTION(numPackets > size_t(INT_MAX), std::logic_error,
-                               "Tpetra::Distributor::doPosts(4 args, Kokkos): "
-                               "Send count for send "
-                                   << pp << " (" << numPackets
-                                   << ") is too large "
-                                      "to be represented as int.");
-    sendcounts[plan.getProcsTo()[pp]] = static_cast<int>(numPackets);
-    curPKToffset += numPackets;
-  }
-#endif
-
     // MPI_Igatherv send-side arguments
     const void * sendbuf = nullptr;
     int sendcount = 0;
@@ -651,13 +635,11 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
       // where out where in exports that data lives by accumulating the total number of
       // packets this proc wants to send to previous roots.
       size_t sdispl = 0;
-      for (size_type pp = 0; pp + 1 /* not rootProcIndex */ < rootProcIndex; ++pp) {
-        size_t numPackets = 0;
+      for (size_type pp = 0; pp < rootProcIndex; ++pp) {
         for (size_t j = plan.getStartsTo()[pp];
             j < plan.getStartsTo()[pp] + plan.getLengthsTo()[pp]; ++j) {
-          numPackets += numExportPacketsPerLID[j];
+          sdispl += numExportPacketsPerLID[j];
         }
-        sdispl += numPackets;
       }
 
       sendbuf = exports.data() + sdispl; // FIXME: safe cast please
@@ -684,39 +666,16 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
       std::cerr << ss.str();
     }
 
-#if 0
-  size_t curBufferOffset = 0;
-  size_t curLIDoffset = 0;
-  for (size_type i = 0; i < actualNumReceives; ++i) {
-    size_t totalPacketsFrom_i = 0;
-    for (size_t j = 0; j < plan.getLengthsFrom()[i]; ++j) {
-      totalPacketsFrom_i += numImportPacketsPerLID[curLIDoffset + j];
-    }
-    curLIDoffset += plan.getLengthsFrom()[i];
-
-    rdispls[plan.getProcsFrom()[i]] = curBufferOffset;
-    // totalPacketsFrom_i is converted down to int, so make sure it can be
-    // represented
-    TEUCHOS_TEST_FOR_EXCEPTION(totalPacketsFrom_i > size_t(INT_MAX),
-                               std::logic_error,
-                               "Tpetra::Distributor::doPosts(3 args, Kokkos): "
-                               "Recv count for receive "
-                                   << i << " (" << totalPacketsFrom_i
-                                   << ") is too large "
-                                      "to be represented as int.");
-    recvcounts[plan.getProcsFrom()[i]] = static_cast<int>(totalPacketsFrom_i);
-    curBufferOffset += totalPacketsFrom_i;
-  }
-
-#endif
-
     // MPI_Igatherv recv-side arguments
     std::vector<int> recvcounts, rdispls;
     if (comm->getRank() == root) {
       // this proc wants to recv some data. figure out what
 
+      // don't recv anything from anywhere by default
       recvcounts.resize(comm->getSize());
+      std::fill(recvcounts.begin(), recvcounts.end(), 0);
       rdispls.resize(comm->getSize());
+      std::fill(rdispls.begin(), rdispls.end(), 0);
 
       const size_type actualNumReceives =
           Teuchos::as<size_type>(plan.getNumReceives()) +
@@ -750,7 +709,8 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
         //   ss << __FILE__ << ":" << __LINE__ << " AHHH\n";
         //   throw std::runtime_error(ss.str());
         // }
-        rdispls[plan.getProcsFrom()[i]] = curBufferOffset;
+        const int src = plan.getProcsFrom()[i];
+        rdispls[src] = curBufferOffset;
         // numPackets is converted down to int, so make sure it can be represented
         TEUCHOS_TEST_FOR_EXCEPTION(numPackets > size_t(INT_MAX), std::logic_error,
                                   "Tpetra::Distributor::doPosts(3 args, Kokkos): "
@@ -758,10 +718,9 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
                                       << i << " (" << numPackets
                                       << ") is too large "
                                           "to be represented as int.");
-        recvcounts[plan.getProcsFrom()[i]] = static_cast<int>(numPackets);
+        recvcounts[src] = static_cast<int>(numPackets);
         curBufferOffset += numPackets;
       }
-
     }
 
 
@@ -1007,8 +966,8 @@ void DistributorActor::doPosts(const DistributorPlan& plan,
 #if defined(HAVE_TPETRA_MPI)
 
   // FIXME: always do Igatherv for testing
-  doPostsIgatherv(plan, exports, numPackets, imports);
-  return;
+  // doPostsIgatherv(plan, exports, numPackets, imports);
+  // return;
 
   //  All-to-all communication layout is quite different from
   //  point-to-point, so we handle it separately.
@@ -1498,8 +1457,8 @@ void DistributorActor::doPosts(const DistributorPlan& plan,
 #ifdef HAVE_TPETRA_MPI
 
   // FIXME: allways use Igatherv for testing
-  // doPostsIgatherv(plan, exports, numExportPacketsPerLID, imports, numImportPacketsPerLID);
-  // return;
+  doPostsIgatherv(plan, exports, numExportPacketsPerLID, imports, numImportPacketsPerLID);
+  return;
 
   //  All-to-all communication layout is quite different from
   //  point-to-point, so we handle it separately.
