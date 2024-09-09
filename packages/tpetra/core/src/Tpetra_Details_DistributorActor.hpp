@@ -202,11 +202,11 @@ void DistributorActor::doPostsAllToAll(const DistributorPlan &plan,
   const int myRank = comm->getRank();
 
   // FIXME: debug
-  {
-    std::stringstream ss;
-    ss << __FILE__ << ":" << __LINE__ << " " << myRank << "\n";
-    std::cerr << ss.str();
-  }
+  // {
+  //   std::stringstream ss;
+  //   ss << __FILE__ << ":" << __LINE__ << " " << myRank << "\n";
+  //   std::cerr << ss.str();
+  // }
 
 
   using size_type = Teuchos::Array<size_t>::size_type;
@@ -963,8 +963,8 @@ void DistributorActor::doPosts(const DistributorPlan& plan,
 #if defined(HAVE_TPETRA_MPI)
 
   // FIXME: always do Igatherv for testing
-  doPostsIgatherv(plan, exports, numPackets, imports);
-  return;
+  // doPostsIgatherv(plan, exports, numPackets, imports);
+  // return;
 
   //  All-to-all communication layout is quite different from
   //  point-to-point, so we handle it separately.
@@ -1454,8 +1454,8 @@ void DistributorActor::doPosts(const DistributorPlan& plan,
 #ifdef HAVE_TPETRA_MPI
 
   // FIXME: allways use Igatherv for testing
-  doPostsIgatherv(plan, exports, numExportPacketsPerLID, imports, numImportPacketsPerLID);
-  return;
+  // doPostsIgatherv(plan, exports, numExportPacketsPerLID, imports, numImportPacketsPerLID);
+  // return;
 
   //  All-to-all communication layout is quite different from
   //  point-to-point, so we handle it separately.
