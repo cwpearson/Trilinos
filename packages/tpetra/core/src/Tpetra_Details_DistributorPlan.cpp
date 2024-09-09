@@ -102,7 +102,8 @@ DistributorPlan::DistributorPlan(const DistributorPlan& otherPlan)
     lengthsFrom_(otherPlan.lengthsFrom_),
     procsFrom_(otherPlan.procsFrom_),
     startsFrom_(otherPlan.startsFrom_),
-    indicesFrom_(otherPlan.indicesFrom_)
+    indicesFrom_(otherPlan.indicesFrom_),
+    igathervRoots_(otherPlan.igathervRoots_)
 { }
 
 size_t DistributorPlan::createFromSends(const Teuchos::ArrayView<const int>& exportProcIDs) {

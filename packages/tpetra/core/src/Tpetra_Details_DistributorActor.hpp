@@ -339,12 +339,16 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
       tMpiComm->getRawMpiComm();
   MPI_Comm mpiComm = (*oMpiComm)();
 
+  if (plan.getProcsTo().size() &&  plan.getIgathervRoots().empty()) {
+    std::cerr << __FILE__ << ":" << __LINE__ << " AHHH want to send but no roots " << plan.howInitialized() << "\n";
+  }
+  if (plan.getProcsFrom().size() &&  plan.getIgathervRoots().empty()) {
+    std::cerr << __FILE__ << ":" << __LINE__ << " AHHH want recv but no roots " << plan.howInitialized() << "\n";
+  }
+
+
   std::vector<MPI_Request> reqs;
   for (const int root : plan.getIgathervRoots()) {
-
-    // This proc is participating in an Igatherv, but it may not actually be sending anything
-    // i.e. plan.getStartsTo() and friends may be cleared or less than root
-
 
     // index in the send plan that corresponds to this root
     size_type rootProcIndex = plan.getProcsTo().size(); // sentinel value -> not found
@@ -363,13 +367,14 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
     // }
 
     // MPI_Igatherv send-side arguments
+    // although we are participating in the Igatherv, we might be sending nothing
     const void * sendbuf = nullptr;
     int sendcount = 0;
     if (rootProcIndex < plan.getProcsTo().size()) {
       // this guy actually wants to send some data. figure out what
-      const int sdispl = plan.getStartsTo()[rootProcIndex] * numPackets; // FIXME: safe cast please
+      const int sdispl = plan.getStartsTo()[rootProcIndex] * numPackets;
       sendbuf = exports.data() + sdispl;
-      sendcount = plan.getLengthsTo()[rootProcIndex] * numPackets; // FIXME: safe cast please
+      sendcount = plan.getLengthsTo()[rootProcIndex] * numPackets;
 
       // FIXME: debug
       if (sendcount != 0 && exports.size() < size_t(sdispl) + size_t(sendcount)) {
@@ -398,44 +403,40 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
     if (comm->getRank() == root) {
       // this proc wants to recv some data. figure out what
 
+      // don't recv anything from anywhere by default
       recvcounts.resize(comm->getSize());
+      std::fill(recvcounts.begin(), recvcounts.end(), 0);
       rdispls.resize(comm->getSize());
+      std::fill(rdispls.begin(), rdispls.end(), 0);
 
       const size_type actualNumReceives =
           Teuchos::as<size_type>(plan.getNumReceives()) +
           Teuchos::as<size_type>(plan.hasSelfMessage() ? 1 : 0);
-      size_t curBufferOffset = 0;
+      size_t rdispl = 0;
       for (size_type i = 0; i < actualNumReceives; ++i) {
-        if (i >= plan.getLengthsFrom().size()) {
-          std::stringstream ss;
-          ss << __FILE__ << ":" << __LINE__ << " AHHH\n";
-          throw std::runtime_error(ss.str());
-        }
-        const size_t curBufLen = plan.getLengthsFrom()[i] * numPackets;
-        TEUCHOS_TEST_FOR_EXCEPTION(
-            curBufferOffset + curBufLen > static_cast<size_t>(imports.size()),
-            std::logic_error,
-            "Tpetra::Distributor::doPosts(3 args, Kokkos): "
-            "Exceeded size of 'imports' array in packing loop on Process "
-                << myRank << ".  imports.size() = " << imports.size()
-                << " < "
-                  "curBufferOffset("
-                << curBufferOffset << ") + curBufLen(" << curBufLen << ").");
+        // FIXME: debug
         if (i >= plan.getProcsFrom().size()) {
           std::stringstream ss;
           ss << __FILE__ << ":" << __LINE__ << " AHHH\n";
           throw std::runtime_error(ss.str());
         }
-        rdispls[plan.getProcsFrom()[i]] = curBufferOffset;
-        // curBufLen is converted down to int, so make sure it can be represented
-        TEUCHOS_TEST_FOR_EXCEPTION(curBufLen > size_t(INT_MAX), std::logic_error,
-                                  "Tpetra::Distributor::doPosts(3 args, Kokkos): "
-                                  "Recv count for receive "
-                                      << i << " (" << curBufLen
-                                      << ") is too large "
-                                          "to be represented as int.");
-        recvcounts[plan.getProcsFrom()[i]] = static_cast<int>(curBufLen);
-        curBufferOffset += curBufLen;
+        // FIXME: debug
+        if (i >= plan.getLengthsFrom().size()) {
+          std::stringstream ss;
+          ss << __FILE__ << ":" << __LINE__ << " AHHH\n";
+          throw std::runtime_error(ss.str());
+        }
+        // FIXME: debug
+        if (i >= plan.getProcsFrom().size()) {
+          std::stringstream ss;
+          ss << __FILE__ << ":" << __LINE__ << " AHHH\n";
+          throw std::runtime_error(ss.str());
+        }
+        const int src = plan.getProcsFrom()[i]; // source proc
+        const size_t recvcount = plan.getLengthsFrom()[i] * numPackets;
+        rdispls[src] = rdispl;
+        recvcounts[src] = static_cast<int>(recvcount); // FIXME: safe cast
+        rdispl += recvcount;
       }
 
     }
@@ -532,16 +533,19 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
 
   }
 
-  // FIXME: debug
-  {
-    std::stringstream ss;
-    ss << __FILE__ << ":" << __LINE__ << " " << myRank;
-    ss << " wait on " <<  reqs.size() << "\n";
-    std::cerr << ss.str();
+  if (!reqs.empty()) {
+    // FIXME: debug
+    {
+      std::stringstream ss;
+      ss << __FILE__ << ":" << __LINE__ << " " << myRank;
+      ss << " wait on " <<  reqs.size() << "\n";
+      std::cerr << ss.str();
+    }
+
+    MPI_Waitall(reqs.size(), reqs.data(), MPI_STATUSES_IGNORE); // FIXME: move to doWaits?
+    reqs.clear();
   }
 
-  MPI_Waitall(reqs.size(), reqs.data(), MPI_STATUSES_IGNORE); // FIXME: move to doWaits?
-  reqs.clear();
 
   // FIXME: debug
   {
