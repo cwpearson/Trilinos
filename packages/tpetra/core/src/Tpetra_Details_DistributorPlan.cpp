@@ -995,13 +995,13 @@ void DistributorPlan::initializeMpiAdvance() {
 
 void DistributorPlan::initializeIgathervRoots() {
   // this is only used for igatherv
-  if (DISTRIBUTOR_IGATHERV != sendType_) {
-    return;
-  }
 
-  // FIXME: let's put this behind a compiler define or behavior or something
-  Teuchos::RCP<Teuchos::Time> timer_initializeIgathervRoots;
-  Teuchos::TimeMonitor timeMon(*timer_initializeIgathervRoots);
+
+
+  // FIXME: only do this during IGATHERV
+  // if (DISTRIBUTOR_IGATHERV != sendType_) {
+  //   return;
+  // }
 
   // FIXME: debug
   // {
@@ -1010,12 +1010,21 @@ void DistributorPlan::initializeIgathervRoots() {
   //   std::cerr << ss.str();
   // }
 
+  // FIXME: let's put this behind a compiler define or behavior or something
+  Teuchos::RCP<Teuchos::Time> timer_initializeIgathervRoots = 
+    Teuchos::TimeMonitor::lookupCounter ("Tpetra::DistributorPlan::initializeIgathervRoots");
+  if (timer_initializeIgathervRoots.is_null ()) {
+    timer_initializeIgathervRoots =
+      Teuchos::TimeMonitor::getNewCounter ("Tpetra::DistributorPlan::initializeIgathervRoots");
+  }
+
   // send my number of recvs to everyone
   const int numRecvs = (int)(numReceives_ + (sendMessageToSelf_ ? 1 : 0));
   std::vector<int> sendbuf(comm_->getSize(), numRecvs);
   std::vector<int> recvbuf(comm_->getSize());
 
   // FIXME: is there a more natural way to do this?
+  // Maybe MPI_Allreduce is better, we just care if anyone is sending anything to each process
   Teuchos::RCP<const Teuchos::MpiComm<int> > mpiComm = Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int> >(comm_);
   Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > rawComm = mpiComm->getRawMpiComm();
   MPI_Comm comm = (*rawComm)();
@@ -1027,6 +1036,21 @@ void DistributorPlan::initializeIgathervRoots() {
       igathervRoots_.push_back(root);
     }
   }
+
+
+  // If anyone is using slow-path communication, skip all Igatherv
+  int slow = !getIndicesTo().is_null() ? 1 : 0;
+  MPI_Allreduce(MPI_IN_PLACE, &slow, 1, MPI_INT, MPI_LOR, comm);
+  if (slow) {
+    // FIXME: debug
+    {
+      std::stringstream ss;
+      ss << __FILE__ << ":" << __LINE__ << " " << comm_->getRank() << ": WARNING: you used Igatherv send mode, but someone is slow-path, so Igatherv is disabled." << std::endl;
+      std::cerr << ss.str();
+    }
+    igathervRoots_.clear();
+  }
+
 
   // FIXME: debug
   // {

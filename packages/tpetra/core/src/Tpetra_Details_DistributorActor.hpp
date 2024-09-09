@@ -312,15 +312,22 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
   const int myRank = comm->getRank();
 
   // FIXME: debug
-  // {
-  //   std::stringstream ss;
-  //   ss << __FILE__ << ":" << __LINE__ << " " << myRank << "\n";
-  //   std::cerr << ss.str();
-  // }
+  {
+    std::stringstream ss;
+    ss << __FILE__ << ":" << __LINE__ << " " << myRank << "\n";
+    std::cerr << ss.str();
+  }
 
 
   using size_type = Teuchos::Array<size_t>::size_type;
   using ExportValue = typename ExpView::non_const_value_type;
+
+  // FIXME: debug
+  if (!plan.getIndicesTo().is_null()) {
+    std::stringstream ss;
+    ss << __FILE__ << ":" << __LINE__ << " " << myRank << " is slow-path\n";
+    std::cerr << ss.str();
+  }
 
   TEUCHOS_TEST_FOR_EXCEPTION(
       !plan.getIndicesTo().is_null(), std::runtime_error,
@@ -565,11 +572,11 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
   const int myRank = comm->getRank();
 
   // FIXME: debug
-  // {
-  //   std::stringstream ss;
-  //   ss << __FILE__ << ":" << __LINE__ << " " << myRank << "\n";
-  //   std::cerr << ss.str();
-  // }
+  {
+    std::stringstream ss;
+    ss << __FILE__ << ":" << __LINE__ << " " << myRank << "\n";
+    std::cerr << ss.str();
+  }
 
   using size_type = Teuchos::Array<size_t>::size_type;
   using ExportValue = typename ExpView::non_const_value_type;
@@ -957,14 +964,11 @@ void DistributorActor::doPosts(const DistributorPlan& plan,
   const int myRank = plan.getComm()->getRank ();
   // Run-time configurable parameters that come from the input
   // ParameterList set by setParameterList().
-  const Details::EDistributorSendType sendType = plan.getSendType();
+  // const Details::EDistributorSendType sendType = plan.getSendType();
+  const Details::EDistributorSendType sendType = Details::DISTRIBUTOR_IGATHERV; // FIXME: for testing
 
 //clang-format on
 #if defined(HAVE_TPETRA_MPI)
-
-  // FIXME: always do Igatherv for testing
-  // doPostsIgatherv(plan, exports, numPackets, imports);
-  // return;
 
   //  All-to-all communication layout is quite different from
   //  point-to-point, so we handle it separately.
@@ -973,8 +977,10 @@ void DistributorActor::doPosts(const DistributorPlan& plan,
     doPostsAllToAll(plan, exports,numPackets, imports);
     return;
   } else if (sendType == Details::DISTRIBUTOR_IGATHERV) {
-    doPostsIgatherv(plan, exports, numPackets, imports);
-    return;
+    if (!plan.getIgathervRoots().empty()) {
+      doPostsIgatherv(plan, exports, numPackets, imports);
+      return;
+    }
   }
 #ifdef HAVE_TPETRACORE_MPI_ADVANCE
   else if (sendType == Details::DISTRIBUTOR_MPIADVANCE_ALLTOALL) {
@@ -1449,13 +1455,10 @@ void DistributorActor::doPosts(const DistributorPlan& plan,
 
   // Run-time configurable parameters that come from the input
   // ParameterList set by setParameterList().
-  const Details::EDistributorSendType sendType = plan.getSendType();
+  // const Details::EDistributorSendType sendType = plan.getSendType();
+  const Details::EDistributorSendType sendType = Details::DISTRIBUTOR_IGATHERV; // FIXME, only for testing
 
 #ifdef HAVE_TPETRA_MPI
-
-  // FIXME: allways use Igatherv for testing
-  // doPostsIgatherv(plan, exports, numExportPacketsPerLID, imports, numImportPacketsPerLID);
-  // return;
 
   //  All-to-all communication layout is quite different from
   //  point-to-point, so we handle it separately.
@@ -1463,8 +1466,10 @@ void DistributorActor::doPosts(const DistributorPlan& plan,
     doPostsAllToAll(plan, exports, numExportPacketsPerLID, imports, numImportPacketsPerLID);
     return;
   } else if (sendType == Details::DISTRIBUTOR_IGATHERV) {
-    doPostsIgatherv(plan, exports, numExportPacketsPerLID, imports, numImportPacketsPerLID);
-    return;
+    if (!plan.getIgathervRoots().empty()) {
+      doPostsIgatherv(plan, exports, numExportPacketsPerLID, imports, numImportPacketsPerLID);
+      return;
+    }
   }
 #ifdef HAVE_TPETRACORE_MPI_ADVANCE
   else if (sendType == Details::DISTRIBUTOR_MPIADVANCE_ALLTOALL)
