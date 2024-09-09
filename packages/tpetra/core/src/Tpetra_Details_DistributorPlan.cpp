@@ -994,15 +994,14 @@ void DistributorPlan::initializeMpiAdvance() {
 #endif
 
 void DistributorPlan::initializeIgathervRoots() {
-  // FIXME: let's get a timer or profiling region in here
-
-  // FIXME: re-enable this
-#if 0
   // this is only used for igatherv
   if (DISTRIBUTOR_IGATHERV != sendType_) {
     return;
   }
-#endif
+
+  // FIXME: let's put this behind a compiler define or behavior or something
+  Teuchos::RCP<Teuchos::Time> timer_initializeIgathervRoots;
+  Teuchos::TimeMonitor timeMon(*timer_initializeIgathervRoots);
 
   // FIXME: debug
   // {
