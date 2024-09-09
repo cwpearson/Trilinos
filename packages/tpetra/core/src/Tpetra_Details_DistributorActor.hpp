@@ -946,8 +946,7 @@ void DistributorActor::doPosts(const DistributorPlan& plan,
   const int myRank = plan.getComm()->getRank ();
   // Run-time configurable parameters that come from the input
   // ParameterList set by setParameterList().
-  // const Details::EDistributorSendType sendType = plan.getSendType();
-  const Details::EDistributorSendType sendType = Details::DISTRIBUTOR_IGATHERV; // FIXME: for testing
+  const Details::EDistributorSendType sendType = plan.getSendType();
 
   // FIXME: debug
   // {
@@ -1444,8 +1443,7 @@ void DistributorActor::doPosts(const DistributorPlan& plan,
 
   // Run-time configurable parameters that come from the input
   // ParameterList set by setParameterList().
-  // const Details::EDistributorSendType sendType = plan.getSendType();
-  const Details::EDistributorSendType sendType = Details::DISTRIBUTOR_IGATHERV; // FIXME, only for testing
+  const Details::EDistributorSendType sendType = plan.getSendType();
 
 #ifdef HAVE_TPETRA_MPI
 

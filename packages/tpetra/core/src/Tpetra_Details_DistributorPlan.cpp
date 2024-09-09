@@ -999,9 +999,9 @@ void DistributorPlan::initializeIgathervRoots() {
 
 
   // FIXME: only do this during IGATHERV
-  // if (DISTRIBUTOR_IGATHERV != sendType_) {
-  //   return;
-  // }
+  if (DISTRIBUTOR_IGATHERV != sendType_) {
+    return;
+  }
 
   // FIXME: debug
   // {
@@ -1011,11 +1011,12 @@ void DistributorPlan::initializeIgathervRoots() {
   // }
 
   // FIXME: let's put this behind a compiler define or behavior or something
+
   Teuchos::RCP<Teuchos::Time> timer_initializeIgathervRoots = 
     Teuchos::TimeMonitor::lookupCounter ("Tpetra::DistributorPlan::initializeIgathervRoots");
   if (timer_initializeIgathervRoots.is_null ()) {
     timer_initializeIgathervRoots =
-      Teuchos::TimeMonitor::getNewCounter ("Tpetra::DistributorPlan::initializeIgathervRoots");
+      Teuchos::TimeMonitor::getNewTimer ("Tpetra::DistributorPlan::initializeIgathervRoots");
   }
 
   // send my number of recvs to everyone
