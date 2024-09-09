@@ -107,7 +107,10 @@ private:
       const ImpView &imports,
       const Teuchos::ArrayView<const size_t> &numImportPacketsPerLID);
 #endif // HAVE_TPETRACORE_MPI_ADVANCE
-#endif // HAVE_TPETRA_CORE
+
+  std::vector<MPI_Request> igathervReqs_;
+
+#endif // HAVE_TPETRA_MPI
   // clang-format off
   int mpiTag_;
 
@@ -312,22 +315,22 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
   const int myRank = comm->getRank();
 
   // FIXME: debug
-  {
-    std::stringstream ss;
-    ss << __FILE__ << ":" << __LINE__ << " " << myRank << "\n";
-    std::cerr << ss.str();
-  }
+  // {
+  //   std::stringstream ss;
+  //   ss << __FILE__ << ":" << __LINE__ << " " << myRank << "\n";
+  //   std::cerr << ss.str();
+  // }
 
 
   using size_type = Teuchos::Array<size_t>::size_type;
   using ExportValue = typename ExpView::non_const_value_type;
 
   // FIXME: debug
-  if (!plan.getIndicesTo().is_null()) {
-    std::stringstream ss;
-    ss << __FILE__ << ":" << __LINE__ << " " << myRank << " is slow-path\n";
-    std::cerr << ss.str();
-  }
+  // if (!plan.getIndicesTo().is_null()) {
+  //   std::stringstream ss;
+  //   ss << __FILE__ << ":" << __LINE__ << " " << myRank << " is slow-path\n";
+  //   std::cerr << ss.str();
+  // }
 
   TEUCHOS_TEST_FOR_EXCEPTION(
       !plan.getIndicesTo().is_null(), std::runtime_error,
@@ -354,7 +357,6 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
   }
 
 
-  std::vector<MPI_Request> reqs;
   for (const int root : plan.getIgathervRoots()) {
 
     // index in the send plan that corresponds to this root
@@ -528,7 +530,7 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
 
     requests_.push_back(treq);
 #else
-    reqs.push_back(req);
+    igathervReqs_.push_back(req);
 #endif
 
     // FIXME: debug
@@ -539,17 +541,6 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
     // }
 
   }
-
-  // FIXME: debug
-  // {
-  //   std::stringstream ss;
-  //   ss << __FILE__ << ":" << __LINE__ << " " << myRank;
-  //   ss << " wait on " <<  reqs.size() << "\n";
-  //   std::cerr << ss.str();
-  // }
-
-  MPI_Waitall(reqs.size(), reqs.data(), MPI_STATUSES_IGNORE); // FIXME: move to doWaits?
-  reqs.clear();
 
   // FIXME: debug
   // {
@@ -572,11 +563,11 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
   const int myRank = comm->getRank();
 
   // FIXME: debug
-  {
-    std::stringstream ss;
-    ss << __FILE__ << ":" << __LINE__ << " " << myRank << "\n";
-    std::cerr << ss.str();
-  }
+  // {
+  //   std::stringstream ss;
+  //   ss << __FILE__ << ":" << __LINE__ << " " << myRank << "\n";
+  //   std::cerr << ss.str();
+  // }
 
   using size_type = Teuchos::Array<size_t>::size_type;
   using ExportValue = typename ExpView::non_const_value_type;
@@ -601,7 +592,6 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
       tMpiComm->getRawMpiComm();
   MPI_Comm mpiComm = (*oMpiComm)();
 
-  std::vector<MPI_Request> reqs;
   for (const int root : plan.getIgathervRoots()) {
 
     // This proc is participating in an Igatherv, but it may not actually be sending anything
@@ -807,7 +797,7 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
 
     requests_.push_back(treq);
 #else
-    reqs.push_back(req);
+    igathervReqs_.push_back(req);
 #endif
 
     // FIXME: debug
@@ -818,17 +808,6 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
     // }
 
   }
-
-  // FIXME: debug
-  // {
-  //   std::stringstream ss;
-  //   ss << __FILE__ << ":" << __LINE__ << " " << myRank;
-  //   ss << " wait on " <<  reqs.size() << "\n";
-  //   std::cerr << ss.str();
-  // }
-
-  MPI_Waitall(reqs.size(), reqs.data(), MPI_STATUSES_IGNORE); // FIXME: move to doWaits?
-  reqs.clear();
 
   // FIXME: debug
   // {
@@ -921,6 +900,9 @@ void DistributorActor::doPosts(const DistributorPlan& plan,
                                size_t numPackets,
                                const ImpView& imports)
 {
+
+
+
   static_assert(areKokkosViews<ExpView, ImpView>,
       "Data arrays for DistributorActor::doPosts must be Kokkos::Views");
   using Teuchos::Array;
@@ -966,6 +948,13 @@ void DistributorActor::doPosts(const DistributorPlan& plan,
   // ParameterList set by setParameterList().
   // const Details::EDistributorSendType sendType = plan.getSendType();
   const Details::EDistributorSendType sendType = Details::DISTRIBUTOR_IGATHERV; // FIXME: for testing
+
+  // FIXME: debug
+  // {
+  //   std::stringstream ss;
+  //   ss << __FILE__ << ":" << __LINE__ << " " << myRank << "\n";
+  //   std::cerr << ss.str();
+  // }
 
 //clang-format on
 #if defined(HAVE_TPETRA_MPI)

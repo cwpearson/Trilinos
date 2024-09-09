@@ -42,6 +42,12 @@ namespace Details {
       // outstanding nonblocking communication requests.
       requests_.resize(0);
     }
+
+#ifdef HAVE_TPETRA_MPI
+    MPI_Waitall(igathervReqs_.size(), igathervReqs_.data(), MPI_STATUSES_IGNORE);
+    igathervReqs_.clear();
+#endif
+
   }
 
   bool DistributorActor::isReady() const {
@@ -49,6 +55,20 @@ namespace Details {
     for (auto& request : requests_) {
       result &= request->isReady();
     }
+
+    // isReady just calls MPI_Test and returns true if the op
+    // succeeded
+    // don't use test because these are for a collective, and not
+    // all ranks may call test, so progress may not be possible
+#ifdef HAVE_TPETRA_MPI
+    for (MPI_Request req : igathervReqs_) {
+      int flag;
+      MPI_Request_get_status(req, &flag, MPI_STATUS_IGNORE);
+      result &= flag;
+    }
+#endif
+
+
     return result;
   }
 

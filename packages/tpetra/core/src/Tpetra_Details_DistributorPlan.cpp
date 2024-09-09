@@ -1055,7 +1055,7 @@ void DistributorPlan::initializeIgathervRoots() {
   // FIXME: debug
   // {
   //   std::stringstream ss;
-  //   ss << __FILE__ << ":" << __LINE__ << " ";
+  //   ss << __FILE__ << ":" << __LINE__ << " " << comm_->getRank() << " roots=";
   //   for (int root : igathervRoots_) {
   //     ss << root << " ";
   //   }
