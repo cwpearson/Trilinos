@@ -33,6 +33,7 @@ namespace Tpetra {
     sendTypes.push_back ("Isend");
     sendTypes.push_back ("Send");
     sendTypes.push_back ("Alltoall");
+    sendTypes.push_back ("Igatherv");
 #if defined(HAVE_TPETRACORE_MPI_ADVANCE)
     sendTypes.push_back ("MpiAdvanceAlltoall");
     sendTypes.push_back ("MpiAdvanceNbralltoallv");

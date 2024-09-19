@@ -29,7 +29,8 @@ DistributorSendTypeEnumToString (EDistributorSendType sendType)
   }
   else if (sendType == DISTRIBUTOR_ALLTOALL) {
     return "Alltoall";
-  } else if (sendType == Details::DISTRIBUTOR_IGATHERV) {
+  } 
+  else if (sendType == DISTRIBUTOR_IGATHERV) {
     return "Igatherv";
   }
 #if defined(HAVE_TPETRACORE_MPI_ADVANCE)
