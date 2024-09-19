@@ -172,6 +172,7 @@ namespace Tpetra {
     sendTypeEnums.push_back (Details::DISTRIBUTOR_ISEND);
     sendTypeEnums.push_back (Details::DISTRIBUTOR_SEND);
     sendTypeEnums.push_back (Details::DISTRIBUTOR_ALLTOALL);
+    sendTypeEnums.push_back (Details::DISTRIBUTOR_IGATHERV);
 #if defined(HAVE_TPETRACORE_MPI_ADVANCE)
     sendTypeEnums.push_back(Details::DISTRIBUTOR_MPIADVANCE_ALLTOALL);
     sendTypeEnums.push_back(Details::DISTRIBUTOR_MPIADVANCE_NBRALLTOALLV);
