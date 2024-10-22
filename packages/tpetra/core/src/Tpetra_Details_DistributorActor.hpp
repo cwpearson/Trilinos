@@ -12,6 +12,7 @@
 #ifndef TPETRA_DETAILS_DISTRIBUTOR_ACTOR_HPP
 #define TPETRA_DETAILS_DISTRIBUTOR_ACTOR_HPP
 
+#include "Tpetra_Details_Profiling.hpp"
 #include "Tpetra_Details_DistributorPlan.hpp"
 #include "Tpetra_Util.hpp"
 
@@ -311,6 +312,11 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
                                        const ExpView &exports,
                                        size_t numPackets,
                                        const ImpView &imports) {
+#ifdef HAVE_TPETRA_DISTRIBUTOR_TIMINGS
+  Details::ProfilingRegion region_initializeIgathervRoots (
+    "Tpetra::DistributorActor::doPostsIgatherv");
+#endif
+
   auto comm = plan.getComm();
   const int myRank = comm->getRank();
 
@@ -558,6 +564,11 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
       const Teuchos::ArrayView<const size_t> &numExportPacketsPerLID,
       const ImpView &imports,
       const Teuchos::ArrayView<const size_t> &numImportPacketsPerLID) {
+
+#ifdef HAVE_TPETRA_DISTRIBUTOR_TIMINGS
+  Details::ProfilingRegion region_initializeIgathervRoots (
+    "Tpetra::DistributorActor::doPostsIgatherv");
+#endif
 
   auto comm = plan.getComm();
   const int myRank = comm->getRank();

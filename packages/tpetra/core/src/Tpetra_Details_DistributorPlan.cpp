@@ -12,6 +12,7 @@
 #include "Teuchos_StandardParameterEntryValidators.hpp"
 #include "Tpetra_Util.hpp"
 #include "Tpetra_Details_Behavior.hpp"
+#include "Tpetra_Details_Profiling.hpp"
 #include <numeric>
 #include <sstream>
 
@@ -996,10 +997,6 @@ void DistributorPlan::initializeMpiAdvance() {
 
 void DistributorPlan::initializeIgathervRoots() {
   // this is only used for igatherv
-
-
-
-  // FIXME: only do this during IGATHERV
   if (DISTRIBUTOR_IGATHERV != sendType_) {
     return;
   }
@@ -1011,14 +1008,9 @@ void DistributorPlan::initializeIgathervRoots() {
   //   std::cerr << ss.str();
   // }
 
-  // FIXME: let's put this behind a compiler define or behavior or something
-
-  Teuchos::RCP<Teuchos::Time> timer_initializeIgathervRoots = 
-    Teuchos::TimeMonitor::lookupCounter ("Tpetra::DistributorPlan::initializeIgathervRoots");
-  if (timer_initializeIgathervRoots.is_null ()) {
-    timer_initializeIgathervRoots =
-      Teuchos::TimeMonitor::getNewTimer ("Tpetra::DistributorPlan::initializeIgathervRoots");
-  }
+#ifdef HAVE_TPETRA_DISTRIBUTOR_TIMINGS
+  ProfilingRegion region_initializeIgathervRoots ("Tpetra::DistributorPlan::initializeIgathervRoots");
+#endif
 
   // send my number of recvs to everyone
   const int numRecvs = (int)(numReceives_ + (sendMessageToSelf_ ? 1 : 0));
