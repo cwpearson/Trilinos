@@ -44,10 +44,15 @@ namespace Details {
     }
 
 #ifdef HAVE_TPETRA_MPI
+  if (!igathervReqs_.empty()) {
+#ifdef HAVE_TPETRA_IGATHERV_TIMINGS
+    ProfilingRegion region_igathervWaits("Tpetra::DistributorActor::doWaits[Igatherv]");
+#endif
     MPI_Waitall(igathervReqs_.size(), igathervReqs_.data(), MPI_STATUSES_IGNORE);
     igathervReqs_.clear();
-#endif
+  }
 
+#endif
   }
 
   bool DistributorActor::isReady() const {

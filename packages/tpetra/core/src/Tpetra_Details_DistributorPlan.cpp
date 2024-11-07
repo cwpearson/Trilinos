@@ -109,6 +109,7 @@ DistributorPlan::DistributorPlan(const DistributorPlan& otherPlan)
 { }
 
 size_t DistributorPlan::createFromSends(const Teuchos::ArrayView<const int>& exportProcIDs) {
+
   using Teuchos::outArg;
   using Teuchos::REDUCE_MAX;
   using Teuchos::reduceAll;
@@ -388,10 +389,6 @@ size_t DistributorPlan::createFromSends(const Teuchos::ArrayView<const int>& exp
   initializeMpiAdvance();
 #endif
   initializeIgathervRoots();
-
-
-
-
 
   // createFromRecvs() calls createFromSends(), but will set
   // howInitialized_ again after calling createFromSends().
