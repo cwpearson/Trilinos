@@ -312,8 +312,9 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
                                        const ExpView &exports,
                                        size_t numPackets,
                                        const ImpView &imports) {
-#ifdef HAVE_TPETRA_DISTRIBUTOR_TIMINGS
-  Details::ProfilingRegion region_initializeIgathervRoots (
+
+#if defined(HAVE_TPETRA_DISTRIBUTOR_TIMINGS) || defined(HAVE_TPETRA_IGATHERV_TIMINGS)
+  Details::ProfilingRegion region_doPostsIgatherv (
     "Tpetra::DistributorActor::doPostsIgatherv");
 #endif
 
@@ -565,8 +566,8 @@ void DistributorActor::doPostsIgatherv(const DistributorPlan &plan,
       const ImpView &imports,
       const Teuchos::ArrayView<const size_t> &numImportPacketsPerLID) {
 
-#ifdef HAVE_TPETRA_DISTRIBUTOR_TIMINGS
-  Details::ProfilingRegion region_initializeIgathervRoots (
+#if defined(HAVE_TPETRA_DISTRIBUTOR_TIMINGS) || defined(HAVE_TPETRA_IGATHERV_TIMINGS)
+  Details::ProfilingRegion region_doPostsIgatherv (
     "Tpetra::DistributorActor::doPostsIgatherv");
 #endif
 

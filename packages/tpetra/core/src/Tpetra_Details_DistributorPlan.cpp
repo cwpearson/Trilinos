@@ -1008,7 +1008,7 @@ void DistributorPlan::initializeIgathervRoots() {
   //   std::cerr << ss.str();
   // }
 
-#ifdef HAVE_TPETRA_DISTRIBUTOR_TIMINGS
+#if defined(HAVE_TPETRA_DISTRIBUTOR_TIMINGS) || defined(HAVE_TPETRA_IGATHERV_TIMINGS)
   ProfilingRegion region_initializeIgathervRoots ("Tpetra::DistributorPlan::initializeIgathervRoots");
 #endif
 
