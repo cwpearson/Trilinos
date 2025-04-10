@@ -29,6 +29,11 @@ DistributorSendTypeEnumToString (EDistributorSendType sendType)
   else if (sendType == DISTRIBUTOR_ALLTOALL) {
     return "Alltoall";
   }
+#if defined(HAVE_TPETRA_MPI)
+  else if (sendType == DISTRIBUTOR_IGATHERV) {
+    return "Igatherv";
+  }
+#endif
 #if defined(HAVE_TPETRACORE_MPI_ADVANCE)
   else if (sendType == DISTRIBUTOR_MPIADVANCE_ALLTOALL) {
     return "MpiAdvanceAlltoall";
@@ -121,7 +126,8 @@ DistributorPlan::DistributorPlan(const DistributorPlan& otherPlan)
     lengthsFrom_(otherPlan.lengthsFrom_),
     procsFrom_(otherPlan.procsFrom_),
     startsFrom_(otherPlan.startsFrom_),
-    indicesFrom_(otherPlan.indicesFrom_)
+    indicesFrom_(otherPlan.indicesFrom_),
+    igathervRoots_(otherPlan.igathervRoots_)
 { }
 
 size_t DistributorPlan::createFromSends(const Teuchos::ArrayView<const int>& exportProcIDs) {
@@ -404,6 +410,10 @@ size_t DistributorPlan::createFromSends(const Teuchos::ArrayView<const int>& exp
   initializeMpiAdvance();
 #endif
 
+#if defined(HAVE_TPETRA_MPI)
+  initializeIgathervRoots();
+#endif
+
   // createFromRecvs() calls createFromSends(), but will set
   // howInitialized_ again after calling createFromSends().
   howInitialized_ = Details::DISTRIBUTOR_INITIALIZED_BY_CREATE_FROM_SENDS;
@@ -603,6 +613,10 @@ void DistributorPlan::createFromSendsAndRecvs(const Teuchos::ArrayView<const int
 #if defined(HAVE_TPETRACORE_MPI_ADVANCE)
   initializeMpiAdvance();
 #endif
+
+#if defined(HAVE_TPETRA_MPI)
+  initializeIgathervRoots();
+#endif
 }
 
 Teuchos::RCP<DistributorPlan> DistributorPlan::getReversePlan() const {
@@ -653,6 +667,10 @@ void DistributorPlan::createReversePlan() const
 #if defined(HAVE_TPETRACORE_MPI_ADVANCE)
   // is there a smarter way to do this
   reversePlan_->initializeMpiAdvance();
+#endif
+
+#if defined(HAVE_TPETRA_MPI)
+  reversePlan_->initializeIgathervRoots();
 #endif
 }
 
@@ -914,6 +932,9 @@ Teuchos::Array<std::string> distributorSendTypes()
   sendTypes.push_back ("Isend");
   sendTypes.push_back ("Send");
   sendTypes.push_back ("Alltoall");
+#if defined(HAVE_TPETRA_MPI)
+  sendTypes.push_back ("Igatherv");
+#endif
 #if defined(HAVE_TPETRACORE_MPI_ADVANCE)
   sendTypes.push_back ("MpiAdvanceAlltoall");
   sendTypes.push_back ("MpiAdvanceNbralltoallv");
@@ -926,6 +947,9 @@ Teuchos::Array<EDistributorSendType> distributorSendTypeEnums() {
   res.push_back (DISTRIBUTOR_ISEND);
   res.push_back (DISTRIBUTOR_SEND);
   res.push_back (DISTRIBUTOR_ALLTOALL);
+#if defined(HAVE_TPETRA_MPI)
+  res.push_back (DISTRIBUTOR_IGATHERV);
+#endif
 #if defined(HAVE_TPETRACORE_MPI_ADVANCE)
   res.push_back (DISTRIBUTOR_MPIADVANCE_ALLTOALL);
   res.push_back (DISTRIBUTOR_MPIADVANCE_NBRALLTOALLV);
@@ -1007,6 +1031,70 @@ void DistributorPlan::initializeMpiAdvance() {
 }
 #endif
 
+#if defined(HAVE_TPETRA_MPI)
+  void DistributorPlan::initializeIgathervRoots() {
+    // this is only used for igatherv
+    if (DISTRIBUTOR_IGATHERV != sendType_) {
+      return;
+    }
+
+    // FIXME: debug
+    // {
+    //   std::stringstream ss;
+    //   ss << __FILE__ << ":" << __LINE__ << "\n";
+    //   std::cerr << ss.str();
+    // }
+
+  #if defined(HAVE_TPETRA_DISTRIBUTOR_TIMINGS)
+    ProfilingRegion region_initializeIgathervRoots ("Tpetra::DistributorPlan::initializeIgathervRoots");
+  #endif
+
+    // send my number of recvs to everyone
+    const int numRecvs = (int)(numReceives_ + (sendMessageToSelf_ ? 1 : 0));
+    std::vector<int> sendbuf(comm_->getSize(), numRecvs);
+    std::vector<int> recvbuf(comm_->getSize());
+
+    // FIXME: is there a more natural way to do this?
+    // Maybe MPI_Allreduce is better, we just care if anyone is sending anything to each process
+    Teuchos::RCP<const Teuchos::MpiComm<int> > mpiComm = Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int> >(comm_);
+    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > rawComm = mpiComm->getRawMpiComm();
+    MPI_Comm comm = (*rawComm)();
+    MPI_Alltoall(sendbuf.data(), 1, MPI_INT, recvbuf.data(), 1, MPI_INT, comm);
+
+    igathervRoots_.clear();
+    for (size_t root = 0; root < recvbuf.size(); ++root) {
+      if (recvbuf[root] > 0) {
+        igathervRoots_.push_back(root);
+      }
+    }
+
+
+    // If anyone is using slow-path communication, skip all Igatherv
+    int slow = !getIndicesTo().is_null() ? 1 : 0;
+    MPI_Allreduce(MPI_IN_PLACE, &slow, 1, MPI_INT, MPI_LOR, comm);
+    if (slow) {
+      // FIXME: debug
+      {
+        std::stringstream ss;
+        ss << __FILE__ << ":" << __LINE__ << " " << comm_->getRank() << ": WARNING: you used Igatherv send mode, but someone is slow-path, so Igatherv is disabled." << std::endl;
+        std::cerr << ss.str();
+      }
+      igathervRoots_.clear();
+    }
+
+
+    // FIXME: debug
+    {
+      std::stringstream ss;
+      ss << __FILE__ << ":" << __LINE__ << " " << comm_->getRank() << " roots=";
+      for (int root : igathervRoots_) {
+        ss << root << " ";
+      }
+      ss << "\n";
+      std::cerr << ss.str();
+    }
+  }
+#endif // HAVE_TPETRA_MPI
 
   DistributorPlan::SubViewLimits DistributorPlan::getImportViewLimits(size_t numPackets) const {
     const size_t actualNumReceives = getNumReceives() + (hasSelfMessage() ? 1 : 0);

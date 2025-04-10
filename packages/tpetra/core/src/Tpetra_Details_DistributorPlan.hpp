@@ -43,6 +43,10 @@ enum EDistributorSendType {
   DISTRIBUTOR_ISEND, // Use MPI_Isend (Teuchos::isend)
   DISTRIBUTOR_SEND,  // Use MPI_Send (Teuchos::send)
   DISTRIBUTOR_ALLTOALL // Use MPI_Alltoall
+#if defined(HAVE_TPETRA_MPI)
+  ,
+  DISTRIBUTOR_IGATHERV
+#endif
 #if defined(HAVE_TPETRACORE_MPI_ADVANCE)
   ,
   DISTRIBUTOR_MPIADVANCE_ALLTOALL,
@@ -146,11 +150,19 @@ public:
   SubViewLimits getExportViewLimits(size_t numPackets) const;
   SubViewLimits getExportViewLimits(const Teuchos::ArrayView<const size_t> &numExportPacketsPerLID) const;
 
+  const std::vector<int> getIgathervRoots() const {
+    return igathervRoots_;
+  }
+
 private:
 
   // after the plan has been created we have the info we need to initialize the MPI advance communicator
 #if defined(HAVE_TPETRACORE_MPI_ADVANCE)
   void initializeMpiAdvance();
+#endif
+
+#if defined(HAVE_TPETRA_MPI)
+  void initializeIgathervRoots();
 #endif
 
   Teuchos::RCP<const Teuchos::ParameterList> getValidParameters() const;
@@ -271,6 +283,14 @@ private:
   /// reverse Distributor, this is assigned to the reverse
   /// Distributor's indicesTo_.
   Teuchos::Array<size_t> indicesFrom_;
+
+#if defined(HAVE_TPETRA_MPI)
+  /// \brief The roots for the Igatherv communication mode.
+  ///
+  /// This is the same on all ranks, and this contains any rank that
+  /// is importing data.
+  std::vector<int> igathervRoots_;
+#endif
 };
 
 }
