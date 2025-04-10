@@ -99,6 +99,8 @@ public:
 
   void doWaitsSend(const DistributorPlan& plan);
 
+  void doWaitsIgatherv(const DistributorPlan &plan);
+
   bool isReady() const;
 
 private:
@@ -131,7 +133,17 @@ private:
                                const ImpView &imports,
                                const SubViewLimits& importSubViewLimits);
 #endif // HAVE_TPETRACORE_MPI_ADVANCE
-#endif // HAVE_TPETRA_CORE
+
+  template <typename ExpView, typename ImpView>
+  void doPostsIgathervImpl(const DistributorPlan &plan,
+                           const ExpView &exports,
+                           const SubViewLimits& exportSubViewLimits,
+                           const ImpView &imports,
+                           const SubViewLimits& importSubViewLimits);
+
+  std::vector<MPI_Request> requestsIgatherv_;
+
+#endif // HAVE_TPETRA_MPI
 
   int mpiTag_;
 
@@ -219,6 +231,106 @@ packOffset(const DstViewType& dst,
 }
 
 #ifdef HAVE_TPETRA_MPI
+template <class ExpView, class ImpView>
+void DistributorActor::doPostsIgathervImpl(const DistributorPlan &plan,
+                                           const ExpView &exports,
+                                           const SubViewLimits& exportSubViewLimits,
+                                           const ImpView &imports,
+                                           const SubViewLimits& importSubViewLimits) {
+  using size_type = Teuchos::Array<size_t>::size_type;
+  using ExportValue = typename ExpView::non_const_value_type;
+
+  TEUCHOS_TEST_FOR_EXCEPTION(
+      !plan.getIndicesTo().is_null(), std::runtime_error,
+      "Send Type=\"Igatherv\" only works for fast-path communication.");
+
+
+  auto comm = plan.getComm();
+
+  const auto& [importStarts, importLengths] = importSubViewLimits;
+  const auto& [exportStarts, exportLengths] = exportSubViewLimits;
+
+  for (const int root : plan.getIgathervRoots()) {
+
+    size_type rootProcIndex = plan.getProcsTo().size(); // sentinel value -> not found
+    for (size_type pi = 0; pi < plan.getProcsTo().size(); ++pi) {
+      if (plan.getProcsTo()[pi] == root) {
+        rootProcIndex = pi;
+        break;
+      }
+    }
+
+
+    // am I sending to root?
+    const int sendcount = [&]() -> int {
+      if (rootProcIndex == plan.getProcsTo().size()) {
+        return 0;
+      } else {
+        return exportLengths[rootProcIndex];
+      }
+    }();
+
+    const void* const sendbuf = [&]() -> const void* {
+      if (0 == sendcount) {
+        return nullptr;
+      } else {
+        return static_cast<const void*>(&exports[exportStarts[rootProcIndex]]);
+      }
+    }();
+
+
+    // if I am root, I am recving
+    std::vector<int> recvcounts, rdispls;
+    if (comm->getRank() == root) {
+
+      // don't recv anything from anywhere by default
+      recvcounts.resize(comm->getSize());
+      std::fill(recvcounts.begin(), recvcounts.end(), 0);
+      rdispls.resize(comm->getSize());
+      std::fill(rdispls.begin(), rdispls.end(), 0);
+
+      const size_type actualNumReceives =
+      Teuchos::as<size_type>(plan.getNumReceives()) +
+      Teuchos::as<size_type>(plan.hasSelfMessage() ? 1 : 0);
+
+      for (size_type i = 0; i < actualNumReceives; ++i) {
+        const int src = plan.getProcsFrom()[i];
+        rdispls[src] = importStarts[i];
+        recvcounts[src] = Teuchos::as<int>(importLengths[i]);
+      }
+    }
+
+    // actually use MPI
+    MPI_Datatype rawType = ::Tpetra::Details::MpiTypeTraits<ExportValue>::getType(ExportValue{});
+    // FIXME: is there a better way to do this?
+    Teuchos::RCP<const Teuchos::MpiComm<int>> tMpiComm =
+      Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int>>(comm);
+    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm>> oMpiComm =
+      tMpiComm->getRawMpiComm();
+    MPI_Comm mpiComm = (*oMpiComm)();
+    MPI_Request req;
+
+    // {
+    //   std::stringstream ss;
+    //   ss << __FILE__ << ":" << __LINE__ << " " << comm->getRank() << " MPI_Igatherv -> " << root << "\n";
+    //   std::cerr << ss.str();
+    // }
+
+    const int err = MPI_Igatherv(sendbuf, sendcount, rawType,
+                 imports.data(), recvcounts.data(), rdispls.data(), rawType,
+                 root, mpiComm, &req);         
+
+    TEUCHOS_TEST_FOR_EXCEPTION(err != MPI_SUCCESS, std::runtime_error,
+                               "MPI_Igatherv failed with error \""
+                               << Teuchos::mpiErrorCodeToString(err)
+                               << "\".");
+
+
+    requestsIgatherv_.push_back(req);
+  }
+
+}
+
 template <class ExpView, class ImpView>
 void DistributorActor::doPostsAllToAllImpl(const DistributorPlan &plan,
                                            const ExpView &exports,
@@ -432,6 +544,7 @@ void DistributorActor::doPostRecvsImpl(const DistributorPlan& plan,
   // These send options require no matching receives, so we just return.
   const Details::EDistributorSendType sendType = plan.getSendType();
   if ((sendType == Details::DISTRIBUTOR_ALLTOALL)
+      || (sendType == Details::DISTRIBUTOR_IGATHERV)
 #ifdef HAVE_TPETRACORE_MPI_ADVANCE
       || (sendType == Details::DISTRIBUTOR_MPIADVANCE_ALLTOALL)
       || (sendType == Details::DISTRIBUTOR_MPIADVANCE_NBRALLTOALLV)
@@ -587,6 +700,9 @@ void DistributorActor::doPostSendsImpl(const DistributorPlan& plan,
 
   if (sendType == Details::DISTRIBUTOR_ALLTOALL) {
     doPostsAllToAllImpl(plan, exports, exportSubViewLimits, imports, importSubViewLimits);
+    return;
+  } else if (sendType == Details::DISTRIBUTOR_IGATHERV) {
+    doPostsIgathervImpl(plan, exports, exportSubViewLimits, imports, importSubViewLimits);
     return;
   }
 #ifdef HAVE_TPETRACORE_MPI_ADVANCE

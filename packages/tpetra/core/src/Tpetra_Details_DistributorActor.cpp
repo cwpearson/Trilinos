@@ -39,6 +39,8 @@ namespace Tpetra::Details {
       // outstanding nonblocking communication requests.
       requestsSend_.resize(0);
     }
+
+    doWaitsIgatherv(plan);
   }
 
   void DistributorActor::doWaitsRecv(const DistributorPlan& plan) {
@@ -51,6 +53,9 @@ namespace Tpetra::Details {
       // outstanding nonblocking communication requests.
       requestsRecv_.resize(0);
     }
+
+    doWaitsIgatherv(plan);
+
   }
 
   void DistributorActor::doWaitsSend(const DistributorPlan& plan) {
@@ -63,6 +68,27 @@ namespace Tpetra::Details {
       // outstanding nonblocking communication requests.
       requestsSend_.resize(0);
     }
+
+    doWaitsIgatherv(plan);
+
+  }
+
+  void DistributorActor::doWaitsIgatherv(const DistributorPlan& plan) {
+    #ifdef HAVE_TPETRA_MPI
+    if (!requestsIgatherv_.empty()) {
+
+      // {
+      //   std::stringstream ss;
+      //   ss << __FILE__ << ":" << __LINE__ << " " << plan.getComm()->getRank() << " waitall[Igatherv]\n";
+      //   std::cerr << ss.str();
+      // }
+
+      ProfilingRegion ws("Tpetra::Distributor: doWaitIgatherv[Igatherv]");
+      MPI_Waitall(requestsIgatherv_.size(), requestsIgatherv_.data(), MPI_STATUSES_IGNORE);
+      requestsIgatherv_.clear();
+    }
+  #endif
+
   }
 
   bool DistributorActor::isReady() const {
@@ -73,6 +99,19 @@ namespace Tpetra::Details {
     for (auto& request : requestsSend_) {
       result &= request->isReady();
     }
+
+    // isReady just calls MPI_Test and returns true if the op
+    // succeeded
+    // don't use test because these are for a collective, and not
+    // all ranks may call test, so progress may not be possible
+#ifdef HAVE_TPETRA_MPI
+    for (MPI_Request req : requestsIgatherv_) {
+      int flag;
+      MPI_Request_get_status(req, &flag, MPI_STATUS_IGNORE);
+      result &= flag;
+    }
+#endif
+
     return result;
   }
 }
