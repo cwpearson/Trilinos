@@ -1082,17 +1082,15 @@ void DistributorPlan::initializeMpiAdvance() {
       igathervRoots_.clear();
     }
 
-
-    // FIXME: debug
-    {
-      std::stringstream ss;
-      ss << __FILE__ << ":" << __LINE__ << " " << comm_->getRank() << " roots=";
-      for (int root : igathervRoots_) {
-        ss << root << " ";
-      }
-      ss << "\n";
-      std::cerr << ss.str();
-    }
+    // {
+    //   std::stringstream ss;
+    //   ss << __FILE__ << ":" << __LINE__ << " " << comm_->getRank() << " roots=";
+    //   for (int root : igathervRoots_) {
+    //     ss << root << " ";
+    //   }
+    //   ss << "\n";
+    //   std::cerr << ss.str();
+    // }
   }
 #endif // HAVE_TPETRA_MPI
 
