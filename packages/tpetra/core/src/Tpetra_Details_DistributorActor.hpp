@@ -24,6 +24,7 @@
 
 #ifdef HAVE_TPETRA_MPI
 #include "mpi.h"
+#include "Tpetra_Details_Igatherv.hpp"
 #endif
 
 namespace Tpetra::Details {
@@ -141,7 +142,15 @@ private:
                            const ImpView &imports,
                            const SubViewLimits& importSubViewLimits);
 
+  // appropriately-ordered rcounts and rdispls for each igatherv
+  // these need to live as long as the communication is going
+  std::vector<std::vector<int>> recvcountsIgatherv_;
+  std::vector<std::vector<int>> recvdisplsIgatherv_;
+#ifdef TPETRA_USE_INTERNAL_IGATHERV
+  std::vector<Details::igatherv::Req> requestsIgatherv_;
+#else
   std::vector<MPI_Request> requestsIgatherv_;
+#endif
 
 #endif // HAVE_TPETRA_MPI
 
@@ -240,6 +249,8 @@ void DistributorActor::doPostsIgathervImpl(const DistributorPlan &plan,
   using size_type = Teuchos::Array<size_t>::size_type;
   using ExportValue = typename ExpView::non_const_value_type;
 
+  ProfilingRegion pr("Tpetra::Distributor: doPostsIgathervImpl");
+
   TEUCHOS_TEST_FOR_EXCEPTION(
       !plan.getIndicesTo().is_null(), std::runtime_error,
       "Send Type=\"Igatherv\" only works for fast-path communication.");
@@ -250,7 +261,14 @@ void DistributorActor::doPostsIgathervImpl(const DistributorPlan &plan,
   const auto& [importStarts, importLengths] = importSubViewLimits;
   const auto& [exportStarts, exportLengths] = exportSubViewLimits;
 
-  for (const int root : plan.getIgathervRoots()) {
+  const int numRoots = plan.getIgathervRoots().size();
+
+  // track recv-side arguments for each root
+  recvcountsIgatherv_.resize(numRoots);
+  recvdisplsIgatherv_.resize(numRoots);
+
+  for (int rootIdx = 0; rootIdx < numRoots; ++rootIdx) {
+    const int root = plan.getIgathervRoots()[rootIdx];
 
     size_type rootProcIndex = plan.getProcsTo().size(); // sentinel value -> not found
     for (size_type pi = 0; pi < plan.getProcsTo().size(); ++pi) {
@@ -279,8 +297,10 @@ void DistributorActor::doPostsIgathervImpl(const DistributorPlan &plan,
     }();
 
 
-    // if I am root, I am recving
-    std::vector<int> recvcounts, rdispls;
+    // retrieve buffer for organized recv counts
+    std::vector<int> &recvcounts = recvcountsIgatherv_[rootIdx];
+    std::vector<int> &rdispls = recvdisplsIgatherv_[rootIdx];
+
     if (comm->getRank() == root) {
 
       // don't recv anything from anywhere by default
@@ -308,7 +328,7 @@ void DistributorActor::doPostsIgathervImpl(const DistributorPlan &plan,
     Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm>> oMpiComm =
       tMpiComm->getRawMpiComm();
     MPI_Comm mpiComm = (*oMpiComm)();
-    MPI_Request req;
+    
 
     // {
     //   std::stringstream ss;
@@ -316,9 +336,17 @@ void DistributorActor::doPostsIgathervImpl(const DistributorPlan &plan,
     //   std::cerr << ss.str();
     // }
 
-    const int err = MPI_Igatherv(sendbuf, sendcount, rawType,
-                 imports.data(), recvcounts.data(), rdispls.data(), rawType,
-                 root, mpiComm, &req);         
+#ifdef TPETRA_USE_INTERNAL_IGATHERV
+Details::igatherv::Req req;
+const int err = Details::igatherv::post(sendbuf, sendcount, rawType,
+  imports.data(), recvcounts.data(), rdispls.data(), rawType,
+  root, mpiTag_ + rootIdx, mpiComm, &req);
+#else
+  MPI_Request req;
+  const int err = MPI_Igatherv(sendbuf, sendcount, rawType,
+               imports.data(), recvcounts.data(), rdispls.data(), rawType,
+               root, mpiComm, &req);
+#endif
 
     TEUCHOS_TEST_FOR_EXCEPTION(err != MPI_SUCCESS, std::runtime_error,
                                "MPI_Igatherv failed with error \""
@@ -326,8 +354,10 @@ void DistributorActor::doPostsIgathervImpl(const DistributorPlan &plan,
                                << "\".");
 
 
+    // keep relevant entities alive
     requestsIgatherv_.push_back(req);
-  }
+
+  } // rootIdx
 
 }
 
