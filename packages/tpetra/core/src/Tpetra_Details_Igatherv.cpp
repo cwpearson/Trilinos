@@ -143,19 +143,11 @@ namespace Tpetra::Details::igatherv {
         #endif
         
           // Step 0: global root sends recv counts to each phase 1 root
-          std::vector<int> groupRecvCounts;
+          std::vector<int> groupRecvCounts(ph1Size);
           std::vector<MPI_Request> ph0Reqs;
           // receive group recv counts
           if (isPh1Root) {
-            groupRecvCounts.resize(ph1Size);
             MPI_Request ph0Req;
-            #ifdef IGATHERV_DEBUG
-              {
-                std::stringstream ss;
-                ss << "ph0 recv(?, " << groupRecvCounts.size() << ", int, " << req.root << ", " << req.tag << ")";
-                LOG(req.rank, ss.str());
-              }
-            #endif
             MPI_Irecv(groupRecvCounts.data(), groupRecvCounts.size(), MPI_INT, req.root,
                       req.tag, req.comm, &ph0Req);
             ph0Reqs.push_back(ph0Req);
@@ -164,25 +156,9 @@ namespace Tpetra::Details::igatherv {
           if (req.rank == req.root) {
             // send recv counts for each group to that group
             for (int dst = 0; dst < req.size; dst += R) {
-              const int count = ph1_size(dst, req.size);
-              const void *sendbuf = &(req.recvcounts[dst]);
-            #ifdef IGATHERV_DEBUG
-              {
-                std::stringstream ss;
-                ss << "ph0 send(" << sendbuf << ", " << count << ", int, " << dst << ", " << req.tag << ")";
-                LOG(req.rank, ss.str());
-              }
-              {
-                std::stringstream ss;
-                ss << "ph0 send buf was:";
-                for (int i = 0; i < count; ++i) {
-                  ss << " " << req.recvcounts[dst+i];
-                }
-                LOG(req.rank, ss.str());
-              }
-            #endif
               MPI_Request ph0Req;
-              MPI_Isend(sendbuf, count, MPI_INT, dst, req.tag, req.comm, &ph0Req);
+              MPI_Isend(&req.recvcounts[dst], ph1_size(dst, req.size), MPI_INT, dst,
+                        req.tag, req.comm, &ph0Req);
               ph0Reqs.push_back(ph0Req);
             }
           }
@@ -204,7 +180,7 @@ namespace Tpetra::Details::igatherv {
         #endif
         
           // Step 1: Local gather to phase 1 roots
-          // phase 1 root has already recieved how much data each rank in the group is
+          // phase 1 root has already received how much data each rank in the group is
           // going to send
           std::vector<MPI_Request> ph1Rreqs;
           std::vector<char> ph1Recvbuf;
@@ -282,7 +258,8 @@ namespace Tpetra::Details::igatherv {
           if (req.rank == req.root) {
             const int nR = ph1_group_count(req.size);
         
-            ph2Reqs.reserve(nR + isPh1Root ? 1 : 0); // + 1 send if we're a phase 1 root
+            ph2Reqs.reserve(nR +
+                            (isPh1Root ? 1 : 0)); // + 1 send if we're a phase 1 root
             ph2Data.reserve(nR);
         
             // prepare buffers to receive data from each group
