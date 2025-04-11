@@ -84,8 +84,14 @@ namespace Tpetra::Details {
       // }
 
       ProfilingRegion ws("Tpetra::Distributor: doWaitIgatherv[Igatherv]");
-      MPI_Waitall(requestsIgatherv_.size(), requestsIgatherv_.data(), MPI_STATUSES_IGNORE);
-      requestsIgatherv_.clear();
+#ifdef TPETRA_USE_INTERNAL_IGATHERV
+  for (auto &req : requestsIgatherv_) {
+    Details::igatherv::wait(req);
+  }
+#else
+  MPI_Waitall(requestsIgatherv_.size(), requestsIgatherv_.data(), MPI_STATUSES_IGNORE);
+#endif
+requestsIgatherv_.clear();
     }
   #endif
 
@@ -105,9 +111,13 @@ namespace Tpetra::Details {
     // don't use test because these are for a collective, and not
     // all ranks may call test, so progress may not be possible
 #ifdef HAVE_TPETRA_MPI
-    for (MPI_Request req : requestsIgatherv_) {
+    for (auto req : requestsIgatherv_) {
       int flag;
+#ifdef TPETRA_USE_INTERNAL_IGATHERV
+      Details::igatherv::get_status(req, &flag, MPI_STATUS_IGNORE);
+#else
       MPI_Request_get_status(req, &flag, MPI_STATUS_IGNORE);
+#endif
       result &= flag;
     }
 #endif
