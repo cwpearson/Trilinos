@@ -77,6 +77,7 @@ DistributorPlan::DistributorPlan(Teuchos::RCP<const Teuchos::Comm<int>> comm)
     howInitialized_(DISTRIBUTOR_NOT_INITIALIZED),
     reversePlan_(Teuchos::null),
     sendType_(DISTRIBUTOR_SEND),
+    // sendType_(DISTRIBUTOR_IGATHERV), // FIXME: delete
     sendMessageToSelf_(false),
     numSendsToOtherProcs_(0),
     maxSendLength_(0),
@@ -1040,6 +1041,15 @@ void DistributorPlan::initializeMpiAdvance() {
       }
     }
 
+    {
+      std::stringstream ss;
+      ss << __FILE__ << ":" << __LINE__ << " " << comm_->getRank() << " roots=";
+      for (int root : igathervRoots_) {
+        ss << root << " ";
+      }
+      ss << "\n";
+      std::cerr << ss.str();
+    }
 
     // If anyone is using slow-path communication, skip all Igatherv
     int slow = !getIndicesTo().is_null() ? 1 : 0;
@@ -1048,21 +1058,14 @@ void DistributorPlan::initializeMpiAdvance() {
       // FIXME: debug
       {
         std::stringstream ss;
-        ss << __FILE__ << ":" << __LINE__ << " " << comm_->getRank() << ": WARNING: you used Igatherv send mode, but someone is slow-path, so Igatherv is disabled." << std::endl;
+        ss << __FILE__ << ":" << __LINE__ << " " << comm_->getRank() << ": WARNING: you used Igatherv send mode, but someone is slow-path. Setting send-type to \"Isend\"" << std::endl;
         std::cerr << ss.str();
       }
       igathervRoots_.clear();
+      sendType_ = DISTRIBUTOR_ISEND;
     }
 
-    // {
-    //   std::stringstream ss;
-    //   ss << __FILE__ << ":" << __LINE__ << " " << comm_->getRank() << " roots=";
-    //   for (int root : igathervRoots_) {
-    //     ss << root << " ";
-    //   }
-    //   ss << "\n";
-    //   std::cerr << ss.str();
-    // }
+
   }
 #endif // HAVE_TPETRA_MPI
 

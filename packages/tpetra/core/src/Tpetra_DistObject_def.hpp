@@ -1089,7 +1089,7 @@ namespace Tpetra {
       }
       else {
         ProfilingRegion region_dpw
-          ("Tpetra::DistObject::doTransferNew::doPostsAndWaits");
+          ("Tpetra::DistObject::doTransferNew::doPosts");
 #ifdef HAVE_TPETRA_TRANSFER_TIMERS
         // FIXME (mfh 04 Feb 2019) Deprecate Teuchos::TimeMonitor in
         // favor of Kokkos profiling.
@@ -1305,6 +1305,7 @@ namespace Tpetra {
       }
       else {
         distributorActor_.doWaitsRecv(distributorPlan);
+        distributorActor_.doWaitsIgatherv(distributorPlan);
 
         if (verbose) {
           std::ostringstream os;
