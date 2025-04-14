@@ -14,14 +14,22 @@ namespace Tpetra::Details {
   DistributorActor::DistributorActor()
     : mpiTag_(DEFAULT_MPI_TAG) {}
 
+      // FIXME: should be able to default this guy
+#if 0
   DistributorActor::DistributorActor(const DistributorActor& otherActor)
     : mpiTag_(otherActor.mpiTag_),
     requestsRecv_(otherActor.requestsRecv_),
-    requestsSend_(otherActor.requestsSend_) {}
+    requestsSend_(otherActor.requestsSend_),
+    requestsIgatherv_(otherActor.requestsIgatherv_) {
+      if (!requestsIgatherv_.empty()) {
+        std::cerr << __FILE__ << ":" << __LINE__ << " DistributorActor copy ctor with active igathers!\n";
+      }
+    }
+#endif
 
   void DistributorActor::doWaits(const DistributorPlan& plan) {
     if (requestsRecv_.size() > 0) {
-      ProfilingRegion wr("Tpetra::Distributor: doWaitsRecv");
+      ProfilingRegion wr("Tpetra::Distributor: doWaitsRecv[via doWaits]");
 
       Teuchos::waitAll(*plan.getComm(), requestsRecv_());
 
@@ -31,7 +39,7 @@ namespace Tpetra::Details {
     }
 
     if (requestsSend_.size() > 0) {
-      ProfilingRegion ws("Tpetra::Distributor: doWaitsSend");
+      ProfilingRegion ws("Tpetra::Distributor: doWaitsSend[via doWaits]");
 
       Teuchos::waitAll(*plan.getComm(), requestsSend_());
 
@@ -40,7 +48,10 @@ namespace Tpetra::Details {
       requestsSend_.resize(0);
     }
 
-    doWaitsIgatherv(plan);
+    {
+      ProfilingRegion ws("Tpetra::Distributor: doWaitsIgatherv[via doWaits]");
+      doWaitsIgatherv(plan);
+    }
   }
 
   void DistributorActor::doWaitsRecv(const DistributorPlan& plan) {
@@ -54,8 +65,11 @@ namespace Tpetra::Details {
       requestsRecv_.resize(0);
     }
 
-    doWaitsIgatherv(plan);
-
+    {
+      ProfilingRegion ws("Tpetra::Distributor: doWaitsIgatherv[via doWaitsRecv]");
+      doWaitsIgatherv(plan);
+    }
+    
   }
 
   void DistributorActor::doWaitsSend(const DistributorPlan& plan) {
@@ -68,9 +82,6 @@ namespace Tpetra::Details {
       // outstanding nonblocking communication requests.
       requestsSend_.resize(0);
     }
-
-    doWaitsIgatherv(plan);
-
   }
 
   void DistributorActor::doWaitsIgatherv(const DistributorPlan& plan) {
@@ -83,7 +94,7 @@ namespace Tpetra::Details {
       //   std::cerr << ss.str();
       // }
 
-      ProfilingRegion ws("Tpetra::Distributor: doWaitIgatherv[Igatherv]");
+      ProfilingRegion ws("Tpetra::Distributor: doWaitsIgatherv");
 #ifdef TPETRA_USE_INTERNAL_IGATHERV
   for (auto &req : requestsIgatherv_) {
     Details::igatherv::wait(req);
@@ -92,6 +103,8 @@ namespace Tpetra::Details {
   MPI_Waitall(requestsIgatherv_.size(), requestsIgatherv_.data(), MPI_STATUSES_IGNORE);
 #endif
 requestsIgatherv_.clear();
+recvcountsIgatherv_.clear();
+recvdisplsIgatherv_.clear();
     }
   #endif
 

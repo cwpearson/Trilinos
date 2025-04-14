@@ -43,7 +43,8 @@ class DistributorActor {
 
 public:
   DistributorActor();
-  DistributorActor(const DistributorActor& otherActor);
+  // DistributorActor(const DistributorActor& otherActor) = default;
+  // DistributorActor(DistributorActor &&rhs) = delete;
 
   template <class ExpView, class ImpView>
   void doPostsAndWaits(const DistributorPlan& plan,
@@ -144,8 +145,8 @@ private:
 
   // appropriately-ordered rcounts and rdispls for each igatherv
   // these need to live as long as the communication is going
-  std::vector<std::vector<int>> recvcountsIgatherv_;
-  std::vector<std::vector<int>> recvdisplsIgatherv_;
+  std::vector<Teuchos::RCP<std::vector<int>>> recvcountsIgatherv_;
+  std::vector<Teuchos::RCP<std::vector<int>>> recvdisplsIgatherv_;
 #ifdef TPETRA_USE_INTERNAL_IGATHERV
   std::vector<Details::igatherv::Req> requestsIgatherv_;
 #else
@@ -255,6 +256,17 @@ void DistributorActor::doPostsIgathervImpl(const DistributorPlan &plan,
       !plan.getIndicesTo().is_null(), std::runtime_error,
       "Send Type=\"Igatherv\" only works for fast-path communication.");
 
+  TEUCHOS_TEST_FOR_EXCEPTION(
+      !requestsIgatherv_.empty(), std::runtime_error,
+      "This actor has active Igathervs already");
+
+  TEUCHOS_TEST_FOR_EXCEPTION(
+      !recvcountsIgatherv_.empty(), std::runtime_error,
+      "This actor has active Igathervs already");
+
+  TEUCHOS_TEST_FOR_EXCEPTION(
+      !recvdisplsIgatherv_.empty(), std::runtime_error,
+      "This actor has active Igathervs already");
 
   auto comm = plan.getComm();
 
@@ -263,13 +275,10 @@ void DistributorActor::doPostsIgathervImpl(const DistributorPlan &plan,
 
   const int numRoots = plan.getIgathervRoots().size();
 
-  // track recv-side arguments for each root
-  recvcountsIgatherv_.resize(numRoots);
-  recvdisplsIgatherv_.resize(numRoots);
-
   for (int rootIdx = 0; rootIdx < numRoots; ++rootIdx) {
     const int root = plan.getIgathervRoots()[rootIdx];
 
+    //if we can't find the root proc index in our plan, it just means we send 0
     size_type rootProcIndex = plan.getProcsTo().size(); // sentinel value -> not found
     for (size_type pi = 0; pi < plan.getProcsTo().size(); ++pi) {
       if (plan.getProcsTo()[pi] == root) {
@@ -277,7 +286,6 @@ void DistributorActor::doPostsIgathervImpl(const DistributorPlan &plan,
         break;
       }
     }
-
 
     // am I sending to root?
     const int sendcount = [&]() -> int {
@@ -298,29 +306,45 @@ void DistributorActor::doPostsIgathervImpl(const DistributorPlan &plan,
 
 
     // retrieve buffer for organized recv counts
-    std::vector<int> &recvcounts = recvcountsIgatherv_[rootIdx];
-    std::vector<int> &rdispls = recvdisplsIgatherv_[rootIdx];
+    Teuchos::RCP<std::vector<int>> recvcounts = Teuchos::rcp(new std::vector<int>);
+    Teuchos::RCP<std::vector<int>> rdispls = Teuchos::rcp(new std::vector<int>);
 
     if (comm->getRank() == root) {
 
       // don't recv anything from anywhere by default
-      recvcounts.resize(comm->getSize());
-      std::fill(recvcounts.begin(), recvcounts.end(), 0);
-      rdispls.resize(comm->getSize());
-      std::fill(rdispls.begin(), rdispls.end(), 0);
+      recvcounts->resize(comm->getSize());
+      std::fill(recvcounts->begin(), recvcounts->end(), 0);
+      rdispls->resize(comm->getSize());
+      std::fill(rdispls->begin(), rdispls->end(), 0);
 
       const size_type actualNumReceives =
       Teuchos::as<size_type>(plan.getNumReceives()) +
       Teuchos::as<size_type>(plan.hasSelfMessage() ? 1 : 0);
 
       for (size_type i = 0; i < actualNumReceives; ++i) {
+        // FIXME: debug
+        TEUCHOS_TEST_FOR_EXCEPTION(
+          i >= plan.getProcsFrom().size(), std::runtime_error, "OOB");
         const int src = plan.getProcsFrom()[i];
-        rdispls[src] = importStarts[i];
-        recvcounts[src] = Teuchos::as<int>(importLengths[i]);
+
+        // FIXME: debug
+        TEUCHOS_TEST_FOR_EXCEPTION(
+          size_t(src) >= rdispls->size(), std::runtime_error, "OOB");
+        (*rdispls)[src] = importStarts[i];
+
+        // FIXME: debug
+        TEUCHOS_TEST_FOR_EXCEPTION(
+          size_t(src) >= recvcounts->size(), std::runtime_error, "OOB");
+        (*recvcounts)[src] = Teuchos::as<int>(importLengths[i]);
+
+        // FIXME: debug
+        TEUCHOS_TEST_FOR_EXCEPTION(
+          importStarts[i] + importLengths[i] > imports.size(), std::runtime_error, "OOB");
       }
     }
 
     // actually use MPI
+    // TODO: do we need to pass ExportValue{} here?
     MPI_Datatype rawType = ::Tpetra::Details::MpiTypeTraits<ExportValue>::getType(ExportValue{});
     // FIXME: is there a better way to do this?
     Teuchos::RCP<const Teuchos::MpiComm<int>> tMpiComm =
@@ -339,12 +363,12 @@ void DistributorActor::doPostsIgathervImpl(const DistributorPlan &plan,
 #ifdef TPETRA_USE_INTERNAL_IGATHERV
 Details::igatherv::Req req;
 const int err = Details::igatherv::post(sendbuf, sendcount, rawType,
-  imports.data(), recvcounts.data(), rdispls.data(), rawType,
+  imports.data(), recvcounts->data(), rdispls->data(), rawType,
   root, mpiTag_ + rootIdx, mpiComm, &req);
 #else
   MPI_Request req;
   const int err = MPI_Igatherv(sendbuf, sendcount, rawType,
-               imports.data(), recvcounts.data(), rdispls.data(), rawType,
+               imports.data(), recvcounts->data(), rdispls->data(), rawType,
                root, mpiComm, &req);
 #endif
 
@@ -356,6 +380,8 @@ const int err = Details::igatherv::post(sendbuf, sendcount, rawType,
 
     // keep relevant entities alive
     requestsIgatherv_.push_back(req);
+    recvdisplsIgatherv_.push_back(rdispls);
+    recvcountsIgatherv_.push_back(recvcounts);
 
   } // rootIdx
 
@@ -732,8 +758,16 @@ void DistributorActor::doPostSendsImpl(const DistributorPlan& plan,
     doPostsAllToAllImpl(plan, exports, exportSubViewLimits, imports, importSubViewLimits);
     return;
   } else if (sendType == Details::DISTRIBUTOR_IGATHERV) {
-    doPostsIgathervImpl(plan, exports, exportSubViewLimits, imports, importSubViewLimits);
-    return;
+    // if (plan.getIgathervRoots().empty()) {
+    // // FIXME: debug
+    //   std::stringstream ss;
+    //   ss << __FILE__ << ":" << __LINE__ << " " << myRank << " requested DISTRIBUTOR_IGATHERV but not roots. Skipping\n";
+    //   std::cerr << ss.str();
+    // } else {
+      doPostsIgathervImpl(plan, exports, exportSubViewLimits, imports, importSubViewLimits);
+      return;
+    // }
+
   }
 #ifdef HAVE_TPETRACORE_MPI_ADVANCE
   else if (sendType == Details::DISTRIBUTOR_MPIADVANCE_ALLTOALL) {
