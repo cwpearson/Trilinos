@@ -1039,17 +1039,18 @@ void DistributorPlan::initializeMpiAdvance() {
     }
 
     // FIXME: debug
-    // {
-    //   std::stringstream ss;
-    //   ss << __FILE__ << ":" << __LINE__ << "\n";
-    //   std::cerr << ss.str();
-    // }
+    {
+      std::stringstream ss;
+      ss << __FILE__ << ":" << __LINE__ << "\n";
+      std::cerr << ss.str();
+    }
 
   #if defined(HAVE_TPETRA_DISTRIBUTOR_TIMINGS)
     ProfilingRegion region_initializeIgathervRoots ("Tpetra::DistributorPlan::initializeIgathervRoots");
   #endif
 
     // send my number of recvs to everyone
+    // TODO: in actor, we check hasSelfMessage()
     const int numRecvs = (int)(numReceives_ + (sendMessageToSelf_ ? 1 : 0));
     std::vector<int> sendbuf(comm_->getSize(), numRecvs);
     std::vector<int> recvbuf(comm_->getSize());
@@ -1092,7 +1093,7 @@ void DistributorPlan::initializeMpiAdvance() {
       sendType_ = DISTRIBUTOR_ISEND;
     }
 
-
+    initedIgathervRoots_ = true;
   }
 #endif // HAVE_TPETRA_MPI
 

@@ -147,6 +147,7 @@ private:
   // these need to live as long as the communication is going
   std::vector<Teuchos::RCP<std::vector<int>>> recvcountsIgatherv_;
   std::vector<Teuchos::RCP<std::vector<int>>> recvdisplsIgatherv_;
+  std::vector<std::function<void()>> viewsIgatherv_;
 #ifdef TPETRA_USE_INTERNAL_IGATHERV
   std::vector<Details::igatherv::Req> requestsIgatherv_;
 #else
@@ -275,15 +276,100 @@ void DistributorActor::doPostsIgathervImpl(const DistributorPlan &plan,
 
   const int numRoots = plan.getIgathervRoots().size();
 
+  // FIXME: debug
+  // if I have a self message, I should be in roots
+  if (plan.hasSelfMessage()) {
+    bool found = false;
+    for (const int root : plan.getIgathervRoots()) {
+      if (root == comm->getRank()) {
+        found = true;
+        break;
+      }
+    }
+
+    if (!found) {
+      std::stringstream ss;
+      ss << __FILE__ << ":" << __LINE__ << " " << comm->getRank() << " roots=";
+      for (int root : plan.getIgathervRoots()) {
+        ss << root << " ";
+      }
+      ss << "\n";
+      std::cerr << ss.str();
+    }
+
+    TEUCHOS_TEST_FOR_EXCEPTION(!found, std::runtime_error, "missing root (self) " << comm->getRank());
+  }
+
+  // FIXME: debug
+  // everyone I send to should be somewhere in roots
+  for (size_t i = 0; i < plan.getNumSends() + plan.hasSelfMessage(); ++i) {
+    const int dst = plan.getProcsTo()[i];
+    bool found = false;
+
+    for (const int root : plan.getIgathervRoots()) {
+      if (root == dst) {
+        found = true;
+        break;
+      }
+    }
+
+    if (!found) {
+      std::stringstream ss;
+      ss << __FILE__ << ":" << __LINE__ << " " << comm->getRank() << " roots=";
+      for (int root : plan.getIgathervRoots()) {
+        ss << root << " ";
+      }
+      ss << "\n";
+      std::cerr << ss.str();
+    }
+
+    TEUCHOS_TEST_FOR_EXCEPTION(!found, std::runtime_error, "missing root for dest=" << dst 
+                                                           << " count=" << exportLengths[i] 
+                                                           << " howinit=" << DistributorHowInitializedEnumToString(plan.howInitialized())
+                                                           << " sendtype=" << DistributorSendTypeEnumToString(plan.getSendType()));
+  }
+
+  // FIXME: debug
+  // if I recv from anyone, I should be in roots
+  if (plan.getNumReceives() + plan.hasSelfMessage()) {
+    bool found = false;
+    for (const int root : plan.getIgathervRoots()) {
+      if (root == comm->getRank()) {
+        found = true;
+        break;
+      }
+    }
+
+    if (!found) {
+      std::stringstream ss;
+      ss << __FILE__ << ":" << __LINE__ << " " << comm->getRank() << " roots=";
+      for (int root : plan.getIgathervRoots()) {
+        ss << root << " ";
+      }
+      ss << "\n";
+      std::cerr << ss.str();
+    }
+
+    TEUCHOS_TEST_FOR_EXCEPTION(!found, std::runtime_error, "missing root (receiver) " << comm->getRank());
+  }
+
   for (int rootIdx = 0; rootIdx < numRoots; ++rootIdx) {
     const int root = plan.getIgathervRoots()[rootIdx];
 
     //if we can't find the root proc index in our plan, it just means we send 0
+    // also make sure root only appears once in getProcsTo()
     size_type rootProcIndex = plan.getProcsTo().size(); // sentinel value -> not found
     for (size_type pi = 0; pi < plan.getProcsTo().size(); ++pi) {
       if (plan.getProcsTo()[pi] == root) {
+
+        // FIXME: debug
+        TEUCHOS_TEST_FOR_EXCEPTION(
+          rootProcIndex != plan.getProcsTo().size(), std::runtime_error, "duplicate send to root");
+
         rootProcIndex = pi;
-        break;
+
+        // should break here, but we'll keep checking to see if any duplicates show up
+        // break;
       }
     }
 
@@ -326,6 +412,14 @@ void DistributorActor::doPostsIgathervImpl(const DistributorPlan &plan,
         TEUCHOS_TEST_FOR_EXCEPTION(
           i >= plan.getProcsFrom().size(), std::runtime_error, "OOB");
         const int src = plan.getProcsFrom()[i];
+
+        // FIXME: debug
+        // only expecting one recv from each source, so make sure recvcounts
+        // is zero (otherwise we already got a recv from this source)
+        TEUCHOS_TEST_FOR_EXCEPTION(
+          (*recvcounts)[src] != 0, std::runtime_error, "duplicate recv (count)");
+        TEUCHOS_TEST_FOR_EXCEPTION(
+          (*rdispls)[src] != 0, std::runtime_error, "duplicate recv (displ)");
 
         // FIXME: debug
         TEUCHOS_TEST_FOR_EXCEPTION(
@@ -382,6 +476,8 @@ const int err = Details::igatherv::post(sendbuf, sendcount, rawType,
     requestsIgatherv_.push_back(req);
     recvdisplsIgatherv_.push_back(rdispls);
     recvcountsIgatherv_.push_back(recvcounts);
+    viewsIgatherv_.push_back([imports](){});
+    viewsIgatherv_.push_back([exports](){});
 
   } // rootIdx
 
