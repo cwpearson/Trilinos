@@ -274,6 +274,7 @@ private:
   /// This is the same on all ranks, and this contains any rank that
   /// is importing data.
   std::vector<int> igathervRoots_;
+  bool initedIgathervRoots_ = false;
 #endif
 };
 

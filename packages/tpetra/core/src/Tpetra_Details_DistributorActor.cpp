@@ -9,6 +9,8 @@
 
 #include "Tpetra_Details_DistributorActor.hpp"
 
+#include <fstream>
+
 namespace Tpetra::Details {
 
   DistributorActor::DistributorActor()
@@ -69,7 +71,6 @@ namespace Tpetra::Details {
       ProfilingRegion ws("Tpetra::Distributor: doWaitsIgatherv[via doWaitsRecv]");
       doWaitsIgatherv(plan);
     }
-    
   }
 
   void DistributorActor::doWaitsSend(const DistributorPlan& plan) {
@@ -88,13 +89,14 @@ namespace Tpetra::Details {
     #ifdef HAVE_TPETRA_MPI
     if (!requestsIgatherv_.empty()) {
 
-      // {
-      //   std::stringstream ss;
-      //   ss << __FILE__ << ":" << __LINE__ << " " << plan.getComm()->getRank() << " waitall[Igatherv]\n";
-      //   std::cerr << ss.str();
-      // }
+      {
+        std::stringstream ss;
+        ss << __FILE__ << ":" << __LINE__ << " " << plan.getComm()->getRank() << " waitall[Igatherv]\n";
+        std::cerr << ss.str();
+      }
 
       ProfilingRegion ws("Tpetra::Distributor: doWaitsIgatherv");
+
 #ifdef TPETRA_USE_INTERNAL_IGATHERV
   for (auto &req : requestsIgatherv_) {
     Details::igatherv::wait(req);
@@ -105,6 +107,7 @@ namespace Tpetra::Details {
 requestsIgatherv_.clear();
 recvcountsIgatherv_.clear();
 recvdisplsIgatherv_.clear();
+viewsIgatherv_.clear();
     }
   #endif
 
