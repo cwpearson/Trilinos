@@ -1055,11 +1055,11 @@ void DistributorPlan::initializeMpiAdvance() {
     }
 
     // FIXME: debug
-    {
-      std::stringstream ss;
-      ss << __FILE__ << ":" << __LINE__ << "\n";
-      std::cerr << ss.str();
-    }
+    // {
+    //   std::stringstream ss;
+    //   ss << __FILE__ << ":" << __LINE__ << "\n";
+    //   std::cerr << ss.str();
+    // }
 
   #if defined(HAVE_TPETRA_DISTRIBUTOR_TIMINGS)
     ProfilingRegion region_initializeIgathervRoots ("Tpetra::DistributorPlan::initializeIgathervRoots");

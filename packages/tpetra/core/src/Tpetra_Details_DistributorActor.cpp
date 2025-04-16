@@ -89,11 +89,12 @@ namespace Tpetra::Details {
     #ifdef HAVE_TPETRA_MPI
     if (!requestsIgatherv_.empty()) {
 
-      {
-        std::stringstream ss;
-        ss << __FILE__ << ":" << __LINE__ << " " << plan.getComm()->getRank() << " waitall[Igatherv]\n";
-        std::cerr << ss.str();
-      }
+      // FIXME: debug
+      // {
+      //   std::stringstream ss;
+      //   ss << __FILE__ << ":" << __LINE__ << " " << plan.getComm()->getRank() << " waitall[Igatherv]\n";
+      //   std::cerr << ss.str();
+      // }
 
       ProfilingRegion ws("Tpetra::Distributor: doWaitsIgatherv");
 
