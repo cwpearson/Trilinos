@@ -376,22 +376,15 @@ void DistributorActor::doPostsIgathervImpl(const DistributorPlan &plan,
     }
 
     // am I sending to root?
-    const int sendcount = [&]() -> int {
-      if (rootProcIndex == plan.getProcsTo().size()) {
-        return 0;
-      } else {
-        return exportLengths[rootProcIndex];
-      }
-    }();
+    int sendcount = 0;
+    if (rootProcIndex != plan.getProcsTo().size()) {
+      sendcount = exportLengths[rootProcIndex];
+    }
 
-    const void* const sendbuf = [&]() -> const void* {
-      if (0 == sendcount) {
-        return nullptr;
-      } else {
-        return static_cast<const void*>(&exports[exportStarts[rootProcIndex]]);
-      }
-    }();
-
+    const void *sendbuf = nullptr;
+    if (0 != sendcount) {
+      sendbuf = static_cast<const void*>(&exports[exportStarts[rootProcIndex]]);
+    }
 
     // retrieve buffer for organized recv counts
     Teuchos::RCP<std::vector<int>> recvcounts = Teuchos::rcp(new std::vector<int>);
