@@ -147,7 +147,6 @@ private:
   // these need to live as long as the communication is going
   std::vector<Teuchos::RCP<std::vector<int>>> recvcountsIgatherv_;
   std::vector<Teuchos::RCP<std::vector<int>>> recvdisplsIgatherv_;
-  std::vector<std::function<void()>> viewsIgatherv_;
 #ifdef TPETRA_USE_INTERNAL_IGATHERV
   std::vector<Details::igatherv::Req> requestsIgatherv_;
 #else
@@ -476,8 +475,6 @@ const int err = Details::igatherv::post(sendbuf, sendcount, rawType,
     requestsIgatherv_.push_back(req);
     recvdisplsIgatherv_.push_back(rdispls);
     recvcountsIgatherv_.push_back(recvcounts);
-    viewsIgatherv_.push_back([imports](){});
-    viewsIgatherv_.push_back([exports](){});
 
   } // rootIdx
 

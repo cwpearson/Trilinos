@@ -107,7 +107,6 @@ namespace Tpetra::Details {
 requestsIgatherv_.clear();
 recvcountsIgatherv_.clear();
 recvdisplsIgatherv_.clear();
-viewsIgatherv_.clear();
     }
   #endif
 
