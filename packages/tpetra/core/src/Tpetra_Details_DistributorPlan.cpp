@@ -9,6 +9,7 @@
 
 #include "Tpetra_Details_DistributorPlan.hpp"
 
+#include "Tpetra_Details_Profiling.hpp"
 #include "Teuchos_StandardParameterEntryValidators.hpp"
 #include "Tpetra_Util.hpp"
 #include "Tpetra_Details_Behavior.hpp"
@@ -628,7 +629,19 @@ void DistributorPlan::createReversePlan() const
 {
   reversePlan_ = Teuchos::rcp(new DistributorPlan(comm_));
   reversePlan_->howInitialized_ = Details::DISTRIBUTOR_INITIALIZED_BY_REVERSE;
-  reversePlan_->sendType_ = sendType_;
+
+  if (DISTRIBUTOR_IGATHERV == sendType_) {
+    // FIXME: debug
+    {
+      std::stringstream ss;
+      ss << __FILE__ << ":" << __LINE__ << " WARNING (Igatherv send type): not using Igatherv send type in reversed Igatherv\n";
+      std::cerr << ss.str();
+    }
+    reversePlan_->sendType_ = DISTRIBUTOR_SEND; // fixme: default?
+  } else {
+    reversePlan_->sendType_ = sendType_;
+  }
+
 
   // The total length of all the sends of this DistributorPlan.  We
   // calculate it because it's the total length of all the receives
@@ -1105,7 +1118,7 @@ void DistributorPlan::initializeMpiAdvance() {
         std::cerr << ss.str();
       }
       igathervRoots_.clear();
-      sendType_ = DISTRIBUTOR_ISEND;
+      sendType_ = DISTRIBUTOR_SEND;
     }
 
     // if there aren't many roots, probably someone wanted to use a gather somewhere but then just reused the import/export thing for a scatter
@@ -1119,7 +1132,7 @@ void DistributorPlan::initializeMpiAdvance() {
         std::cerr << ss.str();
       }
       igathervRoots_.clear();
-      sendType_ = DISTRIBUTOR_ISEND;
+      sendType_ = DISTRIBUTOR_SEND;
     }
 
 
