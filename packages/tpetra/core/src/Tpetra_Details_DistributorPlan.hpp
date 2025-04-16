@@ -137,7 +137,9 @@ public:
   const std::vector<int> getIgathervRoots() const {
     return igathervRoots_;
   }
-
+  #if defined(HAVE_TPETRA_MPI)
+  bool initedIgathervRoots_;
+  #endif
 private:
 
   // after the plan has been created we have the info we need to initialize the MPI advance communicator
@@ -274,7 +276,7 @@ private:
   /// This is the same on all ranks, and this contains any rank that
   /// is importing data.
   std::vector<int> igathervRoots_;
-  bool initedIgathervRoots_ = false;
+
 #endif
 };
 

@@ -82,6 +82,7 @@ DistributorPlan::DistributorPlan(Teuchos::RCP<const Teuchos::Comm<int>> comm)
     numSendsToOtherProcs_(0),
     maxSendLength_(0),
     numReceives_(0),
+    initedIgathervRoots_(false),
     totalReceiveLength_(0)
 { }
 
@@ -106,7 +107,8 @@ DistributorPlan::DistributorPlan(const DistributorPlan& otherPlan)
     procsFrom_(otherPlan.procsFrom_),
     startsFrom_(otherPlan.startsFrom_),
     indicesFrom_(otherPlan.indicesFrom_),
-    igathervRoots_(otherPlan.igathervRoots_)
+    igathervRoots_(otherPlan.igathervRoots_),
+    initedIgathervRoots_(otherPlan.initedIgathervRoots_)
 { }
 
 size_t DistributorPlan::createFromSends(const Teuchos::ArrayView<const int>& exportProcIDs) {
@@ -899,9 +901,25 @@ void DistributorPlan::setParameterList(const Teuchos::RCP<Teuchos::ParameterList
     // Now that we've validated the input list, save the results.
     sendType_ = sendType;
 
+
+
     // ParameterListAcceptor semantics require pointer identity of the
     // sublist passed to setParameterList(), so we save the pointer.
     this->setMyParamList (plist);
+
+
+    if (DISTRIBUTOR_IGATHERV == sendType_) {
+
+    // FIXME: debug
+    {
+      std::stringstream ss;
+      ss << __FILE__ << ":" << __LINE__ << " Igatherv send type updated via plist. initializing roots...";
+      std::cerr << ss.str();
+    }
+
+      initializeIgathervRoots();
+    }
+    // FIXME: MPI Advance
   }
 }
 
@@ -1006,6 +1024,10 @@ void DistributorPlan::initializeMpiAdvance() {
 
 #if defined(HAVE_TPETRA_MPI)
   void DistributorPlan::initializeIgathervRoots() {
+    if (initedIgathervRoots_) {
+      return;
+    }
+
     // this is only used for igatherv
     if (DISTRIBUTOR_IGATHERV != sendType_) {
       return;
