@@ -1034,9 +1034,7 @@ void DistributorPlan::initializeMpiAdvance() {
     //   std::cerr << ss.str();
     // }
 
-  #if defined(HAVE_TPETRA_DISTRIBUTOR_TIMINGS)
     ProfilingRegion region_initializeIgathervRoots ("Tpetra::DistributorPlan::initializeIgathervRoots");
-  #endif
 
     // send my number of recvs to everyone
     // TODO: in actor, we check hasSelfMessage()
@@ -1082,6 +1080,22 @@ void DistributorPlan::initializeMpiAdvance() {
       igathervRoots_.clear();
       sendType_ = DISTRIBUTOR_ISEND;
     }
+
+    // if there aren't many roots, probably someone wanted to use a gather somewhere but then just reused the import/export thing for a scatter
+    // which this won't work well for
+    // just fall back to SEND if roots are more than sqrt of comm
+    if (igathervRoots_.size() * igathervRoots_.size() >= size_t(comm_->getSize())) {
+      // FIXME: debug
+      {
+        std::stringstream ss;
+        ss << __FILE__ << ":" << __LINE__ << " " << comm_->getRank() << ": WARNING (Igatherv send type): too many roots (" << igathervRoots_.size() << ") for " << comm_->getSize() << " ranks. Setting send-type to \"Isend\"" << std::endl;
+        std::cerr << ss.str();
+      }
+      igathervRoots_.clear();
+      sendType_ = DISTRIBUTOR_ISEND;
+    }
+
+
   }
 #endif // HAVE_TPETRA_MPI
 
