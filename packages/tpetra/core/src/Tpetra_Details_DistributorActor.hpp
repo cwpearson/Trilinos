@@ -254,9 +254,6 @@ void DistributorActor::doPostsIgathervImpl(const DistributorPlan &plan,
   ProfilingRegion pr("Tpetra::Distributor: doPostsIgathervImpl");
 
   TEUCHOS_TEST_FOR_EXCEPTION(
-    !plan.initedIgathervRoots_, std::runtime_error, "Igatherv roots have not been initialized");
-
-  TEUCHOS_TEST_FOR_EXCEPTION(
       !plan.getIndicesTo().is_null(), std::runtime_error,
       "Send Type=\"Igatherv\" only works for fast-path communication.");
 

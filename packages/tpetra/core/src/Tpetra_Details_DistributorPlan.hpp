@@ -153,9 +153,6 @@ public:
   const std::vector<int> getIgathervRoots() const {
     return igathervRoots_;
   }
-  #if defined(HAVE_TPETRA_MPI)
-  bool initedIgathervRoots_;
-  #endif
 private:
 
   // after the plan has been created we have the info we need to initialize the MPI advance communicator

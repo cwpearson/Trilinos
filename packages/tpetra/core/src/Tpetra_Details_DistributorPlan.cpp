@@ -103,7 +103,6 @@ DistributorPlan::DistributorPlan(Teuchos::RCP<const Teuchos::Comm<int>> comm)
     numSendsToOtherProcs_(0),
     maxSendLength_(0),
     numReceives_(0),
-    initedIgathervRoots_(false),
     totalReceiveLength_(0)
 { }
 
@@ -128,8 +127,7 @@ DistributorPlan::DistributorPlan(const DistributorPlan& otherPlan)
     procsFrom_(otherPlan.procsFrom_),
     startsFrom_(otherPlan.startsFrom_),
     indicesFrom_(otherPlan.indicesFrom_),
-    igathervRoots_(otherPlan.igathervRoots_),
-    initedIgathervRoots_(otherPlan.initedIgathervRoots_)
+    igathervRoots_(otherPlan.igathervRoots_)
 { }
 
 size_t DistributorPlan::createFromSends(const Teuchos::ArrayView<const int>& exportProcIDs) {
@@ -1051,10 +1049,6 @@ void DistributorPlan::initializeMpiAdvance() {
 
 #if defined(HAVE_TPETRA_MPI)
   void DistributorPlan::initializeIgathervRoots() {
-    if (initedIgathervRoots_) {
-      return;
-    }
-
     // this is only used for igatherv
     if (DISTRIBUTOR_IGATHERV != sendType_) {
       return;
@@ -1114,8 +1108,6 @@ void DistributorPlan::initializeMpiAdvance() {
       igathervRoots_.clear();
       sendType_ = DISTRIBUTOR_ISEND;
     }
-
-    initedIgathervRoots_ = true;
   }
 #endif // HAVE_TPETRA_MPI
 
