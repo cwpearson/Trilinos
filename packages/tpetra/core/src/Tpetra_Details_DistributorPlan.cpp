@@ -1058,6 +1058,7 @@ void DistributorPlan::initializeMpiAdvance() {
       }
     }
 
+    // FIXME: debug
     {
       std::stringstream ss;
       ss << __FILE__ << ":" << __LINE__ << " " << comm_->getRank() << " roots=";
