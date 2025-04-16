@@ -252,6 +252,7 @@ void DistributorActor::doPostsIgathervImpl(const DistributorPlan &plan,
 
   ProfilingRegion pr("Tpetra::Distributor: doPostsIgathervImpl");
 
+
   TEUCHOS_TEST_FOR_EXCEPTION(
       !plan.getIndicesTo().is_null(), std::runtime_error,
       "Send Type=\"Igatherv\" only works for fast-path communication.");
@@ -275,6 +276,7 @@ void DistributorActor::doPostsIgathervImpl(const DistributorPlan &plan,
 
   const int numRoots = plan.getIgathervRoots().size();
 
+#if 0
   // FIXME: debug
   // if I have a self message, I should be in roots
   if (plan.hasSelfMessage()) {
@@ -351,6 +353,7 @@ void DistributorActor::doPostsIgathervImpl(const DistributorPlan &plan,
 
     TEUCHOS_TEST_FOR_EXCEPTION(!found, std::runtime_error, "missing root (receiver) " << comm->getRank());
   }
+#endif
 
   for (int rootIdx = 0; rootIdx < numRoots; ++rootIdx) {
     const int root = plan.getIgathervRoots()[rootIdx];
@@ -360,15 +363,15 @@ void DistributorActor::doPostsIgathervImpl(const DistributorPlan &plan,
     size_type rootProcIndex = plan.getProcsTo().size(); // sentinel value -> not found
     for (size_type pi = 0; pi < plan.getProcsTo().size(); ++pi) {
       if (plan.getProcsTo()[pi] == root) {
-
+#if 0
         // FIXME: debug
         TEUCHOS_TEST_FOR_EXCEPTION(
           rootProcIndex != plan.getProcsTo().size(), std::runtime_error, "duplicate send to root");
-
+#endif
         rootProcIndex = pi;
 
         // should break here, but we'll keep checking to see if any duplicates show up
-        // break;
+        break;
       }
     }
 
@@ -407,11 +410,14 @@ void DistributorActor::doPostsIgathervImpl(const DistributorPlan &plan,
       Teuchos::as<size_type>(plan.hasSelfMessage() ? 1 : 0);
 
       for (size_type i = 0; i < actualNumReceives; ++i) {
+#if 0
         // FIXME: debug
         TEUCHOS_TEST_FOR_EXCEPTION(
           i >= plan.getProcsFrom().size(), std::runtime_error, "OOB");
+#endif
         const int src = plan.getProcsFrom()[i];
 
+#if 0
         // FIXME: debug
         // only expecting one recv from each source, so make sure recvcounts
         // is zero (otherwise we already got a recv from this source)
@@ -419,20 +425,26 @@ void DistributorActor::doPostsIgathervImpl(const DistributorPlan &plan,
           (*recvcounts)[src] != 0, std::runtime_error, "duplicate recv (count)");
         TEUCHOS_TEST_FOR_EXCEPTION(
           (*rdispls)[src] != 0, std::runtime_error, "duplicate recv (displ)");
-
+#endif
+#if 0
         // FIXME: debug
         TEUCHOS_TEST_FOR_EXCEPTION(
           size_t(src) >= rdispls->size(), std::runtime_error, "OOB");
+#endif
         (*rdispls)[src] = importStarts[i];
 
+#if 0
         // FIXME: debug
         TEUCHOS_TEST_FOR_EXCEPTION(
           size_t(src) >= recvcounts->size(), std::runtime_error, "OOB");
+#endif
         (*recvcounts)[src] = Teuchos::as<int>(importLengths[i]);
 
+#if 0
         // FIXME: debug
         TEUCHOS_TEST_FOR_EXCEPTION(
           importStarts[i] + importLengths[i] > imports.size(), std::runtime_error, "OOB");
+#endif
       }
     }
 
