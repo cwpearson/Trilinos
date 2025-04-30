@@ -528,23 +528,23 @@ void DistributorActor::doPostsIalltofewvImpl(const DistributorPlan &plan,
       "Send Type=\"Ialltofewv\" only works for fast-path communication.");
 
   TEUCHOS_TEST_FOR_EXCEPTION(
-    ialltofewv_.req, std::runtime_error,
+    bool(ialltofewv_.req), std::runtime_error,
     "This actor has an active Ialltofewv already");
 
   TEUCHOS_TEST_FOR_EXCEPTION(
-      ialltofewv_.sendcounts, std::runtime_error,
+      bool(ialltofewv_.sendcounts), std::runtime_error,
       "This actor has an active Ialltofewv already");
 
   TEUCHOS_TEST_FOR_EXCEPTION(
-      ialltofewv_.sdispls, std::runtime_error,
+    bool(ialltofewv_.sdispls), std::runtime_error,
       "This actor has an active Ialltofewv already");
 
   TEUCHOS_TEST_FOR_EXCEPTION(
-      ialltofewv_.recvcounts, std::runtime_error,
+    bool(ialltofewv_.recvcounts), std::runtime_error,
       "This actor has an active Ialltofewv already");
 
   TEUCHOS_TEST_FOR_EXCEPTION(
-      ialltofewv_.rdispls, std::runtime_error,
+    bool(ialltofewv_.rdispls), std::runtime_error,
       "This actor has an active Ialltofewv already");
 
   auto comm = plan.getComm();
@@ -626,7 +626,18 @@ void DistributorActor::doPostsIalltofewvImpl(const DistributorPlan &plan,
     ss << " howInitialized=" << DistributorHowInitializedEnumToString(plan.howInitialized()) << "\n";
     std::cerr << ss.str();
   }
-  const int err = Details::ialltofewv::post(exports.data(), ialltofewv_.sendcounts->data(), ialltofewv_.sdispls->data(), rawType,
+
+
+
+  // don't care about send-side accessibility because it's not accessed through kokkos
+  // rely on MPI to do the right thing
+  constexpr bool recvDevAccess = Kokkos::SpaceAccessibility<
+     Kokkos::DefaultExecutionSpace, typename ImpView::memory_space>::accessible;
+  constexpr bool sendDevAccess = Kokkos::SpaceAccessibility<
+     Kokkos::DefaultExecutionSpace, typename ExpView::memory_space>::accessible;
+  static_assert(recvDevAccess == sendDevAccess, "sending across host/device");
+
+  const int err = Details::ialltofewv::post<recvDevAccess>(exports.data(), ialltofewv_.sendcounts->data(), ialltofewv_.sdispls->data(), rawType,
     imports.data(), ialltofewv_.recvcounts->data(), ialltofewv_.rdispls->data(), 
     roots, nroots,
     rawType,

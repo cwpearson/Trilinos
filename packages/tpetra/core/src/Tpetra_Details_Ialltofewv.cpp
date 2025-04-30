@@ -42,10 +42,28 @@ namespace {
     size_t count;
 };
 
+#if 0
 KOKKOS_INLINE_FUNCTION void serial_memcpy(void *dst, void *const src, size_t count) {
     for (size_t i = 0; i < count; ++i) {
         static_cast<char *>(dst)[i] = static_cast<char const *>(src)[i];
     }
+}
+#endif
+
+
+template <typename T>
+KOKKOS_INLINE_FUNCTION bool aligned(const void *dst, const void *src, size_t count) {
+  if (0 != (uintptr_t(dst) % sizeof(T))) {
+    return false;
+  }
+  if (0 != (uintptr_t(src) % sizeof(T))) {
+    return false;
+  }
+  if (0 != (count % sizeof(T))) {
+    return false;
+  }
+
+  return true;
 }
 
 template <typename T, typename Member>
@@ -60,9 +78,9 @@ KOKKOS_INLINE_FUNCTION void team_memcpy_as(const Member &member, void *dst, void
 
 template <typename Member>
 KOKKOS_INLINE_FUNCTION void team_memcpy(const Member &member, void *dst, void *const src, size_t count) {
-    if (0 == (count % sizeof(uint64_t))) {
+    if (aligned<uint64_t>(dst, src, count)) {
         team_memcpy_as<uint64_t>(member, dst, src, count / sizeof(uint64_t));
-    } else if (0 == (count % sizeof(uint32_t))) {
+    } else if (aligned<uint32_t>(dst, src, count)) {
         team_memcpy_as<uint32_t>(member, dst, src, count / sizeof(uint32_t));
     } else {
         team_memcpy_as<uint8_t>(member, dst, src, count);
@@ -71,9 +89,9 @@ KOKKOS_INLINE_FUNCTION void team_memcpy(const Member &member, void *dst, void *c
 
 template <typename Member>
 KOKKOS_INLINE_FUNCTION void team_memcpy(const Member &member, MemcpyArg &arg) {
-    if (0 == (arg.count % sizeof(uint64_t))) {
+    if (aligned<uint64_t>(arg.dst, arg.src, arg.count)) {
         team_memcpy_as<uint64_t>(member, arg.dst, arg.src, arg.count / sizeof(uint64_t));
-    } else if (0 == (arg.count % sizeof(uint32_t))) {
+    } else if (aligned<uint32_t>(arg.dst, arg.src, arg.count)) {
         team_memcpy_as<uint32_t>(member, arg.dst, arg.src, arg.count / sizeof(uint32_t));
     } else {
         team_memcpy_as<uint8_t>(member, arg.dst, arg.src, arg.count);
@@ -84,46 +102,8 @@ KOKKOS_INLINE_FUNCTION void team_memcpy(const Member &member, MemcpyArg &arg) {
 
 namespace Tpetra::Details::ialltofewv {
   
-int post(const void *sendbuf,
-  const int *sendcounts, // how much to each root (length nroots)
-  const int *sdispls,    // where data for each root starts (length nroots)
-  MPI_Datatype sendtype,
-  void *recvbuf, // address of recv buffer (significant only at root)
-  const int *recvcounts, // the number of elements recvd from each process
-                   // (signficant only at roots)
-  const int *rdispls,    // where in `recvbuf` to place incoming data from
-                   // process i (signficant only at roots)
-  const int *roots,      // list of root ranks (must be same on all procs)
-  int nroots,      // size of list of root ranks
-  MPI_Datatype recvtype, 
-  int tag,
-  MPI_Comm comm,
-  Req *req) {
-    req->sendbuf = sendbuf;
-    req->sendcounts = sendcounts;
-    req->sdispls = sdispls;
-    req->sendtype = sendtype;
-    req->recvbuf = recvbuf;
-    req->recvcounts = recvcounts;
-    req->rdispls = rdispls;
-    req->roots = roots;
-    req->nroots = nroots;
-    req->recvtype = recvtype;
-    req->tag = tag;
-    req->comm = comm;
-    req->completed = false;
-#ifndef NDEBUG
-    // {
-    //   std::stringstream ss;
-    //   ss << __FILE__ << ":" << __LINE__ << "\n";
-    //   std::cerr << ss.str();
-    // }
-#endif
-    return MPI_SUCCESS;
-}
-
-
-int wait(Req &req) {
+template<typename RecvExecSpace>
+int wait_impl(Req &req) {
 
   auto finalize = [&]() {
     req.completed=true;
@@ -188,6 +168,7 @@ int wait(Req &req) {
       std::stringstream ss;
       ss << __FILE__ << ":" << __LINE__ 
          << " [" << rank << "]"
+         << " req.devAccess=" << req.devAccess
          << " naggs=" << naggs
          << " srcsPerAgg=" << srcsPerAgg
          << " myAgg=" << myAgg
@@ -248,7 +229,9 @@ int wait(Req &req) {
     // the second nroots entries are from the second rank, etc
 
     // a temporary buffer to aggregate data. Data for a root is contiguous.
-    Kokkos::View<char *>aggBuf("aggBuf");
+    // this buffer can always be on the host
+    using AggBuf = Kokkos::View<char*, typename RecvExecSpace::memory_space>;
+    AggBuf aggBuf("aggBuf");
     std::vector<size_t> rootCount(req.nroots, 0); // [ri] the count of data held for root ri
     if (rank == myAgg) {
       size_t aggBytes = 0;
@@ -319,7 +302,8 @@ int wait(Req &req) {
             }
 #endif
             MPI_Request rreq;
-            MPI_Irecv(&aggBuf(displ), count, req.sendtype, si + rank, req.tag, req.comm, &rreq);
+            // &aggBuf(displ) is causing a memory access violation
+            MPI_Irecv(aggBuf.data() +displ, count, req.sendtype, si + rank, req.tag, req.comm, &rreq);
             reqs.push_back(rreq);
             displ += size_t(count) * sendSize;
           }
@@ -355,7 +339,7 @@ int wait(Req &req) {
 
     // if I am a root, recieve data from each aggregator
     // The aggregator will send contiguous data, which we may need to spread out according to rdispls
-    Kokkos::View<uint8_t *>rootBuf("");
+    Kokkos::View<uint8_t *, typename RecvExecSpace::memory_space>rootBuf("rootBuf");
     if (isRoot) {
       reqs.reserve(naggs); // receive from each aggregator
 
@@ -395,7 +379,8 @@ int wait(Req &req) {
           MPI_Irecv(&reinterpret_cast<char *>(req.recvbuf)[displ],
           count, req.recvtype, aggSrc, ROOT_TAG,  req.comm, &rreq);
 #else
-          MPI_Irecv(&rootBuf(displ), count, req.recvtype, aggSrc, ROOT_TAG,  req.comm, &rreq);
+          // &rootBuf(displ) causing memory access violations
+          MPI_Irecv(rootBuf.data() + displ, count, req.recvtype, aggSrc, ROOT_TAG,  req.comm, &rreq);
 #endif
           reqs.push_back(rreq);
           displ += size_t(count) * recvSize;
@@ -419,7 +404,19 @@ int wait(Req &req) {
           //   std::cerr << ss.str();
           // }
 #endif
-          MPI_Send(&aggBuf[displ], count, req.sendtype, req.roots[ri], ROOT_TAG, req.comm);
+
+#ifndef NDEBUG
+          if (size_t(displ) + size_t(count) * sendSize > aggBuf.extent(0)) {
+            std::stringstream ss;
+            ss << __FILE__ << ":" << __LINE__ 
+            << " [" << rank << "] OOB\n";
+            std::cerr << ss.str();
+          }
+#endif
+
+
+          // &aggBuf[displ] is causing a memory access violation
+          MPI_Send(aggBuf.data() + displ, count, req.sendtype, req.roots[ri], ROOT_TAG, req.comm);
           displ += count * sendSize;
         }
       }
@@ -431,7 +428,7 @@ int wait(Req &req) {
     if (isRoot) {
 
       // set up src and dst for each block
-      Kokkos::View<MemcpyArg*> args(Kokkos::view_alloc("args", Kokkos::WithoutInitializing), size);
+      Kokkos::View<MemcpyArg*, typename RecvExecSpace::memory_space> args(Kokkos::view_alloc("args", Kokkos::WithoutInitializing), size);
       auto args_h = Kokkos::create_mirror_view(Kokkos::WithoutInitializing, args);
 
       size_t srcOff = 0;
@@ -439,7 +436,7 @@ int wait(Req &req) {
         const size_t dstOff = req.rdispls[sRank] * recvSize;
         
         void *dst = &reinterpret_cast<char *>(req.recvbuf)[dstOff];
-        void *const src = &rootBuf(srcOff);
+        void *const src = rootBuf.data() + srcOff; // &rootBuf(srcOff)
         const size_t count = req.recvcounts[sRank] * recvSize;
         args_h(sRank) = MemcpyArg{dst, src, count};
 
@@ -455,9 +452,10 @@ int wait(Req &req) {
 
       // Actually copy the data
       Kokkos::deep_copy(args, args_h);
-      Kokkos::TeamPolicy<> policy(size, Kokkos::AUTO);
+      using Policy = Kokkos::TeamPolicy<RecvExecSpace>;
+      Policy policy(size, Kokkos::AUTO);
       Kokkos::parallel_for("fixup rdispl", policy, 
-        KOKKOS_LAMBDA(typename Kokkos::TeamPolicy<>::member_type member){
+        KOKKOS_LAMBDA(typename Policy::member_type member){
           team_memcpy(member, args(member.league_rank()));
         }
       );
@@ -469,9 +467,14 @@ int wait(Req &req) {
 }
 
 
-// Tpetra uses this equivalent to MPI_Test, which makes progress
-// Tpetra may check this before calling wait. Since we do everything
-// during wait, just lie and say we've completed the operation
+int wait(Req &req) {
+  if (req.devAccess) {
+    return wait_impl<Kokkos::DefaultExecutionSpace>(req);
+  } else {
+    return wait_impl<Kokkos::DefaultHostExecutionSpace>(req);
+  }
+}
+
 int get_status(const Req &req, int *flag, MPI_Status */*status*/) {
   *flag = req.completed;
   return MPI_SUCCESS;
