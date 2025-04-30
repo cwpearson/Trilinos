@@ -34,6 +34,9 @@ DistributorSendTypeEnumToString (EDistributorSendType sendType)
   else if (sendType == DISTRIBUTOR_IGATHERV) {
     return "Igatherv";
   }
+  else if (sendType == DISTRIBUTOR_IALLTOFEWV) {
+    return "Ialltofewv";
+  }
 #endif
 #if defined(HAVE_TPETRACORE_MPI_ADVANCE)
   else if (sendType == DISTRIBUTOR_MPIADVANCE_ALLTOALL) {
@@ -128,7 +131,7 @@ DistributorPlan::DistributorPlan(const DistributorPlan& otherPlan)
     procsFrom_(otherPlan.procsFrom_),
     startsFrom_(otherPlan.startsFrom_),
     indicesFrom_(otherPlan.indicesFrom_),
-    igathervRoots_(otherPlan.igathervRoots_)
+    roots_(otherPlan.roots_)
 { }
 
 size_t DistributorPlan::createFromSends(const Teuchos::ArrayView<const int>& exportProcIDs) {
@@ -412,7 +415,7 @@ size_t DistributorPlan::createFromSends(const Teuchos::ArrayView<const int>& exp
 #endif
 
 #if defined(HAVE_TPETRA_MPI)
-  initializeIgathervRoots();
+  maybeInitializeRoots();
 #endif
 
   // createFromRecvs() calls createFromSends(), but will set
@@ -616,7 +619,7 @@ void DistributorPlan::createFromSendsAndRecvs(const Teuchos::ArrayView<const int
 #endif
 
 #if defined(HAVE_TPETRA_MPI)
-  initializeIgathervRoots();
+  maybeInitializeRoots();
 #endif
 }
 
@@ -637,7 +640,17 @@ void DistributorPlan::createReversePlan() const
       ss << __FILE__ << ":" << __LINE__ << " WARNING (Igatherv send type): not using Igatherv send type in reversed Igatherv\n";
       std::cerr << ss.str();
     }
-    reversePlan_->sendType_ = DISTRIBUTOR_SEND; // fixme: default?
+    reversePlan_->sendType_ = DISTRIBUTOR_SEND; // FIXME: default?
+#if 0 // FIXME: delete
+  } else if (DISTRIBUTOR_IALLTOFEWV == sendType_) {
+    // FIXME: debug
+    {
+      std::stringstream ss;
+      ss << __FILE__ << ":" << __LINE__ << " WARNING (Ialltofewv send type): not using Ialltofewv send type in reversed Ialltofewv\n";
+      std::cerr << ss.str();
+    }
+    reversePlan_->sendType_ = DISTRIBUTOR_SEND; // FIXME: default?
+#endif
   } else {
     reversePlan_->sendType_ = sendType_;
   }
@@ -683,7 +696,7 @@ void DistributorPlan::createReversePlan() const
 #endif
 
 #if defined(HAVE_TPETRA_MPI)
-  reversePlan_->initializeIgathervRoots();
+  reversePlan_->maybeInitializeRoots();
 #endif
 }
 
@@ -940,17 +953,7 @@ void DistributorPlan::setParameterList(const Teuchos::RCP<Teuchos::ParameterList
     this->setMyParamList (plist);
 
 
-    if (DISTRIBUTOR_IGATHERV == sendType_) {
-
-    // FIXME: debug
-    {
-      std::stringstream ss;
-      ss << __FILE__ << ":" << __LINE__ << " Igatherv send type updated via plist. initializing roots...";
-      std::cerr << ss.str();
-    }
-
-      initializeIgathervRoots();
-    }
+    maybeInitializeRoots();
     // FIXME: MPI Advance
   }
 }
@@ -963,6 +966,7 @@ Teuchos::Array<std::string> distributorSendTypes()
   sendTypes.push_back ("Alltoall");
 #if defined(HAVE_TPETRA_MPI)
   sendTypes.push_back ("Igatherv");
+  sendTypes.push_back ("Ialltofewv");
 #endif
 #if defined(HAVE_TPETRACORE_MPI_ADVANCE)
   sendTypes.push_back ("MpiAdvanceAlltoall");
@@ -978,6 +982,7 @@ Teuchos::Array<EDistributorSendType> distributorSendTypeEnums() {
   res.push_back (DISTRIBUTOR_ALLTOALL);
 #if defined(HAVE_TPETRA_MPI)
   res.push_back (DISTRIBUTOR_IGATHERV);
+  res.push_back (DISTRIBUTOR_IALLTOFEWV);
 #endif
 #if defined(HAVE_TPETRACORE_MPI_ADVANCE)
   res.push_back (DISTRIBUTOR_MPIADVANCE_ALLTOALL);
@@ -1061,20 +1066,22 @@ void DistributorPlan::initializeMpiAdvance() {
 #endif
 
 #if defined(HAVE_TPETRA_MPI)
-  void DistributorPlan::initializeIgathervRoots() {
+  void DistributorPlan::maybeInitializeRoots() {
     // this is only used for igatherv
-    if (DISTRIBUTOR_IGATHERV != sendType_) {
+    if ((DISTRIBUTOR_IGATHERV != sendType_) && (DISTRIBUTOR_IALLTOFEWV != sendType_)) {
       return;
     }
 
+#if 0
     // FIXME: debug
-    // {
-    //   std::stringstream ss;
-    //   ss << __FILE__ << ":" << __LINE__ << "\n";
-    //   std::cerr << ss.str();
-    // }
+    {
+      std::stringstream ss;
+      ss << __FILE__ << ":" << __LINE__ << "\n";
+      std::cerr << ss.str();
+    }
+#endif
 
-    ProfilingRegion region_initializeIgathervRoots ("Tpetra::DistributorPlan::initializeIgathervRoots");
+    ProfilingRegion region_maybeInitializeRoots ("Tpetra::DistributorPlan::maybeInitializeRoots");
 
     // send my number of recvs to everyone
     // TODO: in actor, we check hasSelfMessage()
@@ -1089,10 +1096,10 @@ void DistributorPlan::initializeMpiAdvance() {
     MPI_Comm comm = (*rawComm)();
     MPI_Alltoall(sendbuf.data(), 1, MPI_INT, recvbuf.data(), 1, MPI_INT, comm);
 
-    igathervRoots_.clear();
+    roots_.clear();
     for (size_t root = 0; root < recvbuf.size(); ++root) {
       if (recvbuf[root] > 0) {
-        igathervRoots_.push_back(root);
+        roots_.push_back(root);
       }
     }
 
@@ -1100,42 +1107,51 @@ void DistributorPlan::initializeMpiAdvance() {
     {
       std::stringstream ss;
       ss << __FILE__ << ":" << __LINE__ << " " << comm_->getRank() << " roots=";
-      for (int root : igathervRoots_) {
+      for (int root : roots_) {
         ss << root << " ";
       }
       ss << "\n";
       std::cerr << ss.str();
     }
 
-    // If anyone is using slow-path communication, skip all Igatherv
+    // If anyone is using slow-path communication, skip collectives
     int slow = !getIndicesTo().is_null() ? 1 : 0;
     MPI_Allreduce(MPI_IN_PLACE, &slow, 1, MPI_INT, MPI_LOR, comm);
     if (slow) {
       // FIXME: debug
       {
         std::stringstream ss;
-        ss << __FILE__ << ":" << __LINE__ << " " << comm_->getRank() << ": WARNING: you used Igatherv send mode, but someone is slow-path. Setting send-type to \"Isend\"" << std::endl;
+        ss << __FILE__ << ":" << __LINE__ << " " << comm_->getRank() << ": WARNING: you used Igatherv or Ialltoallv send mode, but someone is slow-path. Setting send-type to \"Send\"" << std::endl;
         std::cerr << ss.str();
       }
-      igathervRoots_.clear();
+      roots_.clear();
       sendType_ = DISTRIBUTOR_SEND;
     }
 
     // if there aren't many roots, probably someone wanted to use a gather somewhere but then just reused the import/export thing for a scatter
     // which this won't work well for
     // just fall back to SEND if roots are more than sqrt of comm
-    if (igathervRoots_.size() * igathervRoots_.size() >= size_t(comm_->getSize())) {
+#if 0
+    if (roots_.size() * roots_.size() >= size_t(comm_->getSize())) {
       // FIXME: debug
       {
         std::stringstream ss;
-        ss << __FILE__ << ":" << __LINE__ << " " << comm_->getRank() << ": WARNING (Igatherv send type): too many roots (" << igathervRoots_.size() << ") for " << comm_->getSize() << " ranks. Setting send-type to \"Isend\"" << std::endl;
+        ss << __FILE__ << ":" << __LINE__ << " " << comm_->getRank() << ": WARNING (Igatherv or Ialltoallv send type): too many roots (" << roots_.size() << ") for " << comm_->getSize() << " ranks. Setting send-type to \"Isend\"" << std::endl;
         std::cerr << ss.str();
       }
-      igathervRoots_.clear();
+      roots_.clear();
       sendType_ = DISTRIBUTOR_SEND;
     }
+#endif
 
-
+#if 0
+    // FIXME: debug
+    {
+      std::stringstream ss;
+      ss << __FILE__ << ":" << __LINE__ << "\n";
+      std::cerr << ss.str();
+    }
+#endif
   }
 #endif // HAVE_TPETRA_MPI
 

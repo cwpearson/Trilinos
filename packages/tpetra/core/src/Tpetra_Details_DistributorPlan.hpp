@@ -45,7 +45,8 @@ enum EDistributorSendType {
   DISTRIBUTOR_ALLTOALL // Use MPI_Alltoall
 #if defined(HAVE_TPETRA_MPI)
   ,
-  DISTRIBUTOR_IGATHERV
+  DISTRIBUTOR_IGATHERV,
+  DISTRIBUTOR_IALLTOFEWV
 #endif
 #if defined(HAVE_TPETRACORE_MPI_ADVANCE)
   ,
@@ -150,8 +151,8 @@ public:
   SubViewLimits getExportViewLimits(size_t numPackets) const;
   SubViewLimits getExportViewLimits(const Teuchos::ArrayView<const size_t> &numExportPacketsPerLID) const;
 
-  const std::vector<int> getIgathervRoots() const {
-    return igathervRoots_;
+  const std::vector<int> getRoots() const {
+    return roots_;
   }
 private:
 
@@ -161,7 +162,7 @@ private:
 #endif
 
 #if defined(HAVE_TPETRA_MPI)
-  void initializeIgathervRoots();
+  void maybeInitializeRoots();
 #endif
 
   Teuchos::RCP<const Teuchos::ParameterList> getValidParameters() const;
@@ -284,11 +285,11 @@ private:
   Teuchos::Array<size_t> indicesFrom_;
 
 #if defined(HAVE_TPETRA_MPI)
-  /// \brief The roots for the Igatherv communication mode.
+  /// \brief The roots for the Igatherv or Ialltofewv communication mode.
   ///
   /// This is the same on all ranks, and this contains any rank that
   /// is importing data.
-  std::vector<int> igathervRoots_;
+  std::vector<int> roots_;
 
 #endif
 };
