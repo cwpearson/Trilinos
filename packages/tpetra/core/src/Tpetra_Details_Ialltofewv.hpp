@@ -32,9 +32,11 @@ namespace Tpetra::Details::ialltofewv {
         int tag;
         MPI_Comm comm;
 
+        bool devAccess; // can Kokkos::DefaultExecutionSpace access recvbuf
         bool completed;
     };
   
+    template <bool DevAccess>
     int post(const void *sendbuf,
                 const int *sendcounts, // how much to each root (length nroots)
                 const int *sdispls,    // where data for each root starts (length nroots)
@@ -49,7 +51,32 @@ namespace Tpetra::Details::ialltofewv {
                 MPI_Datatype recvtype, 
                 int tag,
                 MPI_Comm comm,
-                Req *req);
+                Req *req) {
+        req->sendbuf = sendbuf;
+        req->sendcounts = sendcounts;
+        req->sdispls = sdispls;
+        req->sendtype = sendtype;
+        req->recvbuf = recvbuf;
+        req->recvcounts = recvcounts;
+        req->rdispls = rdispls;
+        req->roots = roots;
+        req->nroots = nroots;
+        req->recvtype = recvtype;
+        req->tag = tag;
+        req->comm = comm;
+
+        req->devAccess = DevAccess;
+        req->completed = false;
+    #ifndef NDEBUG
+        // {
+        //   std::stringstream ss;
+        //   ss << __FILE__ << ":" << __LINE__ << "\n";
+        //   std::cerr << ss.str();
+        // }
+    #endif
+        return MPI_SUCCESS;
+
+}
 
 
     int wait(Req &req);
