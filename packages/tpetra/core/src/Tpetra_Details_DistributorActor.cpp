@@ -54,6 +54,12 @@ namespace Tpetra::Details {
       ProfilingRegion ws("Tpetra::Distributor: doWaitsIgatherv[via doWaits]");
       doWaitsIgatherv(plan);
     }
+
+    {
+      ProfilingRegion ws("Tpetra::Distributor: doWaitsIalltofewv[via doWaits]");
+      doWaitsIalltofewv(plan);
+    }
+
   }
 
   void DistributorActor::doWaitsRecv(const DistributorPlan& plan) {
@@ -70,6 +76,10 @@ namespace Tpetra::Details {
     {
       ProfilingRegion ws("Tpetra::Distributor: doWaitsIgatherv[via doWaitsRecv]");
       doWaitsIgatherv(plan);
+    }
+    {
+      ProfilingRegion ws("Tpetra::Distributor: doWaitsIalltofewv[via doWaitsRecv]");
+      doWaitsIalltofewv(plan);
     }
   }
 
@@ -113,6 +123,32 @@ recvdisplsIgatherv_.clear();
 
   }
 
+  void DistributorActor::doWaitsIalltofewv(const DistributorPlan& plan) {
+
+    // FIXME: debug
+    {
+      std::stringstream ss;
+      ss << __FILE__ << ":" << __LINE__ << " " << plan.getComm()->getRank() << " doWaitsIalltofewv\n";
+      std::cerr << ss.str();
+    }
+
+    #ifdef HAVE_TPETRA_MPI
+    if (ialltofewv_.req) {
+
+      ProfilingRegion ws("Tpetra::Distributor: doWaitsIgatherv");
+      Details::ialltofewv::wait(*ialltofewv_.req);
+
+      ialltofewv_.sendcounts.reset();
+      ialltofewv_.sdispls.reset();
+      ialltofewv_.recvcounts.reset();
+      ialltofewv_.rdispls.reset();
+      ialltofewv_.req = std::nullopt;
+      ialltofewv_.roots.clear();
+    }
+  #endif
+
+  }
+
   bool DistributorActor::isReady() const {
     bool result = true;
     for (auto& request : requestsRecv_) {
@@ -122,8 +158,7 @@ recvdisplsIgatherv_.clear();
       result &= request->isReady();
     }
 
-    // isReady just calls MPI_Test and returns true if the op
-    // succeeded
+    // isReady just calls MPI_Test and returns flag != 0
     // don't use test because these are for a collective, and not
     // all ranks may call test, so progress may not be possible
 #ifdef HAVE_TPETRA_MPI
@@ -134,6 +169,12 @@ recvdisplsIgatherv_.clear();
 #else
       MPI_Request_get_status(req, &flag, MPI_STATUS_IGNORE);
 #endif
+      result &= flag;
+    }
+
+    if (ialltofewv_.req) {
+      int flag;
+      Details::ialltofewv::get_status(*ialltofewv_.req, &flag, MPI_STATUS_IGNORE);
       result &= flag;
     }
 #endif

@@ -35,6 +35,7 @@ namespace Tpetra {
     sendTypes.push_back ("Alltoall");
 #if defined(HAVE_TPETRA_MPI)
     sendTypes.push_back ("Igatherv");
+    sendTypes.push_back ("Ialltofewv");
 #endif
 #if defined(HAVE_TPETRACORE_MPI_ADVANCE)
     sendTypes.push_back ("MpiAdvanceAlltoall");
@@ -176,6 +177,7 @@ namespace Tpetra {
     sendTypeEnums.push_back (Details::DISTRIBUTOR_ALLTOALL);
 #if defined(HAVE_TPETRA_MPI)
     sendTypeEnums.push_back (Details::DISTRIBUTOR_IGATHERV);
+    sendTypeEnums.push_back (Details::DISTRIBUTOR_IALLTOFEWV);
 #endif
 #if defined(HAVE_TPETRACORE_MPI_ADVANCE)
     sendTypeEnums.push_back(Details::DISTRIBUTOR_MPIADVANCE_ALLTOALL);
