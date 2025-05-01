@@ -124,14 +124,6 @@ recvdisplsIgatherv_.clear();
   }
 
   void DistributorActor::doWaitsIalltofewv(const DistributorPlan& plan) {
-
-    // FIXME: debug
-    {
-      std::stringstream ss;
-      ss << __FILE__ << ":" << __LINE__ << " " << plan.getComm()->getRank() << " doWaitsIalltofewv\n";
-      std::cerr << ss.str();
-    }
-
     #ifdef HAVE_TPETRA_MPI
     if (ialltofewv_.req) {
 
