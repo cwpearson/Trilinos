@@ -619,16 +619,6 @@ void DistributorActor::doPostsIalltofewvImpl(const DistributorPlan &plan,
     tMpiComm->getRawMpiComm();
   MPI_Comm mpiComm = (*oMpiComm)();
 
-  // FIXME: debug
-  {
-    std::stringstream ss;
-    ss << __FILE__ << ":" << __LINE__;
-    ss << " howInitialized=" << DistributorHowInitializedEnumToString(plan.howInitialized()) << "\n";
-    std::cerr << ss.str();
-  }
-
-
-
   // don't care about send-side accessibility because it's not accessed through kokkos
   // rely on MPI to do the right thing
   constexpr bool recvDevAccess = Kokkos::SpaceAccessibility<
