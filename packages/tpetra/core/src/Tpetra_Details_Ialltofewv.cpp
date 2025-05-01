@@ -164,22 +164,22 @@ int wait_impl(Req &req) {
     const bool isRoot = std::find(req.roots, req.roots + req.nroots, rank) !=  req.roots + req.nroots;
 
     #ifndef NDEBUG
-    {
-      std::stringstream ss;
-      ss << __FILE__ << ":" << __LINE__ 
-         << " [" << rank << "]"
-         << " req.devAccess=" << req.devAccess
-         << " naggs=" << naggs
-         << " srcsPerAgg=" << srcsPerAgg
-         << " myAgg=" << myAgg
-         << " req.nroots=" << req.nroots
-         << " req.roots=[";
-      for (int i = 0; i < req.nroots; ++i) {ss << " " << req.roots[i];}
-      ss << "]"
-         << " isRoot=" << isRoot
-         << "\n";
-      std::cerr << ss.str();
-    }
+    // {
+    //   std::stringstream ss;
+    //   ss << __FILE__ << ":" << __LINE__ 
+    //      << " [" << rank << "]"
+    //      << " req.devAccess=" << req.devAccess
+    //      << " naggs=" << naggs
+    //      << " srcsPerAgg=" << srcsPerAgg
+    //      << " myAgg=" << myAgg
+    //      << " req.nroots=" << req.nroots
+    //      << " req.roots=[";
+    //   for (int i = 0; i < req.nroots; ++i) {ss << " " << req.roots[i];}
+    //   ss << "]"
+    //      << " isRoot=" << isRoot
+    //      << "\n";
+    //   std::cerr << ss.str();
+    // }
   #endif
 
     // ensure aggregators know how much data each rank is sending to the root
@@ -375,13 +375,8 @@ int wait_impl(Req &req) {
           // }
 #endif
           MPI_Request rreq;
-#if 0
-          MPI_Irecv(&reinterpret_cast<char *>(req.recvbuf)[displ],
-          count, req.recvtype, aggSrc, ROOT_TAG,  req.comm, &rreq);
-#else
           // &rootBuf(displ) causing memory access violations
           MPI_Irecv(rootBuf.data() + displ, count, req.recvtype, aggSrc, ROOT_TAG,  req.comm, &rreq);
-#endif
           reqs.push_back(rreq);
           displ += size_t(count) * recvSize;
         }
