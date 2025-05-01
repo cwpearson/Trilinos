@@ -325,7 +325,7 @@ int wait_impl(Req &req) {
 #endif
         MPI_Request sreq;
         MPI_Isend(&reinterpret_cast<const char *>(req.sendbuf)[displ], req.sendcounts[ri],
-        req.sendtype, myAgg, AGG_TAG, req.comm, &sreq);
+        req.sendtype, myAgg, req.tag, req.comm, &sreq);
         reqs.push_back(sreq);
       }
     }
