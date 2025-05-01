@@ -117,9 +117,6 @@ int wait_impl(Req &req) {
 
   ProfilingRegion pr("alltofewv::wait");
 
-  const int AGG_TAG = req.tag + 0;
-  const int ROOT_TAG = req.tag + 1;
-
   const int rank = [&]() -> int {
     int _rank;
     MPI_Comm_rank(req.comm, &_rank);
@@ -376,7 +373,7 @@ int wait_impl(Req &req) {
 #endif
           MPI_Request rreq;
           // &rootBuf(displ) causing memory access violations
-          MPI_Irecv(rootBuf.data() + displ, count, req.recvtype, aggSrc, ROOT_TAG,  req.comm, &rreq);
+          MPI_Irecv(rootBuf.data() + displ, count, req.recvtype, aggSrc, req.tag, req.comm, &rreq);
           reqs.push_back(rreq);
           displ += size_t(count) * recvSize;
         }
@@ -411,7 +408,7 @@ int wait_impl(Req &req) {
 
 
           // &aggBuf[displ] is causing a memory access violation
-          MPI_Send(aggBuf.data() + displ, count, req.sendtype, req.roots[ri], ROOT_TAG, req.comm);
+          MPI_Send(aggBuf.data() + displ, count, req.sendtype, req.roots[ri], req.tag, req.comm);
           displ += count * sendSize;
         }
       }
