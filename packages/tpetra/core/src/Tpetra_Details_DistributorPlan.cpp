@@ -613,23 +613,23 @@ void DistributorPlan::createReversePlan() const
   reversePlan_->howInitialized_ = Details::DISTRIBUTOR_INITIALIZED_BY_REVERSE;
 
   if (DISTRIBUTOR_IGATHERV == sendType_) {
-    // FIXME: debug
+#ifndef NDEBUG
     {
       std::stringstream ss;
       ss << __FILE__ << ":" << __LINE__ << " WARNING (Igatherv send type): not using Igatherv send type in reversed Igatherv\n";
       std::cerr << ss.str();
     }
+#endif
     reversePlan_->sendType_ = DISTRIBUTOR_SEND; // FIXME: default?
-#if 0 // FIXME: delete
   } else if (DISTRIBUTOR_IALLTOFEWV == sendType_) {
-    // FIXME: debug
+#ifndef NDEBUG
     {
       std::stringstream ss;
       ss << __FILE__ << ":" << __LINE__ << " WARNING (Ialltofewv send type): not using Ialltofewv send type in reversed Ialltofewv\n";
       std::cerr << ss.str();
     }
-    reversePlan_->sendType_ = DISTRIBUTOR_SEND; // FIXME: default?
 #endif
+    reversePlan_->sendType_ = DISTRIBUTOR_SEND; // FIXME: default?
   } else {
     reversePlan_->sendType_ = sendType_;
   }
@@ -1039,6 +1039,7 @@ void DistributorPlan::initializeMpiAdvance() {
 #endif
 
 #if defined(HAVE_TPETRA_MPI)
+  // FIXME: probably need to rename this function since it might change the sendType
   void DistributorPlan::maybeInitializeRoots() {
 
     // some collective send types need to know the roots
@@ -1086,12 +1087,14 @@ void DistributorPlan::initializeMpiAdvance() {
     int slow = !getIndicesTo().is_null() ? 1 : 0;
     MPI_Allreduce(MPI_IN_PLACE, &slow, 1, MPI_INT, MPI_LOR, comm);
     if (slow) {
-      // FIXME: debug
+
+#ifndef NDEBUG
       {
         std::stringstream ss;
         ss << __FILE__ << ":" << __LINE__ << " " << comm_->getRank() << ": WARNING: you used Igatherv or Ialltoallv send mode, but someone is slow-path. Setting send-type to \"Send\"" << std::endl;
         std::cerr << ss.str();
       }
+#endif
       roots_.clear();
       sendType_ = DISTRIBUTOR_SEND;
     }
@@ -1100,12 +1103,13 @@ void DistributorPlan::initializeMpiAdvance() {
     // which this won't work well for
     // just fall back to SEND if roots are more than sqrt of comm
     if (roots_.size() * roots_.size() >= size_t(comm_->getSize())) {
-      // FIXME: debug
+#ifndef NDEBUG
       {
         std::stringstream ss;
         ss << __FILE__ << ":" << __LINE__ << " " << comm_->getRank() << ": WARNING (Igatherv or Ialltoallv send type): too many roots (" << roots_.size() << ") for " << comm_->getSize() << " ranks. Setting send-type to \"Isend\"" << std::endl;
         std::cerr << ss.str();
       }
+#endif
       roots_.clear();
       sendType_ = DISTRIBUTOR_SEND; // FIXME: default?
     }
