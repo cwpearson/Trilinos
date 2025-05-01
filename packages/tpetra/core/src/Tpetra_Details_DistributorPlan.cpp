@@ -1067,30 +1067,23 @@ void DistributorPlan::initializeMpiAdvance() {
 
 #if defined(HAVE_TPETRA_MPI)
   void DistributorPlan::maybeInitializeRoots() {
-    // this is only used for igatherv
+
+    // some collective send types need to know the roots
     if ((DISTRIBUTOR_IGATHERV != sendType_) && (DISTRIBUTOR_IALLTOFEWV != sendType_)) {
       return;
     }
-
-#if 0
-    // FIXME: debug
-    {
-      std::stringstream ss;
-      ss << __FILE__ << ":" << __LINE__ << "\n";
-      std::cerr << ss.str();
-    }
-#endif
 
     ProfilingRegion region_maybeInitializeRoots ("Tpetra::DistributorPlan::maybeInitializeRoots");
 
     // send my number of recvs to everyone
     // TODO: in actor, we check hasSelfMessage()
-    const int numRecvs = (int)(numReceives_ + (sendMessageToSelf_ ? 1 : 0));
+    const int numRecvs = (int)(getNumReceives() + (hasSelfMessage() ? 1 : 0));
     std::vector<int> sendbuf(comm_->getSize(), numRecvs);
     std::vector<int> recvbuf(comm_->getSize());
 
     // FIXME: is there a more natural way to do this?
-    // Maybe MPI_Allreduce is better, we just care if anyone is sending anything to each process
+    // Maybe MPI_Allreduce is better, we just care if anyone is sending anything to each proces
+    // we just need to know all processes that receive anything (including a self message)
     Teuchos::RCP<const Teuchos::MpiComm<int> > mpiComm = Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int> >(comm_);
     Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > rawComm = mpiComm->getRawMpiComm();
     MPI_Comm comm = (*rawComm)();
@@ -1103,6 +1096,7 @@ void DistributorPlan::initializeMpiAdvance() {
       }
     }
 
+#if 0
     // FIXME: debug
     {
       std::stringstream ss;
@@ -1113,6 +1107,7 @@ void DistributorPlan::initializeMpiAdvance() {
       ss << "\n";
       std::cerr << ss.str();
     }
+#endif
 
     // If anyone is using slow-path communication, skip collectives
     int slow = !getIndicesTo().is_null() ? 1 : 0;
@@ -1131,7 +1126,6 @@ void DistributorPlan::initializeMpiAdvance() {
     // if there aren't many roots, probably someone wanted to use a gather somewhere but then just reused the import/export thing for a scatter
     // which this won't work well for
     // just fall back to SEND if roots are more than sqrt of comm
-#if 0
     if (roots_.size() * roots_.size() >= size_t(comm_->getSize())) {
       // FIXME: debug
       {
@@ -1140,18 +1134,8 @@ void DistributorPlan::initializeMpiAdvance() {
         std::cerr << ss.str();
       }
       roots_.clear();
-      sendType_ = DISTRIBUTOR_SEND;
+      sendType_ = DISTRIBUTOR_SEND; // FIXME: default?
     }
-#endif
-
-#if 0
-    // FIXME: debug
-    {
-      std::stringstream ss;
-      ss << __FILE__ << ":" << __LINE__ << "\n";
-      std::cerr << ss.str();
-    }
-#endif
   }
 #endif // HAVE_TPETRA_MPI
 
