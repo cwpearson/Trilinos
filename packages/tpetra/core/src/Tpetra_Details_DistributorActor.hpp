@@ -168,7 +168,8 @@ private:
 
   // ialltofewv members
   struct {
-    std::optional<Details::ialltofewv::Req> req;
+    Details::Ialltofewv impl;
+    std::optional<Details::Ialltofewv::Req> req;
     Teuchos::RCP<std::vector<int>> sendcounts;
     Teuchos::RCP<std::vector<int>> sdispls;
     Teuchos::RCP<std::vector<int>> recvcounts;
@@ -556,7 +557,7 @@ void DistributorActor::doPostsIalltofewvImpl(const DistributorPlan &plan,
   ialltofewv_.roots = plan.getRoots();
   const int nroots = ialltofewv_.roots.size();
   const int *roots = ialltofewv_.roots.data();
-  ialltofewv_.req = std::make_optional<Details::ialltofewv::Req>();
+  ialltofewv_.req = std::make_optional<Details::Ialltofewv::Req>();
   ialltofewv_.sendcounts = Teuchos::rcp(new std::vector<int>(nroots));
   ialltofewv_.sdispls = Teuchos::rcp(new std::vector<int>(nroots));
   ialltofewv_.recvcounts = Teuchos::rcp(new std::vector<int>);
@@ -627,7 +628,7 @@ void DistributorActor::doPostsIalltofewvImpl(const DistributorPlan &plan,
      Kokkos::DefaultExecutionSpace, typename ExpView::memory_space>::accessible;
   static_assert(recvDevAccess == sendDevAccess, "sending across host/device");
 
-  const int err = Details::ialltofewv::post<recvDevAccess>(exports.data(), ialltofewv_.sendcounts->data(), ialltofewv_.sdispls->data(), rawType,
+  const int err = ialltofewv_.impl.post<recvDevAccess>(exports.data(), ialltofewv_.sendcounts->data(), ialltofewv_.sdispls->data(), rawType,
     imports.data(), ialltofewv_.recvcounts->data(), ialltofewv_.rdispls->data(), 
     roots, nroots,
     rawType,

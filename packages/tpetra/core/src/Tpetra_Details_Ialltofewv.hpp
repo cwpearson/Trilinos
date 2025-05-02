@@ -9,14 +9,13 @@
 
 #pragma once
 
-#include <algorithm>
-#include <cmath>
-#include <cstring>
-#include <vector>
+#include <memory>
 
 #include <mpi.h>
 
-namespace Tpetra::Details::ialltofewv {
+namespace Tpetra::Details {
+
+struct Ialltofewv {
 
     struct Req {
         const void *sendbuf;
@@ -32,26 +31,26 @@ namespace Tpetra::Details::ialltofewv {
         int tag;
         MPI_Comm comm;
 
-        bool devAccess; // can Kokkos::DefaultExecutionSpace access recvbuf
+        bool devAccess;
         bool completed;
     };
-  
+    
     template <bool DevAccess>
     int post(const void *sendbuf,
-                const int *sendcounts, // how much to each root (length nroots)
-                const int *sdispls,    // where data for each root starts (length nroots)
-                MPI_Datatype sendtype,
-                void *recvbuf, // address of recv buffer (significant only at root)
-                const int *recvcounts, // the number of elements recvd from each process
-                                 // (signficant only at roots)
-                const int *rdispls,    // where in `recvbuf` to place incoming data from
-                                 // process i (signficant only at roots)
-                const int *roots,      // list of root ranks (must be same on all procs)
-                int nroots,      // size of list of root ranks
-                MPI_Datatype recvtype, 
-                int tag,
-                MPI_Comm comm,
-                Req *req) {
+        const int *sendcounts, // how much to each root (length nroots)
+        const int *sdispls,    // where data for each root starts (length nroots)
+        MPI_Datatype sendtype,
+        void *recvbuf,         // address of recv buffer (significant only at root)
+        const int *recvcounts, // the number of elements recvd from each process
+                                // (signficant only at roots)
+        const int *rdispls,    // where in `recvbuf` to place incoming data from
+                                // process i (signficant only at roots)
+        const int *roots,      // list of root ranks (must be same on all procs)
+        int nroots,            // size of list of root ranks
+        MPI_Datatype recvtype, 
+        int tag,
+        MPI_Comm comm,
+        Req *req) {
         req->sendbuf = sendbuf;
         req->sendcounts = sendcounts;
         req->sdispls = sdispls;
@@ -75,12 +74,24 @@ namespace Tpetra::Details::ialltofewv {
         // }
     #endif
         return MPI_SUCCESS;
-
-}
-
+    }
 
     int wait(Req &req);
 
-    int get_status(const Req &req, int *flag, MPI_Status *status);
+    int get_status(const Req &req, int *flag, MPI_Status *status) const;
 
-} // namespace Tpetra::Details::ialltofewv
+    struct Cache {
+        struct impl;
+        std::shared_ptr<impl> pimpl;
+
+        Cache();
+        ~Cache();
+    };
+
+private:
+
+    Cache cache_;
+
+}; // struct Ialltofewv
+
+} // namespace Tpetra::Details
