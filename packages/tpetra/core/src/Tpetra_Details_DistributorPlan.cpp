@@ -80,8 +80,8 @@ DistributorPlan::DistributorPlan(Teuchos::RCP<const Teuchos::Comm<int>> comm)
 #endif
     howInitialized_(DISTRIBUTOR_NOT_INITIALIZED),
     reversePlan_(Teuchos::null),
-    sendType_(DISTRIBUTOR_SEND),
-    // sendType_(DISTRIBUTOR_IALLTOFEWV), // FIXME: delete
+    // sendType_(DISTRIBUTOR_SEND),
+    sendType_(DISTRIBUTOR_IALLTOFEWV), // FIXME: delete
     sendMessageToSelf_(false),
     numSendsToOtherProcs_(0),
     maxSendLength_(0),

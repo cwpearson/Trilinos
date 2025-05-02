@@ -128,7 +128,7 @@ recvdisplsIgatherv_.clear();
     if (ialltofewv_.req) {
 
       ProfilingRegion ws("Tpetra::Distributor: doWaitsIgatherv");
-      Details::ialltofewv::wait(*ialltofewv_.req);
+      ialltofewv_.impl.wait(*ialltofewv_.req);
 
       ialltofewv_.sendcounts.reset();
       ialltofewv_.sdispls.reset();
@@ -166,7 +166,7 @@ recvdisplsIgatherv_.clear();
 
     if (ialltofewv_.req) {
       int flag;
-      Details::ialltofewv::get_status(*ialltofewv_.req, &flag, MPI_STATUS_IGNORE);
+      ialltofewv_.impl.get_status(*ialltofewv_.req, &flag, MPI_STATUS_IGNORE);
       result &= flag;
     }
 #endif
