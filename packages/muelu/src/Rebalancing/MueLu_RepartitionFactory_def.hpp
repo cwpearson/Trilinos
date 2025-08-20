@@ -371,6 +371,7 @@ void RepartitionFactory<Scalar, LocalOrdinal, GlobalOrdinal, Node>::Build(Level&
     Set(currentLevel, "SubImporters", subImports);
   }
 
+  // TODO: consume the repartitioning send type plist thing here
   Set(currentLevel, "Importer", rowMapImporter);
 
   // Importer saving
