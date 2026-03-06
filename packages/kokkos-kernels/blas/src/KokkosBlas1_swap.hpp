@@ -5,6 +5,7 @@
 #define KOKKOSBLAS1_SWAP_HPP_
 
 #include <KokkosBlas1_swap_spec.hpp>
+#include <KokkosKernels_helpers.hpp>
 
 namespace KokkosBlas {
 
