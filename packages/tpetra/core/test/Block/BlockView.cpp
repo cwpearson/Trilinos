@@ -10,8 +10,8 @@
 #include "Tpetra_TestingUtilities.hpp"
 #include "Tpetra_BlockView.hpp"
 #include "Teuchos_Array.hpp"
-#include "Teuchos_BLAS.hpp"
 #include "Teuchos_LAPACK.hpp"
+#include "KokkosBlas1_swap.hpp"
 #ifdef HAVE_TPETRA_INST_FLOAT128
 #include "Teuchos_Details_Lapack128.hpp"
 #endif  // HAVE_TPETRA_INST_FLOAT128
@@ -393,20 +393,21 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL(ExpBlockView, GEQRF, ST, LO) {
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(ExpBlockView, SWAP, ST) {
   if (!Teuchos::ScalarTraits<ST>::isOrdinal) {  // skip integer types
-    Teuchos::BLAS<int, ST> blas;
     const int n = 6;
     Teuchos::Array<ST> x(n), y(n), x_cpy(n), y_cpy(n);
-    int incx, incy;
 
-    incx = 1;
-    incy = 1;
     for (int i = 0; i < n; ++i) {
       x[i]     = static_cast<ST>(i + 1);
       x_cpy[i] = static_cast<ST>(i + 1);
       y[i]     = 2 * static_cast<ST>(i + 1);
       y_cpy[i] = 2 * static_cast<ST>(i + 1);
     }
-    blas.SWAP(n, x.getRawPtr(), incx, y.getRawPtr(), incy);
+    {
+      Kokkos::View<ST*, Kokkos::HostSpace,
+                   Kokkos::MemoryTraits<Kokkos::Unmanaged>>
+          x_v(x.getRawPtr(), n), y_v(y.getRawPtr(), n);
+      KokkosBlas::swap(x_v, y_v);
+    }
     TEST_COMPARE_ARRAYS(x, y_cpy);
     TEST_COMPARE_ARRAYS(y, x_cpy);
 

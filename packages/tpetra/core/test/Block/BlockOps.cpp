@@ -9,7 +9,6 @@
 
 #include "Tpetra_TestingUtilities.hpp"
 #include "Tpetra_BlockView.hpp"
-#include "Teuchos_BLAS.hpp"
 #include <vector>
 
 namespace {

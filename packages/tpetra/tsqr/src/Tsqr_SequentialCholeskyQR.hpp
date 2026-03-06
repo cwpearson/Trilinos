@@ -14,7 +14,7 @@
 #include "Tsqr_CacheBlockingStrategy.hpp"
 #include "Tsqr_CacheBlocker.hpp"
 #include "Tsqr_Util.hpp"
-#include "Teuchos_BLAS.hpp"
+#include "Tsqr_Impl_KokkosBlas.hpp"
 #include "Tsqr_Impl_Lapack.hpp"
 #include <string>
 #include <utility>
@@ -36,7 +36,6 @@ class SequentialCholeskyQR {
  private:
   using mat_view_type       = MatView<LocalOrdinal, Scalar>;
   using const_mat_view_type = MatView<LocalOrdinal, const Scalar>;
-  using blas_type           = Impl::SystemBlas<Scalar>;
 
  public:
   using scalar_type  = Scalar;
@@ -86,9 +85,7 @@ class SequentialCholeskyQR {
          Scalar R[],
          const LocalOrdinal ldr,
          const bool contiguous_cache_blocks = false) {
-    using Teuchos::NO_TRANS;
     CacheBlocker<LocalOrdinal, Scalar> blocker(nrows, ncols, strategy_);
-    blas_type blas;
     Impl::Lapack<Scalar> lapack;
 
     std::vector<Scalar> work(ncols);
@@ -111,26 +108,32 @@ class SequentialCholeskyQR {
       // Process the first cache block: ATA := A_cur^T * A_cur
       //
       // FIXME (mfh 08 Oct 2014) Shouldn't this be CONJ_TRANS?
-      blas.GEMM(Teuchos::TRANS, NO_TRANS, ncols, ncols, A_cur.extent(0),
-                Scalar(1), A_cur.data(), A_cur.stride(1), A_cur.data(),
-                A_cur.stride(1), Scalar(0), ATA.data(), ATA.stride(1));
+      TSQR::Impl::host_gemm('T', 'N', Scalar(1),
+                            A_cur.data(), A_cur.extent(0), ncols, A_cur.stride(1),
+                            A_cur.data(), A_cur.extent(0), ncols, A_cur.stride(1),
+                            Scalar(0),
+                            ATA.data(), ncols, ncols, ATA.stride(1));
       // Process the remaining cache blocks in order.
       while (!empty(A_rest)) {
         A_cur = blocker.split_top_block(A_rest, contiguous_cache_blocks);
         // ATA := ATA + A_cur^T * A_cur
         //
         // FIXME (mfh 08 Oct 2014) Shouldn't this be CONJ_TRANS?
-        blas.GEMM(Teuchos::TRANS, NO_TRANS, ncols, ncols, A_cur.extent(0),
-                  Scalar(1), A_cur.data(), A_cur.stride(1), A_cur.data(),
-                  A_cur.stride(1), Scalar(1), ATA.data(), ATA.stride(1));
+        TSQR::Impl::host_gemm('T', 'N', Scalar(1),
+                              A_cur.data(), A_cur.extent(0), ncols, A_cur.stride(1),
+                              A_cur.data(), A_cur.extent(0), ncols, A_cur.stride(1),
+                              Scalar(1),
+                              ATA.data(), ncols, ncols, ATA.stride(1));
       }
     } else {
       // Compute ATA := A^T * A, using a single BLAS call.
       //
       // FIXME (mfh 08 Oct 2014) Shouldn't this be CONJ_TRANS?
-      blas.GEMM(Teuchos::TRANS, NO_TRANS, ncols, ncols, nrows,
-                Scalar(1), A, lda, A, lda,
-                Scalar(0), ATA.data(), ATA.stride(1));
+      TSQR::Impl::host_gemm('T', 'N', Scalar(1),
+                            A, nrows, ncols, lda,
+                            A, nrows, ncols, lda,
+                            Scalar(0),
+                            ATA.data(), ncols, ncols, ATA.stride(1));
     }
 
     // Compute the Cholesky factorization of ATA in place, so that
@@ -152,29 +155,22 @@ class SequentialCholeskyQR {
     // BLAS' TRSM with the R factor (form POTRF) stored in the upper
     // triangle of ATA.
     {
-      using Teuchos::NO_TRANS;
-      using Teuchos::NON_UNIT_DIAG;
-      using Teuchos::RIGHT_SIDE;
-      using Teuchos::UPPER_TRI;
-
       mat_view_type A_rest(nrows, ncols, A, lda);
       // This call modifies A_rest.
       mat_view_type A_cur =
           blocker.split_top_block(A_rest, contiguous_cache_blocks);
 
       // Compute A_cur / R (Matlab notation for A_cur * R^{-1}) in place.
-      blas.TRSM(RIGHT_SIDE, UPPER_TRI, NO_TRANS, NON_UNIT_DIAG,
-                A_cur.extent(0), ncols,
-                Scalar(1.0), ATA.data(), ATA.stride(1),
-                A_cur.data(), A_cur.stride(1));
+      TSQR::Impl::host_trsm('R', 'U', 'N', 'N', Scalar(1.0),
+                            ATA.data(), ncols, ATA.stride(1),
+                            A_cur.data(), A_cur.extent(0), ncols, A_cur.stride(1));
 
       // Process the remaining cache blocks in order.
       while (!empty(A_rest)) {
         A_cur = blocker.split_top_block(A_rest, contiguous_cache_blocks);
-        blas.TRSM(RIGHT_SIDE, UPPER_TRI, NO_TRANS, NON_UNIT_DIAG,
-                  A_cur.extent(0), ncols,
-                  Scalar(1.0), ATA.data(), ATA.stride(1),
-                  A_cur.data(), A_cur.stride(1));
+        TSQR::Impl::host_trsm('R', 'U', 'N', 'N', Scalar(1.0),
+                              ATA.data(), ncols, ATA.stride(1),
+                              A_cur.data(), A_cur.extent(0), ncols, A_cur.stride(1));
       }
     }
 

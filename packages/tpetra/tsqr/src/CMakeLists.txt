@@ -30,4 +30,5 @@ TRIBITS_ADD_LIBRARY(
 # that running "make" will also rerun CMake in order to regenerate Makefiles.
 #
 # Behold: Another such change that I hath wrought, and another.
+# Removed Tsqr_Impl_SystemBlas.{hpp,cpp} and Tsqr_Impl_RawBlas.hpp (BLAS migration).
 #

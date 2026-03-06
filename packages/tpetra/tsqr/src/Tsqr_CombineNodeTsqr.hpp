@@ -17,7 +17,7 @@
 
 #include "Tsqr_NodeTsqr.hpp"
 #include "Tsqr_Impl_CombineUser.hpp"
-#include "Tsqr_Impl_SystemBlas.hpp"
+#include "Tsqr_Impl_KokkosBlas.hpp"
 #include "Teuchos_TypeNameTraits.hpp"
 #include <memory>
 
@@ -231,8 +231,6 @@ class CombineNodeTsqr : public NodeTsqr<Ordinal, Scalar>,
             const Scalar B[],
             const ordinal_type ldb,
             const bool /* contiguousCacheBlocks */) const override {
-    using Teuchos::NO_TRANS;
-
     // We don't do any other error checking here (e.g., matrix
     // dimensions), though it would be a good idea to do so.
 
@@ -241,18 +239,17 @@ class CombineNodeTsqr : public NodeTsqr<Ordinal, Scalar>,
       return;
     }
 
-    Impl::SystemBlas<Scalar> blas;
     mat_view_type Q_view(nrows, ncols, Q, ldq);
     // GEMM doesn't like its input and output arguments to alias
     // each other, so we use a (deep) copy.
     Matrix<ordinal_type, Scalar> Q_copy(Q_view);
 
     // Q_view := Q_copy * B.
-    blas.GEMM(NO_TRANS, NO_TRANS,
-              nrows, ncols, ncols,
-              Scalar(1.0), Q_copy.data(), Q_copy.stride(1),
-              B, ldb,
-              Scalar{}, Q_view.data(), Q_view.stride(1));
+    TSQR::Impl::host_gemm('N', 'N', Scalar(1.0),
+                          Q_copy.data(), nrows, ncols, Q_copy.stride(1),
+                          B, ncols, ncols, ldb,
+                          Scalar{},
+                          Q_view.data(), nrows, ncols, Q_view.stride(1));
   }
 
   void

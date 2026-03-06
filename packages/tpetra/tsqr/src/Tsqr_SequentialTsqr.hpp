@@ -20,7 +20,7 @@
 #include "Tsqr_Impl_CombineUser.hpp"
 #include "Tsqr_NodeTsqr.hpp"
 #include "Tsqr_Util.hpp"
-#include "Tsqr_Impl_SystemBlas.hpp"
+#include "Tsqr_Impl_KokkosBlas.hpp"
 #include "Teuchos_Describable.hpp"
 #include "Teuchos_ParameterList.hpp"
 #include "Teuchos_ParameterListExceptions.hpp"
@@ -647,7 +647,6 @@ class SequentialTsqr : public NodeTsqr<LocalOrdinal, Scalar>,
             const Scalar B[],
             const LocalOrdinal ldb,
             const bool contigCacheBlocks) const override {
-    using Teuchos::NO_TRANS;
     using LO = LocalOrdinal;
 
     // Take the easy exit if available.
@@ -662,7 +661,6 @@ class SequentialTsqr : public NodeTsqr<LocalOrdinal, Scalar>,
     // restructuring of this code would parallelize nicely using
     // OpenMP.
     CacheBlocker<LO, Scalar> blocker(nrows, ncols, strategy_);
-    Impl::SystemBlas<Scalar> blas;
     mat_view_type Q_rest(nrows, ncols, Q, ldq);
     Matrix<LO, Scalar> Q_cur_copy(0, 0);  // will be resized
     while (!empty(Q_rest)) {
@@ -675,13 +673,13 @@ class SequentialTsqr : public NodeTsqr<LocalOrdinal, Scalar>,
       Q_cur_copy.reshape(Q_cur.extent(0), ncols);
       deep_copy(Q_cur_copy, Q_cur);
       // Q_cur := Q_cur_copy * B.
-      constexpr Scalar ZERO{};
-      constexpr Scalar ONE(1.0);
-      blas.GEMM(NO_TRANS, NO_TRANS,
-                Q_cur.extent(0), ncols, ncols,
-                ONE, Q_cur_copy.data(), Q_cur_copy.stride(1),
-                B, ldb,
-                ZERO, Q_cur.data(), Q_cur.stride(1));
+      const Scalar ZERO{};
+      const Scalar ONE(1.0);
+      TSQR::Impl::host_gemm('N', 'N', ONE,
+                            Q_cur_copy.data(), Q_cur.extent(0), ncols, Q_cur_copy.stride(1),
+                            B, ncols, ncols, ldb,
+                            ZERO,
+                            Q_cur.data(), Q_cur.extent(0), ncols, Q_cur.stride(1));
     }
   }
 

@@ -11,7 +11,7 @@
 #define __TSQR_Tsqr_LocalVerify_hpp
 
 #include "Tsqr_Util.hpp"
-#include "Tsqr_Impl_SystemBlas.hpp"
+#include "Tsqr_Impl_KokkosBlas.hpp"
 #include "Tsqr_Matrix.hpp"
 #include <cmath>
 #include <limits>
@@ -88,19 +88,16 @@ localOrthogonality(const Ordinal nrows,
   const Scalar ZERO{};
   const Scalar ONE(1.0);
 
-  Impl::SystemBlas<Scalar> blas;
-
   std::vector<Scalar> AbsOrthog(ncols * ncols, std::numeric_limits<Scalar>::quiet_NaN());
   const Ordinal AbsOrthog_stride = ncols;
 
   // Compute AbsOrthog := Q' * Q - I.  First, compute Q' * Q:
-  if (STS::isComplex) {
-    blas.GEMM(Teuchos::CONJ_TRANS, Teuchos::NO_TRANS, ncols, ncols, nrows,
-              ONE, Q, ldq, Q, ldq, ZERO, &AbsOrthog[0], AbsOrthog_stride);
-  } else {
-    blas.GEMM(Teuchos::TRANS, Teuchos::NO_TRANS, ncols, ncols, nrows,
-              ONE, Q, ldq, Q, ldq, ZERO, &AbsOrthog[0], AbsOrthog_stride);
-  }
+  const char transa = STS::isComplex ? 'C' : 'T';
+  TSQR::Impl::host_gemm(transa, 'N', ONE,
+                        Q, nrows, ncols, ldq,
+                        Q, nrows, ncols, ldq,
+                        ZERO,
+                        &AbsOrthog[0], ncols, ncols, AbsOrthog_stride);
 
   // Now, compute (Q^T*Q) - I.
   for (Ordinal j = 0; j < ncols; ++j) {
@@ -124,19 +121,17 @@ local_relative_orthogonality(const Ordinal nrows,
   const Scalar ONE(1.0);
 
   const bool relative = false;  // whether to scale $\|I-Q^T*Q\|_F$ by $\|A\|_F$
-  Impl::SystemBlas<Scalar> blas;
 
   std::vector<Scalar> AbsOrthog(ncols * ncols, std::numeric_limits<Scalar>::quiet_NaN());
   const Ordinal AbsOrthog_stride = ncols;
 
   // Compute AbsOrthog := Q' * Q - I.  First, compute Q' * Q:
-  if (STS::isComplex) {
-    blas.GEMM(Teuchos::CONJ_TRANS, Teuchos::NO_TRANS, ncols, ncols, nrows,
-              ONE, Q, ldq, Q, ldq, ZERO, &AbsOrthog[0], AbsOrthog_stride);
-  } else {
-    blas.GEMM(Teuchos::TRANS, Teuchos::NO_TRANS, ncols, ncols, nrows,
-              ONE, Q, ldq, Q, ldq, ZERO, &AbsOrthog[0], AbsOrthog_stride);
-  }
+  const char transa2 = STS::isComplex ? 'C' : 'T';
+  TSQR::Impl::host_gemm(transa2, 'N', ONE,
+                        Q, nrows, ncols, ldq,
+                        Q, nrows, ncols, ldq,
+                        ZERO,
+                        &AbsOrthog[0], ncols, ncols, AbsOrthog_stride);
 
   // Now, compute (Q^T*Q) - I.
   for (Ordinal j = 0; j < ncols; ++j) {
@@ -161,20 +156,21 @@ localResidual(const Ordinal nrows,
               const Ordinal ldq,
               const Scalar R[],
               const Ordinal ldr) {
-  using Teuchos::NO_TRANS;
   typedef Teuchos::ScalarTraits<Scalar> STS;
   typedef typename STS::magnitudeType magnitude_type;
 
   MatView<Ordinal, const Scalar> A_view(nrows, ncols, A, lda);
   Matrix<Ordinal, Scalar> AbsResid(nrows, ncols,
                                    std::numeric_limits<Scalar>::quiet_NaN());
-  Impl::SystemBlas<Scalar> blas;
   const magnitude_type ONE(1);
 
   // A_copy := A_copy - Q * R
   deep_copy(AbsResid, A_view);
-  blas.GEMM(NO_TRANS, NO_TRANS, nrows, ncols, ncols, -ONE, Q, ldq, R, ldr,
-            ONE, AbsResid.data(), AbsResid.stride(1));
+  TSQR::Impl::host_gemm('N', 'N', -Scalar(ONE),
+                        Q, nrows, ncols, ldq,
+                        R, ncols, ncols, ldr,
+                        Scalar(ONE),
+                        AbsResid.data(), nrows, ncols, AbsResid.stride(1));
 
   return local_frobenius_norm(nrows, ncols, AbsResid.data(),
                               AbsResid.stride(1));
@@ -191,7 +187,6 @@ local_relative_residual(const Ordinal nrows,
                         const Scalar R[],
                         const Ordinal ldr,
                         const typename Teuchos::ScalarTraits<Scalar>::magnitudeType A_norm_F) {
-  using Teuchos::NO_TRANS;
   typedef Teuchos::ScalarTraits<Scalar> STS;
   typedef typename STS::magnitudeType magnitude_type;
 
@@ -200,11 +195,12 @@ local_relative_residual(const Ordinal nrows,
   deep_copy(AbsResid, A);
 
   // A_copy := A_copy - Q * R
-  Impl::SystemBlas<Scalar> blas;
   const magnitude_type ONE(1.0);
-  blas.GEMM(NO_TRANS, NO_TRANS, nrows, ncols, ncols,
-            -ONE, Q, ldq, R, ldr,
-            ONE, AbsResid.data(), AbsResid.stride(1));
+  TSQR::Impl::host_gemm('N', 'N', -Scalar(ONE),
+                        Q, nrows, ncols, ldq,
+                        R, ncols, ncols, ldr,
+                        Scalar(ONE),
+                        AbsResid.data(), nrows, ncols, AbsResid.stride(1));
 
   const magnitude_type absolute_residual =
       local_frobenius_norm(nrows, ncols, AbsResid.data(),

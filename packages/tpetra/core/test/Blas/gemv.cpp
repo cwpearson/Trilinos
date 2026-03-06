@@ -9,7 +9,6 @@
 
 #include "Tpetra_TestingUtilities.hpp"
 #include "Tpetra_Map.hpp"
-#include "Teuchos_BLAS.hpp"
 #include "Kokkos_Core.hpp"
 #include "Kokkos_Random.hpp"
 
@@ -159,10 +158,6 @@ void testGemvVsTeuchosBlas(Teuchos::FancyOStream& out,
     }
   }
 
-  const int A2_stride = A2.stride(1);
-  const int x2_inc    = x2.stride(0);
-  const int y2_inc    = y2.stride(0);
-
   constexpr int numTransOpts = 6;
   constexpr char transOpts[numTransOpts] =
       {'N', 'n', 'T', 't', 'C', 'c'};
@@ -199,11 +194,6 @@ void testGemvVsTeuchosBlas(Teuchos::FancyOStream& out,
   out << "nonTransBound: " << nonTransBound << endl
       << "transBound: " << transBound << endl;
 
-  // This needs to be EntryType and not
-  // ArithTraits<EntryType>::val_type, because the BLAS is
-  // specialized for std::complex and not Kokkos::complex.
-  Teuchos::BLAS<int, EntryType> teuchosBlas;
-
   for (coeff_type alpha : alphaOpts) {
     for (coeff_type beta : betaOpts) {
       for (int transInd = 0; transInd < numTransOpts; ++transInd) {
@@ -220,19 +210,23 @@ void testGemvVsTeuchosBlas(Teuchos::FancyOStream& out,
         Kokkos::deep_copy(x2, x_orig);
         Kokkos::deep_copy(y2, y_orig);
 
-        const Teuchos::ETransp teuchosTrans = isTrans ? (isConj ? Teuchos::CONJ_TRANS : Teuchos::TRANS) : Teuchos::NO_TRANS;
-
         // Whether (x,y) are (input,output) or vice versa depends on
         // whether we are exercising the transpose.
         if (isTrans) {
           KokkosBlas::gemv(&trans, alpha, A, y, beta, x);
-          teuchosBlas.GEMV(teuchosTrans, numRows, numCols, alpha,
-                           reinterpret_cast<const EntryType*>(A2.data()),
-                           A2_stride,
-                           reinterpret_cast<const EntryType*>(y2.data()),
-                           y2_inc, beta,
-                           reinterpret_cast<EntryType*>(x2.data()),
-                           x2_inc);
+
+          // Naive serial reference: x2 = alpha * op(A2) * y2 + beta * x2
+          for (int j = 0; j < numCols; ++j) {
+            entry_type sum{};
+            for (int i = 0; i < numRows; ++i) {
+              entry_type a_val = isConj
+                  ? KokkosKernels::ArithTraits<entry_type>::conj(A2(i, j))
+                  : A2(i, j);
+              sum += a_val * y2(i);
+            }
+            x2(j) = static_cast<entry_type>(alpha) * sum
+                  + static_cast<entry_type>(beta) * x2(j);
+          }
           Kokkos::deep_copy(x_host, x);
 
           mag_type maxErr = KokkosKernels::ArithTraits<mag_type>::zero();
@@ -249,13 +243,16 @@ void testGemvVsTeuchosBlas(Teuchos::FancyOStream& out,
           }
         } else {
           KokkosBlas::gemv(&trans, alpha, A, x, beta, y);
-          teuchosBlas.GEMV(teuchosTrans, numRows, numCols, alpha,
-                           reinterpret_cast<const EntryType*>(A2.data()),
-                           A2_stride,
-                           reinterpret_cast<const EntryType*>(x2.data()),
-                           x2_inc, beta,
-                           reinterpret_cast<EntryType*>(y2.data()),
-                           y2_inc);
+
+          // Naive serial reference: y2 = alpha * A2 * x2 + beta * y2
+          for (int i = 0; i < numRows; ++i) {
+            entry_type sum{};
+            for (int j = 0; j < numCols; ++j) {
+              sum += A2(i, j) * x2(j);
+            }
+            y2(i) = static_cast<entry_type>(alpha) * sum
+                  + static_cast<entry_type>(beta) * y2(i);
+          }
           Kokkos::deep_copy(y_host, y);
 
           mag_type maxErr = KokkosKernels::ArithTraits<mag_type>::zero();

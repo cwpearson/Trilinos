@@ -13,7 +13,7 @@
 #include "Tsqr_Matrix.hpp"
 #include "Tsqr_Random_MatrixGenerator.hpp"
 #include "Tsqr_RMessenger.hpp"
-#include "Tsqr_Impl_SystemBlas.hpp"
+#include "Tsqr_Impl_KokkosBlas.hpp"
 #include "Teuchos_ScalarTraits.hpp"
 #include <functional>
 #include <iostream>
@@ -54,7 +54,6 @@ void randomGlobalMatrix(Generator* const pGenerator,
                         const typename Teuchos::ScalarTraits<typename MatrixViewType::non_const_value_type>::magnitudeType singular_values[],
                         MessengerBase<typename MatrixViewType::ordinal_type>* const ordinalMessenger,
                         MessengerBase<typename MatrixViewType::non_const_value_type>* const scalarMessenger) {
-  using Teuchos::NO_TRANS;
   using ordinal_type = typename MatrixViewType::ordinal_type;
   using scalar_type  = typename MatrixViewType::non_const_value_type;
   using STS          = Teuchos::ScalarTraits<scalar_type>;
@@ -62,7 +61,6 @@ void randomGlobalMatrix(Generator* const pGenerator,
   const int rootProc = 0;
   const int nprocs   = ordinalMessenger->size();
   const int myRank   = ordinalMessenger->rank();
-  Impl::SystemBlas<scalar_type> blas;
 
   const ordinal_type nrowsLocal = A_local.extent(0);
   const ordinal_type ncols      = A_local.extent(1);
@@ -110,10 +108,11 @@ void randomGlobalMatrix(Generator* const pGenerator,
     scaleMatrix(Q_local, P);
 
     // A_local := Q_local * R
-    blas.GEMM(NO_TRANS, NO_TRANS, nrowsLocal, ncols, ncols,
-              scalar_type(1), Q_local.data(), Q_local.stride(1),
-              R.data(), R.stride(1),
-              scalar_type(0), A_local.data(), A_local.stride(1));
+    TSQR::Impl::host_gemm('N', 'N', scalar_type(1),
+                          Q_local.data(), nrowsLocal, ncols, Q_local.stride(1),
+                          R.data(), ncols, ncols, R.stride(1),
+                          scalar_type(0),
+                          A_local.data(), nrowsLocal, ncols, A_local.stride(1));
 
     for (int recvProc = 1; recvProc < nprocs; ++recvProc) {
       // Ask the receiving processor how big (i.e., how many rows)
@@ -163,10 +162,11 @@ void randomGlobalMatrix(Generator* const pGenerator,
     scaleMatrix(Q_local, P);
 
     // A_local := Q_local * R
-    blas.GEMM(NO_TRANS, NO_TRANS, nrowsLocal, ncols, ncols,
-              scalar_type(1), Q_local.data(), Q_local.stride(1),
-              R.data(), R.stride(1),
-              scalar_type(0), A_local.data(), A_local.stride(1));
+    TSQR::Impl::host_gemm('N', 'N', scalar_type(1),
+                          Q_local.data(), nrowsLocal, ncols, Q_local.stride(1),
+                          R.data(), ncols, ncols, R.stride(1),
+                          scalar_type(0),
+                          A_local.data(), nrowsLocal, ncols, A_local.stride(1));
   }
 }
 }  // namespace Random

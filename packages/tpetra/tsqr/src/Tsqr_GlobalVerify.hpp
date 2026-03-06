@@ -13,7 +13,7 @@
 #include "Tsqr_LocalVerify.hpp"
 #include "Tsqr_MessengerBase.hpp"
 #include "Tsqr_Util.hpp"
-#include "Tsqr_Impl_SystemBlas.hpp"
+#include "Tsqr_Impl_KokkosBlas.hpp"
 #include "Teuchos_ScalarTraits.hpp"
 #include <utility>  // std::pair
 #include <vector>
@@ -144,13 +144,9 @@ global_verify(const LocalOrdinal nrows_local,
   using std::make_pair;
   using std::pair;
   using std::vector;
-  using Teuchos::CONJ_TRANS;
-  using Teuchos::NO_TRANS;
-  using Teuchos::TRANS;
 
   const magnitude_type ZERO{};
   const magnitude_type ONE(1.0);
-  Impl::SystemBlas<Scalar> blas;
 
   //
   // Compute $\| I - Q^T * Q \|_F$
@@ -160,14 +156,14 @@ global_verify(const LocalOrdinal nrows_local,
   vector<Scalar> Temp(ncols * ncols, STS::nan());
   const LocalOrdinal ld_temp = ncols;
 
-  if (STS::isComplex)
-    blas.GEMM(CONJ_TRANS, NO_TRANS, ncols, ncols, nrows_local,
-              ONE, Q_local, ldq_local, Q_local, ldq_local,
-              ZERO, &Temp[0], ld_temp);
-  else
-    blas.GEMM(TRANS, NO_TRANS, ncols, ncols, nrows_local,
-              ONE, Q_local, ldq_local, Q_local, ldq_local,
-              ZERO, &Temp[0], ld_temp);
+  {
+    const char transa_g = STS::isComplex ? 'C' : 'T';
+    TSQR::Impl::host_gemm(transa_g, 'N', Scalar(ONE),
+                          Q_local, nrows_local, ncols, ldq_local,
+                          Q_local, nrows_local, ncols, ldq_local,
+                          Scalar(ZERO),
+                          &Temp[0], ncols, ncols, ld_temp);
+  }
 
   // Reduce over all the processors to get the global Q^T*Q in Temp2.
   vector<Scalar> Temp2(ncols * ncols, STS::nan());
@@ -196,9 +192,11 @@ global_verify(const LocalOrdinal nrows_local,
   deep_copy(Resid_view, A_view);
 
   // Resid := Resid - Q*R
-  blas.GEMM(NO_TRANS, NO_TRANS, nrows_local, ncols, ncols,
-            -ONE, Q_local, ldq_local, R, ldr,
-            ONE, Resid.data(), ld_resid);
+  TSQR::Impl::host_gemm('N', 'N', -Scalar(ONE),
+                        Q_local, nrows_local, ncols, ldq_local,
+                        R, ncols, ncols, ldr,
+                        Scalar(ONE),
+                        Resid.data(), nrows_local, ncols, ld_resid);
 
   const magnitude_type Resid_F =
       global_frobenius_norm(nrows_local, ncols, Resid.data(),

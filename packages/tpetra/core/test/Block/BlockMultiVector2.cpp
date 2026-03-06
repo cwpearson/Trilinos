@@ -13,6 +13,7 @@
 #include "Teuchos_SerialDenseMatrix.hpp"
 #include "Teuchos_LAPACK.hpp"
 #include "Teuchos_TypeNameTraits.hpp"
+#include "KokkosBlas2_gemv.hpp"
 
 namespace {
 using Kokkos::ALL;
@@ -212,13 +213,17 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL(BlockMultiVector, BlockWiseMultiply, Scalar, L
   Kokkos::View<IST*, host_device_type> prototypeX(view_alloc("prototypeX", WithoutInitializing), blockSize);
   Kokkos::deep_copy(prototypeX, one);
   Kokkos::View<IST*, host_device_type> prototypeY("prototypeY", blockSize);
-  Teuchos::BLAS<int, Scalar> blas;
-  blas.GEMV(Teuchos::NO_TRANS, blockSize, blockSize,
-            static_cast<Scalar>(1.0),
-            teuchosBlock.values(), teuchosBlock.stride(),
-            reinterpret_cast<Scalar*>(prototypeX.data()), 1,
-            static_cast<Scalar>(0.0),
-            reinterpret_cast<Scalar*>(prototypeY.data()), 1);
+  {
+    using h_mem = Kokkos::HostSpace;
+    using unman = Kokkos::MemoryTraits<Kokkos::Unmanaged>;
+    TEUCHOS_ASSERT(teuchosBlock.stride() == blockSize);
+    Kokkos::View<const IST**, Kokkos::LayoutLeft, h_mem, unman>
+        A_v(reinterpret_cast<const IST*>(teuchosBlock.values()),
+            blockSize, blockSize);
+    Kokkos::View<const IST*, h_mem, unman> x_v(prototypeX.data(), blockSize);
+    Kokkos::View<IST*,       h_mem, unman> y_v(prototypeY.data(), blockSize);
+    KokkosBlas::gemv("N", IST(1), A_v, x_v, IST(0), y_v);
+  }
 
   myOut << "Constructing block diagonal (as 3-D Kokkos::View)" << endl;
 

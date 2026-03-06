@@ -10,7 +10,6 @@
 #include "Tpetra_TestingUtilities.hpp"
 #include "Tpetra_Details_Behavior.hpp"
 #include "Tpetra_Core.hpp"
-#include "Teuchos_BLAS.hpp"
 #include "Kokkos_Core.hpp"
 #include "Kokkos_Random.hpp"
 
@@ -185,10 +184,6 @@ void testGemmVsTeuchosBlasForOneTransComb(Teuchos::FancyOStream& out,
     }
   }
 
-  const LO A2_stride = A2.stride(1);
-  const LO B2_stride = B2.stride(1);
-  const LO C2_stride = C2.stride(1);
-
   typedef KokkosKernels::ArithTraits<coeff_type> KAT;
   const coeff_type zero      = KAT::zero();
   const coeff_type one       = KAT::one();
@@ -214,11 +209,6 @@ void testGemmVsTeuchosBlasForOneTransComb(Teuchos::FancyOStream& out,
   const mag_type bound = boundOrig < (fudgeFactor * eps) ? (fudgeFactor * eps) : boundOrig;
   out << "bound: " << bound << endl;
 
-  // This needs to be EntryType and not
-  // ArithTraits<EntryType>::val_type, because the BLAS is
-  // specialized for std::complex and not Kokkos::complex.
-  Teuchos::BLAS<int, EntryType> teuchosBlas;
-
   for (coeff_type alpha : alphaOpts) {
     for (coeff_type beta : betaOpts) {
       // Refresh test problem from original version.
@@ -231,16 +221,28 @@ void testGemmVsTeuchosBlasForOneTransComb(Teuchos::FancyOStream& out,
 
       {
         KokkosBlas::gemm(&trans_A, &trans_B, alpha, A, B, beta, C);
-        const Teuchos::ETransp teuchosTransA = trans_A_is_trans ? (trans_A_is_conj ? Teuchos::CONJ_TRANS : Teuchos::TRANS) : Teuchos::NO_TRANS;
-        const Teuchos::ETransp teuchosTransB = trans_B_is_trans ? (trans_B_is_conj ? Teuchos::CONJ_TRANS : Teuchos::TRANS) : Teuchos::NO_TRANS;
-        teuchosBlas.GEMM(teuchosTransA, teuchosTransB, m, n, k, alpha,
-                         const_cast<const EntryType*>(reinterpret_cast<EntryType*>(A2.data())),
-                         A2_stride,
-                         const_cast<const EntryType*>(reinterpret_cast<EntryType*>(B2.data())),
-                         B2_stride,
-                         beta,
-                         reinterpret_cast<EntryType*>(C2.data()),
-                         C2_stride);
+
+        // Naive serial reference: C2 = alpha * op(A2) * op(B2) + beta * C2
+        for (LO i = 0; i < m; ++i) {
+          for (LO j = 0; j < n; ++j) {
+            entry_type sum{};
+            for (LO l = 0; l < k; ++l) {
+              entry_type a_il = trans_A_is_trans
+                  ? (trans_A_is_conj
+                      ? KokkosKernels::ArithTraits<entry_type>::conj(A2(l, i))
+                      : A2(l, i))
+                  : A2(i, l);
+              entry_type b_lj = trans_B_is_trans
+                  ? (trans_B_is_conj
+                      ? KokkosKernels::ArithTraits<entry_type>::conj(B2(j, l))
+                      : B2(j, l))
+                  : B2(l, j);
+              sum += a_il * b_lj;
+            }
+            C2(i, j) = static_cast<entry_type>(alpha) * sum
+                     + static_cast<entry_type>(beta) * C2(i, j);
+          }
+        }
         Kokkos::deep_copy(C_host, C);
       }
 
@@ -257,7 +259,7 @@ void testGemmVsTeuchosBlasForOneTransComb(Teuchos::FancyOStream& out,
         if (wrong) {
           TEST_ASSERT(false);
           out << "Comparing KokkosBlas::gemm against "
-                 "Teuchos::BLAS::GEMM: Max error "
+                 "naive reference GEMM: Max error "
               << maxErr << " > error bound "
               << bound << endl;
         }
@@ -285,7 +287,7 @@ void testGemmVsTeuchosBlasForOneTransComb(Teuchos::FancyOStream& out,
         if (wrong) {
           TEST_ASSERT(false);
           out << "Comparing KokkosBlas::Default::gemm against "
-                 "Teuchos::BLAS::GEMM: Max error "
+                 "naive reference GEMM: Max error "
               << maxErr << " > error bound "
               << bound << endl;
         }
