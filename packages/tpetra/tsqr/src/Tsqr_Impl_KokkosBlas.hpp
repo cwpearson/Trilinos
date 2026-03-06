@@ -32,23 +32,17 @@ using HostVecUnmanaged =
 
 /// Wrap a contiguous (ld == nrows) const raw pointer as an unmanaged
 /// LayoutLeft host View.  Internal use by host_gemm / host_trsm only.
-/// Precondition: ld == nrows.  Fires KOKKOS_ASSERT in debug builds otherwise.
 template <class Scalar>
 HostMatLL<const Scalar>
-make_host_view(const Scalar* ptr, int nrows, int ncols, int ld) {
-  KOKKOS_ASSERT(ld == nrows);
-  (void)ld;
+make_host_view_unmanaged(const Scalar* ptr, int nrows, int ncols) {
   return HostMatLL<const Scalar>(ptr, nrows, ncols);
 }
 
 /// Wrap a contiguous (ld == nrows) mutable raw pointer as an unmanaged
 /// LayoutLeft host View.  Internal use by host_gemm / host_trsm only.
-/// Precondition: ld == nrows.  Fires KOKKOS_ASSERT in debug builds otherwise.
 template <class Scalar>
 HostMatLL<Scalar>
-make_host_view(Scalar* ptr, int nrows, int ncols, int ld) {
-  KOKKOS_ASSERT(ld == nrows);
-  (void)ld;
+make_host_view_unmanaged(Scalar* ptr, int nrows, int ncols) {
   return HostMatLL<Scalar>(ptr, nrows, ncols);
 }
 
@@ -124,11 +118,12 @@ void host_gemm(const char transa, const char transb,
   const char tb[2] = {transb, '\0'};
   if (lda == nrows_A && ldb == nrows_B && ldc == nrows_C) {
     KokkosBlas::gemm(ta, tb, alpha,
-                     make_host_view(A, nrows_A, ncols_A, lda),
-                     make_host_view(B, nrows_B, ncols_B, ldb),
+                     make_host_view_unmanaged(A, nrows_A, ncols_A),
+                     make_host_view_unmanaged(B, nrows_B, ncols_B),
                      beta,
-                     make_host_view(C, nrows_C, ncols_C, ldc));
+                     make_host_view_unmanaged(C, nrows_C, ncols_C));
   } else {
+    // ETI only supports LayoutLeft and LayoutRight, so copy strided array into LL
     auto A_m = make_host_view_managed(A, nrows_A, ncols_A, lda);
     auto B_m = make_host_view_managed(B, nrows_B, ncols_B, ldb);
     auto C_m = make_host_view_managed(C, nrows_C, ncols_C, ldc);
@@ -155,9 +150,10 @@ void host_trsm(const char side, const char uplo,
   const char di[2] = {diag,   '\0'};
   if (lda == adim && ldb == nrows_B) {
     KokkosBlas::trsm(si, ul, ta, di, alpha,
-                     make_host_view(A, adim, adim, lda),
-                     make_host_view(B, nrows_B, ncols_B, ldb));
+                     make_host_view_unmanaged(A, adim, adim),
+                     make_host_view_unmanaged(B, nrows_B, ncols_B));
   } else {
+    // ETI only supports LayoutLeft and LayoutRight, so copy strided array into LL
     auto A_m = make_host_view_managed(A, adim, adim, lda);
     auto B_m = make_host_view_managed(B, nrows_B, ncols_B, ldb);
     KokkosBlas::trsm(si, ul, ta, di, alpha, A_m, B_m);
