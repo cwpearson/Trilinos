@@ -14,7 +14,6 @@
 #include "KokkosBlas3_trsm.hpp"
 #include "KokkosBlas2_gemv.hpp"
 #include "Kokkos_Core.hpp"
-#include <cstring>
 
 namespace TSQR {
 namespace Impl {
@@ -46,40 +45,20 @@ make_host_view_unmanaged(Scalar* ptr, int nrows, int ncols) {
   return HostMatLL<Scalar>(ptr, nrows, ncols);
 }
 
-/// Gather a strided const array into a managed LayoutLeft View (column by column).
+/// Wrap a strided const matrix as an unmanaged LayoutStride host View.
 template <class Scalar>
-Kokkos::View<const Scalar**, Kokkos::LayoutLeft, Kokkos::HostSpace>
-make_host_view_managed(const Scalar* ptr, int nrows, int ncols, int ld) {
-  Kokkos::View<Scalar**, Kokkos::LayoutLeft, Kokkos::HostSpace>
-      tmp(Kokkos::view_alloc(Kokkos::WithoutInitializing, "tsqr_in"),
-          nrows, ncols);
-  for (int j = 0; j < ncols; ++j)
-    std::memcpy(&tmp(0, j), ptr + j * ld, nrows * sizeof(Scalar));
-  return tmp;
+Kokkos::View<const Scalar**, Kokkos::LayoutStride,
+             Kokkos::HostSpace, Kokkos::MemoryTraits<Kokkos::Unmanaged>>
+make_host_strided_view(const Scalar* ptr, int nrows, int ncols, int ld) {
+  return {ptr, Kokkos::LayoutStride(nrows, 1, ncols, ld)};
 }
 
-/// Gather a strided mutable array into a managed LayoutLeft View.
-/// Also copies in the current values so that KokkosBlas sees the correct
-/// beta-scaled initial content for in/out arguments.
+/// Wrap a strided mutable matrix as an unmanaged LayoutStride host View.
 template <class Scalar>
-Kokkos::View<Scalar**, Kokkos::LayoutLeft, Kokkos::HostSpace>
-make_host_view_managed(Scalar* ptr, int nrows, int ncols, int ld) {
-  Kokkos::View<Scalar**, Kokkos::LayoutLeft, Kokkos::HostSpace>
-      tmp(Kokkos::view_alloc(Kokkos::WithoutInitializing, "tsqr_out"),
-          nrows, ncols);
-  for (int j = 0; j < ncols; ++j)
-    std::memcpy(&tmp(0, j), ptr + j * ld, nrows * sizeof(Scalar));
-  return tmp;
-}
-
-/// Copy a managed LayoutLeft View back into a strided raw array (column by column).
-template <class Scalar>
-void scatter_host_view(
-    Scalar* dst, int nrows, int ncols, int ld,
-    const Kokkos::View<Scalar**, Kokkos::LayoutLeft, Kokkos::HostSpace>& src)
-{
-  for (int j = 0; j < ncols; ++j)
-    std::memcpy(dst + j * ld, &src(0, j), nrows * sizeof(Scalar));
+Kokkos::View<Scalar**, Kokkos::LayoutStride,
+             Kokkos::HostSpace, Kokkos::MemoryTraits<Kokkos::Unmanaged>>
+make_host_strided_view(Scalar* ptr, int nrows, int ncols, int ld) {
+  return {ptr, Kokkos::LayoutStride(nrows, 1, ncols, ld)};
 }
 
 /// Wrap a contiguous const vector as an unmanaged host View.
@@ -103,9 +82,8 @@ make_host_vec(Scalar* ptr, int n) {
 /// nrows_A=k, ncols_A=m.
 ///
 /// When all leading dimensions equal their respective row counts (contiguous),
-/// this is a zero-copy call into KokkosBlas::gemm via unmanaged LayoutLeft Views.
-/// Otherwise, the matrices are copied into managed Views, KokkosBlas is called,
-/// and the result is scattered back.
+/// unmanaged LayoutLeft Views are used.  Otherwise, unmanaged LayoutStride
+/// Views wrap the raw pointers directly, avoiding any extra copies.
 template <class Scalar>
 void host_gemm(const char transa, const char transb,
                const Scalar& alpha,
@@ -123,12 +101,11 @@ void host_gemm(const char transa, const char transb,
                      beta,
                      make_host_view_unmanaged(C, nrows_C, ncols_C));
   } else {
-    // ETI only supports LayoutLeft and LayoutRight, so copy strided array into LL
-    auto A_m = make_host_view_managed(A, nrows_A, ncols_A, lda);
-    auto B_m = make_host_view_managed(B, nrows_B, ncols_B, ldb);
-    auto C_m = make_host_view_managed(C, nrows_C, ncols_C, ldc);
-    KokkosBlas::gemm(ta, tb, alpha, A_m, B_m, beta, C_m);
-    scatter_host_view(C, nrows_C, ncols_C, ldc, C_m);
+    KokkosBlas::gemm(ta, tb, alpha,
+                     make_host_strided_view(A, nrows_A, ncols_A, lda),
+                     make_host_strided_view(B, nrows_B, ncols_B, ldb),
+                     beta,
+                     make_host_strided_view(C, nrows_C, ncols_C, ldc));
   }
 }
 
@@ -153,11 +130,9 @@ void host_trsm(const char side, const char uplo,
                      make_host_view_unmanaged(A, adim, adim),
                      make_host_view_unmanaged(B, nrows_B, ncols_B));
   } else {
-    // ETI only supports LayoutLeft and LayoutRight, so copy strided array into LL
-    auto A_m = make_host_view_managed(A, adim, adim, lda);
-    auto B_m = make_host_view_managed(B, nrows_B, ncols_B, ldb);
-    KokkosBlas::trsm(si, ul, ta, di, alpha, A_m, B_m);
-    scatter_host_view(B, nrows_B, ncols_B, ldb, B_m);
+    KokkosBlas::trsm(si, ul, ta, di, alpha,
+                     make_host_strided_view(A, adim, adim, lda),
+                     make_host_strided_view(B, nrows_B, ncols_B, ldb));
   }
 }
 
