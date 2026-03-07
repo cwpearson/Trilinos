@@ -673,8 +673,8 @@ class SequentialTsqr : public NodeTsqr<LocalOrdinal, Scalar>,
       Q_cur_copy.reshape(Q_cur.extent(0), ncols);
       deep_copy(Q_cur_copy, Q_cur);
       // Q_cur := Q_cur_copy * B.
-      const Scalar ZERO{};
-      const Scalar ONE(1.0);
+      constexpr Scalar ZERO{};
+      constexpr Scalar ONE(1.0);
       TSQR::Impl::host_gemm('N', 'N', ONE,
                             Q_cur_copy.data(), Q_cur.extent(0), ncols, Q_cur_copy.stride(1),
                             B, ncols, ncols, ldb,
